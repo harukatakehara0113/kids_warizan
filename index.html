@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f6f5ef">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="わり算 みつけよう">
+<title>わり算 みつけよう｜見当から考える筆算</title>
+<style>
+:root{
+ --bg:#f6f5ef;--ink:#243940;--muted:#60747a;--line:#dce4df;--white:#fff;
+ --blue:#245bc2;--blue-soft:#edf3ff;--orange:#ac491b;--orange-soft:#fff2e7;
+ --purple:#7544a5;--purple-soft:#f3edfb;--green:#16725c;--green-soft:#eaf6ef;
+ --shadow:0 5px 23px rgba(33,58,49,.04);--radius:23px;
+ font-family:"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+ color:var(--ink);background:var(--bg);font-synthesis:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-bottom:104px}
+body{margin:0;font-size:16px;line-height:1.7;padding-bottom:104px;overscroll-behavior-y:none}
+button,input,select{font:inherit}
+button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:disabled{cursor:default;opacity:.46}
+button,input,select,summary,a{outline-offset:4px}
+:focus-visible{outline:3px solid var(--blue)}
+button{border:0}
+button:not(:disabled):active{transform:translateY(1px)}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.wrap{width:min(1100px,calc(100% - 48px));margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:27px 0 20px}
+.brand{display:flex;gap:13px;align-items:center}
+.brand-mark{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:var(--green);color:white;font-size:37px;font-weight:800;line-height:1}
+.brand-title{font-size:22px;line-height:1.4;font-weight:800;letter-spacing:.04em}
+.brand-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.top-note{color:var(--muted);font-size:12px;text-align:right}
+.top-note strong{display:block;color:var(--green);font-size:13px}
+.problem-bar{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:22px 25px;box-shadow:var(--shadow)}
+.problem-top{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.07em;color:var(--muted)}
+.problem-heading{display:flex;align-items:center;gap:18px}
+.problem-number{font-size:38px;line-height:1.35;font-weight:800;letter-spacing:.04em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.problem-number .dividend{color:var(--blue)}
+.problem-number .divisor{color:var(--purple)}
+.mode-toggle{display:flex;gap:3px;border-radius:14px;padding:4px;background:#f0f3f0}
+.mode-btn{padding:10px 15px;border-radius:11px;background:transparent;color:var(--muted);font-size:14px;font-weight:700;white-space:nowrap;min-height:44px}
+.mode-btn[aria-pressed="true"]{background:var(--green);color:white;box-shadow:0 2px 5px #173e2510}
+.problem-bottom{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid #edf0eb;margin-top:18px;padding-top:16px}
+.small-label{font-size:12px;color:var(--muted)}
+.preset{border:1px solid var(--line);border-radius:10px;padding:6px 12px;background:white;font-size:14px;font-weight:700;min-height:40px}
+.preset.active{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+.preset.random{color:var(--green);border-style:dashed}
+.custom-details{margin-left:auto;font-size:13px}
+.custom-details summary{cursor:pointer;color:var(--muted);padding:8px 2px}
+.custom-form{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:10px}
+.custom-form input{width:77px;height:45px;text-align:center;border:1px solid #b9c8c1;border-radius:9px;background:white;color:var(--ink);font-size:19px}
+.small-btn{padding:9px 15px;background:var(--green);color:white;border-radius:10px;font-weight:700;min-height:42px}
+.form-help{width:100%;font-size:12px;color:var(--muted)}
+.error{color:var(--orange);font-size:13px;font-weight:700;width:100%}
+.progress{display:flex;gap:8px;list-style:none;margin:22px 0 18px;padding:0}
+.progress li{flex:1;position:relative;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 4px;border-radius:13px;color:#6c7f78;background:#e9eee8;font-weight:700;font-size:14px;line-height:1.4;min-height:47px}
+.progress .step-no{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;font-size:12px;background:#fff9;flex-shrink:0}
+.progress li.current{color:white;background:var(--green);box-shadow:0 4px 10px #16725c19}
+.progress li.current .step-no{color:var(--green);background:white}
+.progress li.done-step{background:#dceee3;color:var(--green)}
+.progress li:not(:last-child)::after{content:"›";position:absolute;right:-7px;z-index:1;color:#85988c;font-size:19px}
+.stage-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,1fr);gap:18px;align-items:stretch}
+.coach-card,.paper-card,.quantity-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.coach-card{padding:28px 30px;min-height:370px;position:relative}
+.step-label{color:var(--green);font-size:13px;font-weight:800;display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.step-dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+.phase-title{font-size:26px;font-weight:800;line-height:1.5;letter-spacing:.015em;margin:0 0 12px}
+.phase-text{font-size:16px;line-height:1.85;margin:0 0 15px}
+.hint-note{font-size:13px;color:var(--muted);line-height:1.8;margin:13px 0 0}
+.number-blue{color:var(--blue);font-weight:800}
+.number-purple{color:var(--purple);font-weight:800}
+.number-green{color:var(--green);font-weight:800}
+.number-orange{color:var(--orange);font-weight:800}
+.estimate-box{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:17px 0 12px}
+.round-item{padding:11px 14px;border-radius:14px;background:var(--blue-soft);color:var(--blue)}
+.round-item.divisor-round{background:var(--purple-soft);color:var(--purple)}
+.round-label{font-size:12px;font-weight:700}
+.round-numbers{font-size:26px;font-weight:800;line-height:1.5;font-variant-numeric:tabular-nums;white-space:nowrap}
+.round-arrow{font-size:18px;font-weight:400;padding:0 5px}
+.equation{padding:15px 18px;border-radius:15px;background:#f4f6f2;font-weight:800;font-size:25px;line-height:1.5;text-align:center;margin:14px 0 9px;font-variant-numeric:tabular-nums}
+.equation .small{font-size:15px;font-weight:700}
+.equation.high{background:var(--orange-soft);color:var(--orange)}
+.equation.low{background:var(--purple-soft);color:var(--purple)}
+.equation.fit{background:var(--green-soft);color:var(--green)}
+.result-banner{display:flex;align-items:flex-start;gap:9px;padding:13px 15px;border-radius:14px;margin:13px 0 0;font-size:15px;font-weight:700;line-height:1.7}
+.result-banner.high{background:var(--orange-soft);color:var(--orange)}
+.result-banner.low{background:var(--purple-soft);color:var(--purple)}
+.result-banner.fit{background:var(--green-soft);color:var(--green)}
+.result-icon{flex:0 0 24px;height:24px;display:grid;place-items:center;border:1.5px solid currentColor;border-radius:50%;font-size:14px;margin-top:1px}
+.answer-box{font-size:29px;letter-spacing:.02em}
+.answer-box .remainder-word{font-size:17px;font-weight:700;white-space:nowrap}
+.adjust-equation{display:flex;align-items:center;justify-content:center;gap:18px;margin:22px 0 15px}
+.q-square{width:75px;height:77px;border-radius:19px;display:grid;place-items:center;font-size:42px;font-weight:800;background:#f0f2ef;color:var(--muted);border:2px solid transparent}
+.q-square.new{background:var(--green-soft);color:var(--green);border-color:#a8d2bc}
+.adjust-arrow{font-size:30px;line-height:1.1;text-align:center}
+.adjust-arrow small{display:block;font-size:12px;margin-bottom:6px;font-weight:800;color:var(--green)}
+.loop-note{display:flex;align-items:center;gap:9px;justify-content:center;font-size:14px;color:var(--green);font-weight:700}
+.paper-card{padding:20px 24px 15px;display:flex;flex-direction:column}
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-top h2,.quantity-title{font-size:16px;margin:0;font-weight:800;line-height:1.6}
+.trial-badge{font-size:12px;padding:4px 9px;border:1px solid #e8d8b4;border-radius:8px;color:#8b641e;background:#fff9e9;white-space:nowrap}
+.trial-badge.final{color:var(--green);background:var(--green-soft);border-color:#bedbc9}
+.paper{position:relative;background-image:linear-gradient(#d5dfec65 1px,transparent 1px),linear-gradient(90deg,#d5dfec65 1px,transparent 1px);background-size:36px 36px;border-radius:15px;margin:14px 0 9px;flex:1;min-height:258px;display:grid;place-items:center}
+.paper svg{width:min(100%,320px);height:auto;display:block;overflow:visible}
+.svg-num{font-family:ui-monospace,"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:44px;font-weight:600}
+.paper-caption{font-size:13px;line-height:1.7;text-align:center;min-height:22px;color:var(--muted);font-weight:700}
+.paper-caption.high{color:var(--orange)}
+.paper-caption.low{color:var(--purple)}
+.paper-caption.fit{color:var(--green)}
+.quantity-card{margin-top:18px;padding:21px 26px 24px}
+.quantity-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.quantity-labels{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.number-tag{font-size:13px;font-weight:700;padding:5px 11px;border-radius:9px;background:var(--blue-soft);color:var(--blue);white-space:nowrap}
+.number-tag.purple{background:var(--purple-soft);color:var(--purple)}
+.quantity-help{font-size:12px;color:var(--muted);margin:3px 0 0}
+.unit-stage{display:flex;gap:13px;align-items:stretch;flex-wrap:wrap}
+.pool{padding:14px 17px;border:1px solid var(--line);border-radius:14px;background:#fbfcf9;width:100%}
+.pool-head{font-size:13px;font-weight:700;display:flex;gap:10px;justify-content:space-between;align-items:center;margin-bottom:10px}
+.pool-note{color:var(--muted);font-size:12px;font-weight:400}
+.dots{display:grid;grid-template-columns:repeat(10,10px);gap:5px;width:max-content;max-width:100%;align-content:start}
+.dot{width:10px;height:10px;background:var(--blue);border:1.4px solid var(--blue);border-radius:50%;display:block;flex-shrink:0}
+.dot.missing{background:transparent;border-color:var(--orange);border-style:dashed}
+.dot.remainder{background:#9974bd;border-color:#9974bd}
+.dot.extra{background:var(--purple);border-color:var(--purple)}
+.dot.final-dot{background:#379475;border-color:#379475}
+.raw-pool{display:flex;align-items:center;gap:30px;padding:18px 22px}
+.raw-pool .dots{gap:5px}
+.raw-note{font-size:15px;line-height:1.9;color:var(--muted)}
+.raw-note strong{font-size:24px;color:var(--blue)}
+.bundle{padding:12px 14px;border:1px solid #d8e2f3;background:#f7faff;border-radius:14px;min-width:167px;flex:0 1 auto}
+.bundle .pool-head{color:var(--blue)}
+.bundle .pool-head strong{font-size:17px}
+.bundle.shortage{border-color:#e9bca3;background:#fff9f3}
+.bundle.shortage .pool-head{color:var(--orange)}
+.bundle.empty-bundle{display:flex;flex-direction:column;justify-content:flex-start}
+.empty-content{font-size:12px;color:var(--orange);padding:5px 0;max-width:145px}
+.bundle-short-note{font-size:12px;color:var(--orange);margin-top:9px;line-height:1.6}
+.remainder-pool{flex:1 1 170px;min-width:170px;width:auto;background:#faf7fd;border-color:#ded0ea}
+.remainder-pool .pool-head{color:var(--purple);flex-wrap:wrap}
+.remainder-pool .pool-head strong{font-size:17px}
+.remainder-pool.fit{background:#f3faf5;border-color:#c5dfcf}
+.remainder-pool.fit .pool-head{color:var(--green)}
+.remainder-pool.fit .dot.remainder{background:#379475;border-color:#379475}
+.extra-group{border:2px dashed var(--purple);background:#f3ebfc;border-radius:10px;padding:8px;width:max-content;margin-bottom:8px}
+.extra-label{font-size:11px;font-weight:800;color:var(--purple);margin:6px 0 0}
+.remainder-rest{margin-top:7px}
+.zero-message{font-size:14px;color:var(--green);font-weight:700;padding:10px 0}
+.quantity-summary{font-size:14px;font-weight:700;margin-top:15px;padding-top:13px;border-top:1px solid #e9ede8;display:flex;align-items:center;gap:9px;line-height:1.7}
+.quantity-summary.high{color:var(--orange)}
+.quantity-summary.low{color:var(--purple)}
+.quantity-summary.fit{color:var(--green)}
+.legend{font-size:11px;color:var(--muted);display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:13px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend .dot{width:8px;height:8px}
+.digit-choices{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:15px 0 9px}
+.digit-btn{height:48px;border:1.5px solid var(--line);border-radius:12px;background:white;color:var(--ink);font-size:23px;font-weight:800}
+.digit-btn[aria-pressed="true"]{border-color:var(--green);background:var(--green-soft);color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.hint-btn{font-size:13px;font-weight:700;color:var(--green);background:transparent;padding:8px 0;min-height:40px}
+.choice-row{display:flex;gap:9px;margin:17px 0 5px}
+.choice-btn{flex:1;min-height:51px;padding:11px 10px;border:1.5px solid var(--line);border-radius:12px;background:white;color:var(--ink);font-size:15px;font-weight:700;line-height:1.5}
+.choice-btn.chosen{border-color:var(--green);background:var(--green-soft);color:var(--green)}
+.practice-feedback{font-size:14px;line-height:1.8;padding:11px 13px;border-radius:11px;background:#f5f4ed;margin:12px 0 0}
+.practice-feedback.good{background:var(--green-soft);color:var(--green)}
+.practice-feedback.retry{background:#fff7e9;color:#835b1f}
+.practice-prompt{font-size:12px;color:var(--muted);margin-top:10px}
+.try-practice{margin-top:16px;background:var(--green);color:white;border-radius:11px;padding:10px 16px;font-weight:700;min-height:44px;font-size:14px}
+.history-wrap{margin:20px 3px 14px}
+.history-title{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:9px}
+.history-items{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.history-chip{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;background:white;border:1px solid var(--line);border-radius:10px;padding:7px 11px}
+.history-chip strong{font-size:21px;line-height:1.2}
+.history-chip.high{color:var(--orange);border-color:#e6c6b2}
+.history-chip.low{color:var(--purple);border-color:#d9c6e9}
+.history-chip.fit{color:var(--green);border-color:#b7d9c5}
+.history-arrow{font-size:16px;color:#8b9e93}
+.rule-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin:24px 0}
+.rule-card{border:1px solid var(--line);border-radius:14px;padding:15px 16px;background:#ffffff91;font-size:13px;line-height:1.8}
+.rule-card strong{display:block;font-size:14px;margin-bottom:2px}
+.rule-card.high strong{color:var(--orange)}
+.rule-card.low strong{color:var(--purple)}
+.rule-card.fit strong{color:var(--green)}
+.adult-details{border-top:1px solid var(--line);padding:14px 0 28px;color:var(--muted);font-size:13px}
+.adult-details>summary{cursor:pointer;font-weight:700;padding:6px 0}
+.adult-content{background:#fff9;border:1px solid var(--line);border-radius:15px;padding:20px 23px;margin-top:12px;line-height:1.9}
+.adult-content h3{font-size:15px;color:var(--ink);margin:15px 0 6px}
+.adult-content h3:first-child{margin-top:0}
+.adult-content p{margin:5px 0 12px}
+.adult-content ol{padding-left:22px;margin:8px 0 13px}
+.adult-content li{padding-left:3px;margin:5px 0}
+.adult-content .settings{display:flex;gap:16px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:15px}
+.adult-content label{cursor:pointer;display:flex;align-items:center;gap:8px}
+.adult-content input{width:19px;height:19px;accent-color:var(--green)}
+.page-end{font-size:11px;color:#778b80;padding-bottom:16px}
+.controls-shell{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(246,245,239,.97);border-top:1px solid #dbe2d8;padding:14px 0 max(14px,env(safe-area-inset-bottom));box-shadow:0 -5px 16px #253a2d05}
+.controls{display:flex;align-items:center;gap:10px}
+.back-btn,.reset-btn,.auto-btn{min-height:48px;padding:11px 16px;border-radius:12px;font-weight:700;background:white;border:1px solid var(--line);color:var(--muted);font-size:14px;white-space:nowrap}
+.reset-btn{border-color:transparent;background:transparent;font-size:13px}
+.next-btn{min-height:53px;min-width:226px;padding:12px 22px;border-radius:14px;background:var(--green);color:white;font-size:17px;font-weight:800;box-shadow:0 4px 0 #105543}
+.next-btn:disabled{box-shadow:none}
+.next-btn .arrow{margin-left:15px}
+.control-spacer{flex:1}
+.auto-group{display:flex;gap:6px;align-items:center}
+.auto-btn{min-width:112px;background:transparent;border-color:transparent;font-size:13px;padding:9px 10px}
+.auto-btn[aria-pressed="true"]{background:var(--orange-soft);color:var(--orange);border-color:#e3c9b6}
+.speed{border:1px solid var(--line);background:white;border-radius:9px;min-height:39px;color:var(--muted);font-size:12px;padding:5px;max-width:86px}
+.controls-hint{font-size:11px;color:var(--muted);margin-top:8px;text-align:right;min-height:17px}
+.coach-card.flash{animation:card-in .27s ease-out}
+@keyframes card-in{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.reveal{animation:reveal .5s ease-out both}
+@keyframes reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.spark{font-size:20px;color:var(--green);margin-right:5px}
+body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+@media(min-width:1400px){.wrap{width:1100px}}
+@media(max-width:850px){
+ .wrap{width:calc(100% - 32px)}
+ .problem-heading{gap:12px}.problem-number{font-size:34px}
+ .mode-btn{font-size:12px;padding:10px 10px}
+ .coach-card{padding:23px}.phase-title{font-size:23px}.phase-text{font-size:15px}
+ .paper-card{padding:19px}.stage-grid{gap:14px}
+ .next-btn{min-width:195px;font-size:16px}
+ .reset-btn{display:none}
+ .quantity-card{padding:20px}
+ .custom-details{margin-left:0}
+}
+@media(max-width:620px){
+ html{scroll-padding-bottom:126px}
+ body{font-size:15px;padding-bottom:126px}
+ .wrap{width:calc(100% - 24px)}
+ .topbar{padding:18px 0 14px;gap:8px}.brand-mark{width:40px;height:40px;font-size:30px;border-radius:13px}
+ .brand{gap:10px}.brand-title{font-size:19px}.brand-sub{font-size:10px}
+ .top-note{font-size:10px}.top-note strong{font-size:11px}
+ .problem-bar{padding:17px 16px;border-radius:19px}
+ .problem-top{flex-direction:column;align-items:stretch;gap:14px}
+ .problem-heading{justify-content:space-between}.problem-number{font-size:34px}
+ .mode-toggle{align-self:stretch}.mode-btn{flex:1;font-size:13px}
+ .problem-bottom{gap:7px;margin-top:14px;padding-top:12px}
+ .preset{padding:7px 10px;font-size:12px;min-height:44px}
+ .small-label{width:100%;font-size:11px}
+ .custom-details{width:100%;font-size:12px}
+ .custom-details summary{padding:9px 2px;min-height:44px;display:flex;align-items:center}
+ .progress{gap:5px;margin:15px 0 12px}
+ .progress li{flex-direction:column;gap:4px;min-height:62px;padding:7px 1px;font-size:10px;border-radius:10px}
+ .progress .step-no{width:20px;height:20px;font-size:11px}
+ .progress li:not(:last-child)::after{right:-5px;font-size:17px}
+ .stage-grid{grid-template-columns:1fr;gap:12px}
+ .coach-card{padding:21px 21px 23px;min-height:0;border-radius:20px}
+ .step-label{font-size:12px;margin-bottom:8px}
+ .phase-title{font-size:24px;margin-bottom:9px}
+ .phase-text{font-size:15px;margin-bottom:11px}
+ .hint-note{font-size:12px}
+ .estimate-box{margin-top:14px}
+ .round-numbers{font-size:25px}
+ .equation{font-size:25px;padding:13px}
+ .answer-box{font-size:27px}
+ .paper-card{padding:15px 18px 13px;border-radius:20px}
+ .paper{min-height:0;margin:11px 0 9px;background-size:33px 33px}
+ .paper svg{width:264px}
+ .paper-caption{font-size:12px}
+ .card-top h2,.quantity-title{font-size:15px}
+ .quantity-card{padding:18px 17px;border-radius:20px;margin-top:12px}
+ .quantity-header{gap:10px;margin-bottom:13px}
+ .quantity-help{font-size:11px}
+ .number-tag{font-size:12px;padding:4px 9px}
+ .unit-stage{gap:9px}
+ .bundle{min-width:0;width:calc(50% - 5px);padding:11px 10px;flex:0 1 auto}
+ .dots{grid-template-columns:repeat(10,8px);gap:4px}
+ .dot{width:8px;height:8px}
+ .bundle .pool-head strong{font-size:16px}
+ .pool-head{font-size:12px;gap:4px}
+ .remainder-pool{flex:1 1 145px;min-width:145px;padding:12px}
+ .raw-pool{padding:14px;gap:20px;flex-wrap:wrap}
+ .raw-pool .dots{grid-template-columns:repeat(10,9px);gap:5px}.raw-pool .dot{width:9px;height:9px}
+ .raw-note{font-size:13px}.raw-note strong{font-size:22px}
+ .quantity-summary{font-size:13px}
+ .history-wrap{margin:16px 2px}
+ .rule-strip{grid-template-columns:1fr;margin:21px 0 18px;gap:7px}
+ .rule-card{padding:11px 14px;font-size:12px}
+ .rule-card strong{font-size:13px;display:inline;margin-right:7px}
+ .adult-content{padding:17px;font-size:12px}
+ .controls-shell{padding-top:8px;background:rgba(246,245,239,.985);-webkit-backdrop-filter:saturate(160%) blur(12px);backdrop-filter:saturate(160%) blur(12px)}
+ .controls{flex-wrap:wrap;gap:8px}
+ .back-btn{font-size:12px;padding:10px 11px;min-height:48px}
+ .next-btn{flex:1;min-width:0;font-size:15px;min-height:49px;padding:10px 12px}
+ .next-btn .arrow{margin-left:8px}
+ .control-spacer{display:none}
+ .auto-group{order:3;justify-content:flex-end;width:100%;height:31px;gap:6px}
+ .auto-btn{min-height:44px;padding:7px 9px;font-size:12px;min-width:108px}
+ .speed{min-height:44px;height:44px;font-size:12px;max-width:92px;padding:5px 4px}
+ .controls-hint{display:none}
+ .adult-details{padding-bottom:19px}
+}
+@media(max-width:620px){
+ .custom-form input{font-size:18px;min-height:48px}
+ .small-btn{min-height:48px}
+ .hint-btn{min-height:44px}
+ .choice-btn,.digit-btn,.try-practice{min-height:48px}
+}
+@supports selector(body:has(input:focus)){
+ @media(max-width:620px){
+  body:has(.custom-form input:focus) .controls-shell{display:none}
+  body:has(.custom-form input:focus){padding-bottom:max(18px,env(safe-area-inset-bottom))}
+ }
+}
+@media(max-width:360px){
+ .top-note{display:none}.brand-title{font-size:18px}
+ .coach-card{padding:19px 17px}.phase-title{font-size:21px}
+ .quantity-card{padding:16px 12px}.dots{gap:3px}
+ .bundle{padding:10px 8px}
+ .round-numbers{font-size:23px}
+}
+@media print{
+ .controls-shell,.problem-bottom,.mode-toggle,.adult-details,.top-note,.rule-strip{display:none!important}
+ .wrap{width:100%}.stage-grid{grid-template-columns:1fr 1fr}
+ .coach-card,.paper-card,.quantity-card{break-inside:avoid;box-shadow:none}
+ body{background:white;padding-bottom:0}.topbar{padding-top:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <header class="topbar">
+  <div class="brand"><div class="brand-mark" aria-hidden="true">÷</div>
+   <div><div class="brand-title">わり算 みつけよう</div><div class="brand-sub">見当は、あとから直していい。</div></div>
+  </div>
+  <div class="top-note"><strong>2けた ÷ 2けた</strong>1つずつ、たしかめよう</div>
+ </header>
+ <section class="problem-bar" aria-label="問題と学び方">
+  <div class="problem-top">
+   <div class="problem-heading"><div class="eyebrow">きょうの<br>もんだい</div><div class="problem-number" id="problemNumber"></div></div>
+   <div class="mode-toggle" role="group" aria-label="学び方">
+    <button class="mode-btn" id="guidedMode" aria-pressed="true">いっしょに考える</button>
+    <button class="mode-btn" id="practiceMode" aria-pressed="false">自分でためす</button>
+   </div>
+  </div>
+  <div class="problem-bottom">
+   <span class="small-label">もんだいをえらぶ</span>
+   <button class="preset" data-n="65" data-d="23">65 ÷ 23</button>
+   <button class="preset" data-n="76" data-d="18">76 ÷ 18</button>
+   <button class="preset" data-n="72" data-d="18">72 ÷ 18</button>
+   <button class="preset" data-n="84" data-d="21">84 ÷ 21</button>
+   <button class="preset random" id="randomProblem">おまかせ ↗</button>
+   <details class="custom-details" id="customDetails">
+    <summary>数をきめる</summary>
+    <form class="custom-form" id="customForm" novalidate>
+     <label class="sr-only" for="customN">わられる数</label>
+     <input id="customN" name="dividend" inputmode="numeric" type="number" min="10" max="99" step="1" value="65" required aria-describedby="formHelp">
+     <span>÷</span>
+     <label class="sr-only" for="customD">わる数</label>
+     <input id="customD" name="divisor" inputmode="numeric" type="number" min="10" max="99" step="1" value="23" required aria-describedby="formHelp">
+     <button class="small-btn" type="submit">この問題にする</button>
+     <div class="form-help" id="formHelp">どちらも 10〜99 の整数を入れてね。</div>
+     <div class="error" id="formError" role="alert" hidden></div>
+    </form>
+   </details>
+  </div>
+ </section>
+ <ol class="progress" aria-label="考える順番">
+  <li data-step="1"><span class="step-no">1</span><span>見当をつける</span></li>
+  <li data-step="2"><span class="step-no">2</span><span>かける</span></li>
+  <li data-step="3"><span class="step-no">3</span><span>くらべる</span></li>
+  <li data-step="4"><span class="step-no">4</span><span>ひく</span></li>
+  <li data-step="5"><span class="step-no">5</span><span>残りをみる</span></li>
+ </ol>
+ <main id="mainContent">
+  <div class="stage-grid">
+   <section class="coach-card" id="coachCard" aria-labelledby="phaseTitle">
+    <div id="coachContent"></div>
+   </section>
+   <section class="paper-card" aria-labelledby="paperTitle">
+    <div class="card-top"><h2 id="paperTitle">筆算でみると</h2><span class="trial-badge" id="trialBadge">まず試す商</span></div>
+    <div class="paper" id="paperContent"></div>
+    <div class="paper-caption" id="paperCaption"></div>
+   </section>
+  </div>
+  <section class="quantity-card" aria-labelledby="quantityTitle">
+   <div class="quantity-header">
+    <div><h2 class="quantity-title" id="quantityTitle">「何組とれる？」を見てみよう</h2><p class="quantity-help">丸1つが1こ。1組は、わる数と同じ数だよ。</p></div>
+    <div class="quantity-labels" id="quantityLabels"></div>
+   </div>
+   <div class="unit-stage" id="unitStage" aria-hidden="true"></div>
+   <div id="quantitySummary"></div>
+   <div class="legend" id="legend" aria-hidden="true"></div>
+  </section>
+  <section class="history-wrap" id="historyWrap" aria-label="ためした商の足あと" hidden>
+   <div class="history-title">ためした商の足あと</div><div class="history-items" id="historyItems"></div>
+  </section>
+  <div class="rule-strip" aria-label="たしかめ方のまとめ">
+   <div class="rule-card high"><strong>かけた数が多すぎる</strong>商を1小さくして、かけなおす。</div>
+   <div class="rule-card low"><strong>残りでもう1組とれる</strong>商を1大きくして、かけなおす。</div>
+   <div class="rule-card fit"><strong>残りでもう1組とれない</strong>ここで答えが決まる！</div>
+  </div>
+  <details class="adult-details" id="adultDetails">
+   <summary>おうちの方・先生へ ／ 設定</summary>
+   <div class="adult-content">
+    <h3>最初の商は「仮の数」です。</h3>
+    <p>一度で正しい商を当てる練習ではなく、試した数を確かめ、必要なら直す練習として使ってください。「3は間違い」ではなく、「3で試したから、2に直せばよいと分かったね」と声をかけられます。</p>
+    <h3>このツールの考える順番</h3>
+    <ol>
+     <li><strong>見当をつける：</strong>わられる数は十の位までの数に切り下げ、わる数は近い10の倍数に丸めます。その数で、まず試す商を決めます。見当のつけ方は一例です。</li>
+     <li><strong>かける：</strong>わる数 × 試す商を計算します。</li>
+     <li><strong>くらべる：</strong>かけた数がわられる数より大きければ、まだ引きません。商を1小さくし、②に戻ります。</li>
+     <li><strong>ひく：</strong>かけた数がわられる数以下なら、引いて残りを求めます。</li>
+     <li><strong>残りをみる：</strong>残りがわる数以上なら、もう1組以上とれます。商を1大きくし、②に戻ります。残りがわる数より小さければ終了です。</li>
+    </ol>
+    <p><strong>残りとわる数が同じ場合も、もう1組とれます。</strong>「72÷18」では、見当の3で試すと残りが18になるため、この境目を確認できます。残りが0でも「もう1組とれない」ので終了です。</p>
+    <h3>おすすめの使い方</h3>
+    <p>はじめは「いっしょに考える」で、本人に「次は何をする？」と尋ねながら1つずつ進めます。慣れたら「自分でためす」で商を選び、「かけた数」と「残り」の2か所を自分で判断します。最初の数が遠くても、1ずつ直して答えまで進められます。</p>
+    <p>写真の例に合わせた「65÷23」は商を小さく直す例、「76÷18」は大きく直す例です。「84÷21」は余り0になる例です。わられる数がわる数より小さい場合は、商0・余りありとして扱います。</p>
+    <h3>対象と動作</h3>
+    <p>対象は10〜99の整数同士の割り算です。3けた以上の割り算、次の位の数を「おろす」操作、小数の商は扱いません。通信・ログイン・外部ライブラリは使わず、入力や学習履歴を外部に送信しません。ページを閉じると進み具合は消えます。</p>
+    <p>「自動でみる」は「いっしょに考える」のみです。途中でも「とめる」で止められます。キーボードでは右矢印で次へ、左矢印で戻れます。端末の「動きを減らす」設定にも対応しています。</p>
+    <div class="settings"><label><input type="checkbox" id="reduceMotion">アニメーションを減らす</label><span>丸が動く速さを競うツールではありません。</span></div>
+   </div>
+  </details>
+  <div class="page-end">わり算 みつけよう · 見当 → 確認 → 直す、をくり返す練習</div>
+ </main>
+</div>
+<div class="controls-shell">
+ <div class="wrap">
+  <div class="controls">
+   <button class="back-btn" id="backButton" disabled>← 1つもどる</button>
+   <button class="reset-btn" id="resetButton">はじめから</button>
+   <div class="control-spacer"></div>
+   <div class="auto-group">
+    <button class="auto-btn" id="autoButton" aria-pressed="false">▶ 自動でみる</button>
+    <label class="sr-only" for="speedSelect">自動で進む間隔</label>
+    <select class="speed" id="speedSelect"><option value="6000">ゆっくり</option><option value="4000">ふつう</option><option value="9000">じっくり</option></select>
+   </div>
+   <button class="next-btn" id="nextButton"></button>
+  </div>
+  <div class="controls-hint" id="controlsHint">急がなくて大丈夫。1つずつ進もう。</div>
+ </div>
+</div>
+<div class="sr-only" id="liveStatus" role="status" aria-live="polite" aria-atomic="true"></div>
+<script id="division-engine">
+"use strict";
+globalThis.DivisionEngine = Object.freeze({
+ validate(n,d){
+  return Number.isInteger(n)&&Number.isInteger(d)&&n>=10&&n<=99&&d>=10&&d<=99;
+ },
+ estimate(n,d){
+  if(!this.validate(n,d)) throw new RangeError("Use integers from 10 to 99.");
+  const roundedN=Math.floor(n/10)*10,roundedD=Math.round(d/10)*10;
+  return {roundedN,roundedD,q:Math.max(0,Math.min(9,Math.floor(roundedN/roundedD)))};
+ },
+ trial(n,d,q){
+  if(!this.validate(n,d)||!Number.isInteger(q)||q<0||q>9) throw new RangeError("Invalid division trial.");
+  const product=d*q;
+  const remainder=product<=n?n-product:null;
+  return {product,remainder,kind:product>n?"high":remainder>=d?"low":"fit"};
+ },
+ initial(n,d,mode="guided"){
+  if(!this.validate(n,d)) throw new RangeError("Use integers from 10 to 99.");
+  if(!["guided","practice"].includes(mode)) throw new RangeError("Invalid learning mode.");
+  return {n,d,mode,phase:"estimate",q:mode==="guided"?this.estimate(n,d).q:null,attempts:[],answered:false,feedback:null,hint:false,adjustKind:null};
+ },
+ canNext(s){
+  if(s.phase==="estimate") return Number.isInteger(s.q);
+  if(s.mode==="practice"&&["compare","remainder"].includes(s.phase)) return s.answered;
+  return true;
+ },
+ next(s){
+  if(!this.canNext(s)||s.phase==="done") return s;
+  const v={...s,attempts:s.attempts.map(x=>({...x})),answered:false,feedback:null};
+  const t=this.trial(s.n,s.d,s.q);
+  switch(s.phase){
+   case "estimate":v.phase="multiply";break;
+   case "multiply":v.phase="compare";break;
+   case "compare":
+    if(t.kind==="high"){
+     v.phase="adjust";v.adjustKind="high";v.attempts.push({q:s.q,...t});
+    }else v.phase="subtract";
+    break;
+   case "subtract":v.phase="remainder";break;
+   case "remainder":
+    if(t.kind==="low"){
+     v.phase="adjust";v.adjustKind="low";v.attempts.push({q:s.q,...t});
+    }else{
+     v.phase="done";v.attempts.push({q:s.q,...t});
+    }
+    break;
+   case "adjust":
+    v.q=s.q+(s.adjustKind==="high"?-1:1);v.phase="multiply";v.adjustKind=null;
+    break;
+   default:throw new Error("Unknown phase");
+  }
+  return v;
+ }
+});
+</script>
+
+<style>
+.choice-btn.chosen:disabled{opacity:1}
+@media(max-width:620px){
+ .controls{display:grid;grid-template-columns:105px minmax(0,1fr);gap:8px}
+ .back-btn{grid-column:1;grid-row:1}
+ .next-btn{grid-column:2;grid-row:1;width:100%}
+ .reset-btn{display:block;grid-column:1;grid-row:2;font-size:12px;min-height:44px;padding:7px 4px}
+ .auto-group{grid-column:2;grid-row:2;order:initial;width:auto;min-height:44px}
+}
+</style>
+<script>
+(function(){
+"use strict";
+const E=globalThis.DivisionEngine;
+const $=id=>document.getElementById(id);
+const clone=value=>JSON.parse(JSON.stringify(value));
+const reducedQuery=window.matchMedia("(prefers-reduced-motion: reduce)");
+let reduceMotion=reducedQuery.matches;
+let state=E.initial(65,23);
+let past=[];
+let auto=false;
+let timer=null;
+let lastPhase=null;
+let activeAnimations=[];
+
+function banner(kind,text){
+ const icon=kind==="high"?"↓":kind==="low"?"↑":"✓";
+ return `<div class="result-banner ${kind}"><span class="result-icon" aria-hidden="true">${icon}</span><span>${text}</span></div>`;
+}
+function estimateMarkup(n,d){
+ const e=E.estimate(n,d);
+ return `<div class="estimate-box">
+  <div class="round-item"><div class="round-label">わられる数</div><div class="round-numbers">${n}<span class="round-arrow">→</span>${e.roundedN}</div></div>
+  <div class="round-item divisor-round"><div class="round-label">わる数</div><div class="round-numbers">${d}<span class="round-arrow">→</span>${e.roundedD}</div></div>
+ </div>
+ <div class="equation"><span class="number-blue">${e.roundedN}</span> ÷ <span class="number-purple">${e.roundedD}</span> <span class="small">を手がかりに</span><br><span class="small">まずは</span> <span class="number-green">${e.q}</span> <span class="small">でためす</span></div>
+ <p class="hint-note">${e.q===0?`${e.roundedN}こでは、${e.roundedD}この組はまだ作れないと考えるよ。`:`${e.roundedD} × ${e.q} ＝ ${e.roundedD*e.q} を手がかりにするよ。`} ぴったり当てなくて大丈夫。あとで直せるよ。</p>`;
+}
+function compareTiles(leftLabel,leftValue,rightLabel,rightValue,style=""){
+ return `<div class="estimate-box">
+  <div class="round-item ${style==="remainder"?"divisor-round":""}"><div class="round-label">${leftLabel}</div><div class="round-numbers">${leftValue}<span class="small" style="font-size:15px"> こ</span></div></div>
+  <div class="round-item ${style==="remainder"?"divisor-round":""}"><div class="round-label">${rightLabel}</div><div class="round-numbers">${rightValue}<span style="font-size:15px"> こ</span></div></div>
+ </div>`;
+}
+function decisionButtons(s,yesLabel,noLabel){
+ const t=E.trial(s.n,s.d,s.q);
+ const expected=s.phase==="compare"?t.kind==="high":t.kind==="low";
+ const button=(answer,label)=>{
+  const chosen=s.answered&&((answer==="yes")===expected);
+  return `<button class="choice-btn ${chosen?"chosen":""}" data-answer="${answer}" aria-pressed="${chosen}" ${s.answered?"disabled":""}>${label}</button>`;
+ };
+ return `<div class="choice-row" role="group" aria-label="自分でたしかめる">${button("yes",yesLabel)}${button("no",noLabel)}</div>
+ ${s.feedback?.kind==="retry"?`<div class="practice-feedback retry">${s.feedback.text}</div>`:""}
+ ${!s.answered&&!s.feedback?'<p class="practice-prompt">下の丸の図も見ながら、えらんでみよう。</p>':""}`;
+}
+function remainderResult(s,t){
+ if(t.kind==="low"){
+  return t.remainder===s.d
+   ?banner("low",`残り${t.remainder}こは、ちょうど1組分。もう1組とれるから、<strong>商を1大きく</strong>しよう。`)
+   :banner("low",`残り${t.remainder}こで、${s.d}この組がもう1組とれる。<strong>商がまだ小さい</strong>ね。`);
+ }
+ return banner("fit",t.remainder===0
+  ?"残りは0こ。もう1組はとれないね。これで商が決まる！"
+  :`残り${t.remainder}こでは、${s.d}この組は作れない。<strong>これで商が決まる！</strong>`);
+}
+function renderCoach(){
+ const s=state,{n,d,q,phase,mode}=s;
+ const t=q===null?null:E.trial(n,d,q);
+ let label="",title="",body="";
+ const resolved=mode==="guided"||s.answered;
+ if(phase==="estimate"){
+  label="1 · 見当をつける";
+  if(mode==="guided"){
+   title="まずは、だいたいでいい。";
+   body=`<p class="phase-text"><span class="number-blue">${n}こ</span>を、<span class="number-purple">${d}こずつ</span>に分けるよ。<br>何組とれるかを表す<strong>商（しょう）</strong>の、見当をつけよう。</p>${estimateMarkup(n,d)}`;
+  }else{
+   title="何組とれそうかな？";
+   body=`<p class="phase-text"><span class="number-blue">${n}こ</span>を、<span class="number-purple">${d}こずつ</span>に分けるよ。<br>まず試す<strong>商（しょう）</strong>をえらぼう。</p>
+    <div class="digit-choices" role="group" aria-label="まず試す商">${Array.from({length:10},(_,i)=>`<button class="digit-btn" data-guess="${i}" aria-pressed="${q===i}">${i}</button>`).join("")}</div>
+    <p class="hint-note">商は「何組とれるか」の数だよ。あとで直せるから、今は見当で大丈夫。</p>
+    <button class="hint-btn" id="toggleHint" aria-expanded="${s.hint}">${s.hint?"− ヒントをとじる":"＋ 見当のヒントをみる"}</button>
+    ${s.hint?estimateMarkup(n,d):""}`;
+  }
+ }else if(phase==="multiply"){
+  label="2 · かける";title="1組の数に、商をかける。";
+  body=`<p class="phase-text"><span class="number-purple">${d}こ</span>が <strong>${q}組</strong>なら、<br>全部で何こ必要かな？</p>
+   <div class="equation"><span class="number-purple">${d}</span> × ${q} ＝ <span class="number-blue">${t.product}</span></div>
+   <p class="hint-note">次は、必要な${t.product}こが、もとの${n}こをこえないか、くらべよう。</p>`;
+ }else if(phase==="compare"){
+  label="3 · くらべる";title="全部より、多くないかな？";
+  body=`<p class="phase-text">かけた数と、もとの全部の数を<br>くらべてみよう。</p>${compareTiles("かけた数",t.product,"全部の数",n)}
+   ${mode==="practice"?decisionButtons(s,"大きすぎる","このままひける"):""}`;
+  if(resolved){
+   body+=t.kind==="high"
+    ?banner("high",`${t.product}こは${n}こより多い。<strong>商が大きすぎた</strong>ね。まだひかずに、商を直そう。`)
+    :banner("fit",`${t.product}こは${n}こをこえていないね。<strong>このままひける</strong>よ。`);
+  }
+ }else if(phase==="subtract"){
+  label="4 · ひく";title="ひいて、残りを出そう。";
+  body=`<p class="phase-text">全部の${n}こから、${q}組分の<br>${t.product}こをひくよ。</p>
+   <div class="equation">${n} − ${t.product} ＝ <span class="number-purple">${t.remainder}</span></div>
+   <p class="phase-text" style="margin-top:15px">残りは <span class="number-purple">${t.remainder}こ</span>。</p>
+   <p class="hint-note"><strong>ここでは、まだ終わりではないよ。</strong><br>この残りで、もう1組とれるかをたしかめよう。</p>`;
+ }else if(phase==="remainder"){
+  label="5 · 残りをみる";title="残りで、もう1組とれる？";
+  body=`<p class="phase-text">残りの<span class="number-purple">${t.remainder}こ</span>で、<br><span class="number-purple">${d}こ</span>の組が、もう1組作れるかな？</p>
+   ${compareTiles("残りの数",t.remainder,"1組に必要な数",d,"remainder")}
+   ${mode==="practice"?decisionButtons(s,"もう1組とれる","もうとれない"):""}`;
+  if(resolved) body+=remainderResult(s,t);
+ }else if(phase==="adjust"){
+  const high=s.adjustKind==="high",newQ=q+(high?-1:1);
+  label="見当をなおす";title=high?"1小さくして、もう一度。":"1大きくして、もう一度。";
+  body=`<p class="phase-text">${high?`${t.product}こでは、全部の${n}こより多かったね。`:`残り${t.remainder}こから、もう1組とれたね。`}<br>試す商を直そう。</p>
+   <div class="adjust-equation" aria-label="商を${q}から${newQ}に直す">
+    <div class="q-square">${q}</div><div class="adjust-arrow" aria-hidden="true"><small>${high?"1小さく":"1大きく"}</small>→</div><div class="q-square new">${newQ}</div>
+   </div>
+   <div class="loop-note"><span aria-hidden="true">↻</span> 「2 かける」にもどるよ</div>
+   <p class="hint-note">直した商で、もう一度かけ算からたしかめよう。</p>`;
+ }else if(phase==="done"){
+  label="たしかめ、おわり！";title="答えが見つかった！";
+  body=`<div class="equation fit answer-box">${n} ÷ ${d} ＝ ${q}${t.remainder?`<br><span class="remainder-word">あまり</span> ${t.remainder}`:""}</div>
+   <p class="phase-text" style="margin-top:18px"><strong>${q}組</strong>とれて、残りは <span class="number-green">${t.remainder}こ</span>。</p>
+   ${banner("fit",t.remainder===0?`残りは0こ。もう1組はとれないので、これでOK！`:`残り${t.remainder}こでは、${d}この組はもう作れないね。`)}
+   <p class="hint-note">もとに戻しても、たしかめられるよ。<br><strong>${d} × ${q} ＋ ${t.remainder} ＝ ${n}</strong></p>
+   ${mode==="guided"?'<button class="try-practice" data-action="practice-again">今の問題を、自分でためす</button>':""}`;
+ }
+ $("coachContent").innerHTML=`<div class="step-label"><span class="step-dot" aria-hidden="true"></span>${label}</div><h1 class="phase-title" id="phaseTitle">${title}</h1>${body}`;
+ if(lastPhase!==phase&&!reduceMotion){
+  $("coachCard").classList.remove("flash");
+  void $("coachCard").offsetWidth;
+  $("coachCard").classList.add("flash");
+ }
+ lastPhase=phase;
+ const liveText=[title,$("coachContent").querySelector(".phase-text")?.textContent,$("coachContent").querySelector(".result-banner")?.textContent,s.feedback?.kind==="retry"?s.feedback.text:""].filter(Boolean).join(" ");
+ $("liveStatus").textContent=liveText;
+}
+function svgDigits(value,y,color,css=""){
+ const str=String(value);
+ return `<g class="${css}">${Array.from(str,(ch,i)=>`<text class="svg-num" x="${260-(str.length-1-i)*48}" y="${y}" fill="${color}" text-anchor="middle">${ch}</text>`).join("")}</g>`;
+}
+function renderPaper(){
+ const s=state,{n,d,q,phase}=s;
+ const t=q===null?null:E.trial(n,d,q);
+ const productVisible=phase!=="estimate";
+ const remainingVisible=["subtract","remainder","done"].includes(phase)||(phase==="adjust"&&s.adjustKind==="low");
+ const final=phase==="done";
+ const resolved=s.mode==="guided"||s.answered;
+ const highHighlight=t?.kind==="high"&&((phase==="compare"&&resolved)||(phase==="adjust"));
+ const remainderHighlight=phase==="remainder"||(phase==="adjust"&&s.adjustKind==="low")||final;
+ const blue="#245bc2",purple="#7544a5",green="#16725c",orange="#ac491b",ink="#243940";
+ let drawing="";
+ drawing+=`<rect x="235" y="14" width="50" height="59" rx="10" fill="${final?"#eaf6ef":"#fff9e9"}" stroke="${final?"#a8d2bc":"#d4b574"}" stroke-width="1.6" ${final?"":'stroke-dasharray="4 4"'}/>`;
+ if(highHighlight) drawing+='<rect x="187" y="95" width="98" height="48" rx="8" fill="#edf3ff"/>';
+ if(remainderHighlight) drawing+='<rect x="24" y="95" width="90" height="48" rx="8" fill="#f3edfb"/>';
+ drawing+=`<text class="svg-num" x="260" y="60" text-anchor="middle" fill="${final?green:"#896020"}">${q===null?"?":q}</text>`;
+ const ds=String(d);
+ drawing+=`<text class="svg-num" x="48" y="133" text-anchor="middle" fill="${purple}">${ds[0]}</text><text class="svg-num" x="92" y="133" text-anchor="middle" fill="${purple}">${ds[1]}</text>`;
+ drawing+=`<path d="M120 83 Q144 112 120 142 M120 83 H287" fill="none" stroke="${ink}" stroke-width="2.5" stroke-linecap="round"/>`;
+ drawing+=svgDigits(n,133,blue);
+ if(productVisible){
+  if(highHighlight) drawing+=`<rect x="${t.product>=100?140:187}" y="147" width="${t.product>=100?145:98}" height="47" rx="8" fill="#fff2e7"/>`;
+  drawing+=svgDigits(t.product,184,highHighlight?orange:blue,phase==="multiply"?"reveal":"");
+ }
+ if(remainingVisible){
+  drawing+=`<text x="160" y="181" text-anchor="middle" font-size="29" fill="${ink}">−</text><path d="M180 197 H287" fill="none" stroke="${ink}" stroke-width="2"/>`;
+  if(remainderHighlight) drawing+=`<rect x="187" y="205" width="98" height="49" rx="8" fill="${final?"#eaf6ef":"#f3edfb"}"/>`;
+  drawing+=`<text x="143" y="235" text-anchor="middle" font-size="13" fill="${final?green:purple}">残り</text>`;
+  drawing+=svgDigits(t.remainder,244,final?green:purple,phase==="subtract"?"reveal":"");
+ }
+ const aria=`${n}わる${d}。${final?"商":"試す商"}は${q===null?"まだ決めていません":q}。${productVisible?`${d}かける${q}は${t.product}。`:""}${remainingVisible?`残りは${t.remainder}。`:""}`;
+ $("paperContent").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 269" role="img" aria-label="${aria}">${drawing}</svg>`;
+ $("trialBadge").textContent=final?"決まった商":`${s.attempts.length+(phase==="adjust"?0:1)}回目に試す商`;
+ $("trialBadge").className=`trial-badge ${final?"final":""}`;
+ let caption="",cls="";
+ if(phase==="estimate") caption="上の数は「まず試す数」。あとで直してもいいよ。";
+ else if(phase==="multiply") caption=`${d} × ${q} ＝ ${t.product} を書こう。`;
+ else if(phase==="compare"){
+  caption=!resolved?`かけた${t.product}こと、全部の${n}こをくらべよう。`:highHighlight?`${t.product}こは多すぎる → まだひかない。`:`${t.product}こなら、${n}こからひける。`;
+  cls=resolved?(highHighlight?"high":"fit"):"";
+ }else if(phase==="subtract") caption=`${n} − ${t.product} ＝ ${t.remainder}。次は残りを確認。`;
+ else if(phase==="remainder"){
+  caption=resolved?(t.kind==="low"?"残りでもう1組とれる → 商を大きくしよう。":"残りでもう1組とれない → 商が決まった！"):`残り${t.remainder}こで、${d}この組は作れる？`;
+  cls=resolved?(t.kind==="low"?"low":"fit"):"";
+ }else if(phase==="adjust"){
+  caption=`試す商を ${q} から ${q+(s.adjustKind==="high"?-1:1)} へ直そう。`;cls=s.adjustKind;
+ }else if(final){caption=`残り${t.remainder}こは、1組の${d}こより少ない。`;cls="fit";}
+ $("paperCaption").textContent=caption;
+ $("paperCaption").className=`paper-caption ${cls}`;
+}
+function dot(index,kind=""){
+ return `<span class="dot ${kind}" data-piece="${index}"></span>`;
+}
+function dots(first,count,kind=""){
+ return `<div class="dots">${Array.from({length:count},(_,i)=>dot(first+i,kind)).join("")}</div>`;
+}
+function renderQuantity(animate){
+ const s=state,{n,d,q,phase}=s;
+ const oldPositions=new Map();
+ if(animate&&!reduceMotion){
+  document.querySelectorAll("#unitStage [data-piece]").forEach(node=>oldPositions.set(node.dataset.piece,node.getBoundingClientRect()));
+ }
+ activeAnimations.forEach(a=>a.cancel());activeAnimations=[];
+ $("quantityLabels").innerHTML=`<span class="number-tag">全部 ${n}こ</span><span class="number-tag purple">1組 ${d}こずつ</span>`;
+ let content="",summary="",cls="",legend="";
+ if(phase==="estimate"){
+  content=`<div class="pool raw-pool">${dots(1,n)}<div class="raw-note">全部で <strong>${n}こ</strong>。<br>${d}こずつの組に分けるよ。</div></div>`;
+  summary="いくつの組ができそうかな？ まず見当をつけてみよう。";
+  legend='<span><i class="dot"></i> ある数</span>';
+ }else{
+  const t=E.trial(n,d,q);
+  const remVisible=["subtract","remainder","done"].includes(phase)||(phase==="adjust"&&s.adjustKind==="low");
+  const resolved=s.mode==="guided"||s.answered;
+  const remResolved=(phase==="remainder"&&resolved)||phase==="done"||(phase==="adjust"&&s.adjustKind==="low");
+  const extra=remResolved&&t.kind==="low";
+  const final=phase==="done";
+  for(let g=0;g<q;g++){
+   const available=Math.max(0,Math.min(d,n-g*d));
+   const missing=d-available;
+   let pieces="";
+   if(available===0){
+    pieces=`<div class="empty-content">この組の${d}こが<br>足りないよ。</div>`;
+   }else{
+    pieces=`<div class="dots">${Array.from({length:d},(_,i)=>i<available?dot(g*d+i+1):'<span class="dot missing"></span>').join("")}</div>`;
+   }
+   content+=`<div class="bundle ${missing?"shortage":""} ${available===0?"empty-bundle":""}">
+    <div class="pool-head"><span>${g+1}組目</span><strong>${d}こ</strong></div>${pieces}
+    ${missing&&available>0?`<div class="bundle-short-note">${missing}こ足りない</div>`:""}</div>`;
+  }
+  if(t.remainder!==null){
+   const start=q*d+1,r=t.remainder;
+   let remBody="";
+   if(extra){
+    remBody=`<div class="extra-group">${dots(start,d,"extra")}<div class="extra-label">この${d}こで、もう1組！</div></div>${r>d?`<div class="remainder-rest">${dots(start+d,r-d,"remainder")}</div>`:""}`;
+   }else if(r>0) remBody=dots(start,r,"remainder");
+   else remBody=`<div class="zero-message">${remVisible?"残りは0こ。":"残りをたしかめよう。"}</div>`;
+   content+=`<div class="pool remainder-pool ${remResolved&&t.kind==="fit"?"fit":""}">
+    <div class="pool-head"><span>${remVisible?"残り":"まだ組にしていない数"}</span>${remVisible?`<strong>${r}こ</strong>`:""}</div>${remBody}</div>`;
+  }
+  if(phase==="multiply") summary=`${d}こが${q}組なら、${t.product}こ必要だね。`;
+  else if(phase==="compare"){
+   if(!resolved) summary=`必要なのは${t.product}こ。あるのは${n}こ。くらべてみよう。`;
+   else if(t.kind==="high"){summary=`${t.product-n}こ足りない。これでは${q}組は作れないね。`;cls="high";}
+   else {summary=`${q}組分は取り分けられる。次に、残りを計算しよう。`;cls="fit";}
+  }else if(phase==="subtract") summary=`${n}こ − ${t.product}こ ＝ 残り${t.remainder}こ。まだもう1組とれるかな？`;
+  else if(phase==="remainder"){
+   if(!resolved) summary=`残り${t.remainder}こで、${d}この組が作れるか考えよう。`;
+   else if(t.kind==="low"){summary=`残りから${d}こをまとめると、もう1組とれる！`;cls="low";}
+   else {summary=t.remainder===0?"残りは0こ。もう1組はとれないね。":`残り${t.remainder}こでは、${d}この組はもう作れないね。`;cls="fit";}
+  }else if(phase==="adjust"){
+   cls=s.adjustKind;
+   summary=cls==="high"?`${q}組には${t.product-n}こ足りなかった。1組少なくして、やりなおそう。`:`残りからもう1組とれる。1組多くして、やりなおそう。`;
+  }else if(final){summary=`${q}組とれて、${t.remainder}こ残る。残りでもう1組は作れないね。`;cls="fit";}
+  legend=`<span><i class="dot"></i> 組に分けた数</span>${t.kind==="high"?'<span><i class="dot missing"></i> 足りない数</span>':`<span><i class="dot remainder ${remResolved&&t.kind==="fit"?"final-dot":""}"></i> ${remVisible?"残りの数":"まだ組にしていない数"}</span>`}`;
+ }
+ $("unitStage").innerHTML=content;
+ $("quantitySummary").innerHTML=`<div class="quantity-summary ${cls}">${summary}</div>`;
+ $("legend").innerHTML=legend;
+ if(animate&&!reduceMotion&&oldPositions.size){
+  document.querySelectorAll("#unitStage [data-piece]").forEach((node,i)=>{
+   const old=oldPositions.get(node.dataset.piece);
+   if(!old||typeof node.animate!=="function")return;
+   const now=node.getBoundingClientRect();
+   const dx=old.left-now.left,dy=old.top-now.top;
+   if(Math.abs(dx)+Math.abs(dy)<1)return;
+   const anim=node.animate([
+    {transform:`translate(${dx}px,${dy}px)`,opacity:.7},
+    {transform:"translate(0,0)",opacity:1}
+   ],{duration:reduceMotion?0:580,delay:Math.min(i%10*17,150),easing:"cubic-bezier(.22,.7,.2,1)",fill:"backwards"});
+   activeAnimations.push(anim);
+  });
+ }
+}
+function renderHistory(){
+ const a=state.attempts;
+ $("historyWrap").hidden=a.length===0;
+ const word={high:"大きすぎた",low:"まだ小さかった",fit:"これでOK！"};
+ $("historyItems").innerHTML=a.map((x,i)=>`${i?'<span class="history-arrow" aria-hidden="true">→</span>':""}<span class="history-chip ${x.kind}"><strong>${x.q}</strong>${word[x.kind]}</span>`).join("");
+}
+function renderProgress(){
+ const phase=state.phase;
+ const step={estimate:1,multiply:2,compare:3,subtract:4,remainder:5,adjust:1,done:6}[phase];
+ document.querySelectorAll(".progress li").forEach(node=>{
+  const k=Number(node.dataset.step);
+  node.classList.toggle("current",k===step);
+  node.classList.toggle("done-step",k<step);
+  if(k===step) node.setAttribute("aria-current","step");
+  else node.removeAttribute("aria-current");
+  if(k===1)node.lastElementChild.textContent=phase==="adjust"?"見当を直す":"見当をつける";
+ });
+}
+function syncControls(){
+ const s=state,t=s.q===null?null:E.trial(s.n,s.d,s.q);
+ let text="";
+ if(s.phase==="estimate")text=s.q===null?"ためす商をえらぼう":`${s.q}で かけてみる`;
+ else if(s.phase==="multiply")text="全部の数とくらべる";
+ else if(s.phase==="compare")text=!E.canNext(s)?"どちらかえらぼう":t.kind==="high"?"商を1小さくしよう":"残りをひいてみる";
+ else if(s.phase==="subtract")text="残りでたしかめる";
+ else if(s.phase==="remainder")text=!E.canNext(s)?"どちらかえらぼう":t.kind==="low"?"商を1大きくしよう":"答えをまとめよう";
+ else if(s.phase==="adjust")text=`${s.q+(s.adjustKind==="high"?-1:1)}で かけなおす`;
+ else text="べつの問題へ";
+ $("nextButton").innerHTML=`${text}<span class="arrow" aria-hidden="true">→</span>`;
+ $("nextButton").disabled=!E.canNext(s);
+ $("backButton").disabled=past.length===0;
+ const canAuto=s.mode==="guided"&&s.phase!=="done";
+ $("autoButton").disabled=!canAuto;
+ $("speedSelect").disabled=!canAuto;
+ $("autoButton").setAttribute("aria-pressed",String(auto));
+ $("autoButton").textContent=auto?"Ⅱ とめる":"▶ 自動でみる";
+ $("autoButton").title=canAuto?"自動で1つずつ進みます。いつでも止められます。":"「いっしょに考える」で、途中のときに使えます。";
+ $("controlsHint").textContent=auto?`${Number($("speedSelect").value)/1000}秒ごとに進むよ。いつでも「とめる」を押してね。`:s.mode==="practice"&&!E.canNext(s)?"自分でえらんだら、次へ進めるよ。":s.phase==="adjust"?"商を直したら、「2 かける」にもどるよ。":"急がなくて大丈夫。1つずつ進もう。";
+}
+function render(animate=false){
+ document.body.classList.toggle("reduce-motion",reduceMotion);
+ $("reduceMotion").checked=reduceMotion;
+ $("problemNumber").innerHTML=`<span class="dividend">${state.n}</span> <span style="font-weight:400;color:#819187">÷</span> <span class="divisor">${state.d}</span>`;
+ $("guidedMode").setAttribute("aria-pressed",String(state.mode==="guided"));
+ $("practiceMode").setAttribute("aria-pressed",String(state.mode==="practice"));
+ document.querySelectorAll(".preset[data-n]").forEach(button=>{
+  const selected=Number(button.dataset.n)===state.n&&Number(button.dataset.d)===state.d;
+  button.classList.toggle("active",selected);
+  button.setAttribute("aria-pressed",String(selected));
+ });
+ renderCoach();renderPaper();renderQuantity(animate);renderHistory();renderProgress();syncControls();
+}
+function stopAuto(){
+ auto=false;
+ if(timer!==null)clearTimeout(timer);
+ timer=null;
+}
+function scheduleAuto(){
+ if(timer!==null)clearTimeout(timer);
+ if(!auto)return;
+ timer=setTimeout(()=>{
+  timer=null;
+  if(!auto)return;
+  nextStep(true);
+  if(auto)scheduleAuto();
+ },Number($("speedSelect").value));
+}
+function scrollToStep(){
+ const rect=$("coachCard").getBoundingClientRect();
+ if(Math.abs(rect.top-13)>3){
+  window.scrollTo({top:Math.max(0,window.scrollY+rect.top-13),behavior:reduceMotion?"auto":"smooth"});
+ }
+}
+function startProblem(n,d,mode=state.mode,scroll=false){
+ if(!E.validate(n,d))return false;
+ stopAuto();past=[];state=E.initial(n,d,mode);lastPhase=null;
+ $("customN").value=n;$("customD").value=d;
+ $("formError").hidden=true;
+ render(true);
+ if(scroll)scrollToStep();
+ return true;
+}
+function randomProblem(){
+ const wanted=["high","low","fit"][Math.floor(Math.random()*3)];
+ let n,d;
+ for(let i=0;i<1200;i++){
+  n=30+Math.floor(Math.random()*70);
+  d=11+Math.floor(Math.random()*(Math.min(n,49)-10));
+  if(n===state.n&&d===state.d)continue;
+  const e=E.estimate(n,d);
+  if(E.trial(n,d,e.q).kind===wanted)return {n,d};
+ }
+ return state.n===65&&state.d===23?{n:76,d:18}:{n:65,d:23};
+}
+function nextStep(fromAuto=false){
+ if(!fromAuto)stopAuto();
+ if(state.phase==="done"){
+  if(fromAuto){stopAuto();syncControls();return;}
+  const p=randomProblem();startProblem(p.n,p.d,state.mode,true);return;
+ }
+ if(!E.canNext(state)){syncControls();return;}
+ past.push(clone(state));state=E.next(state);
+ if(state.phase==="done")stopAuto();
+ render(true);
+ if(!fromAuto)scrollToStep();
+}
+function chooseAnswer(answer){
+ if(state.answered)return;
+ const t=E.trial(state.n,state.d,state.q);
+ const correct=state.phase==="compare"?t.kind==="high":t.kind==="low";
+ if((answer==="yes")===correct){
+  state={...state,answered:true,feedback:null};
+ }else{
+  let text="";
+  if(state.phase==="compare"){
+   text=t.kind==="high"
+    ?`全部で${state.n}こあるね。${t.product}こ用意するには、${t.product-state.n}こ足りないよ。もう一度えらんでみよう。`
+    :`${t.product}こは、全部の${state.n}こをこえていないね。このまま、ひき算ができるよ。`;
+  }else if(t.kind==="low"){
+   text=t.remainder===state.d
+    ?`残りも${state.d}こ、1組の数も${state.d}こ。同じ数なら、もう1組作れるね。`
+    :`残りは${t.remainder}こ。ここから${state.d}こを取っても${t.remainder-state.d}こ残るね。もう1組作れるかな？`;
+  }else{
+   text=t.remainder===0?`残りは0こだね。${state.d}この組を作る数は、もう残っていないよ。`:`1組には${state.d}こ必要だけれど、残りは${t.remainder}こ。もう1組には足りないね。`;
+  }
+  state={...state,feedback:{kind:"retry",text}};
+ }
+ render(false);
+ if(state.answered)$("nextButton").focus({preventScroll:true});
+ else $("coachContent").querySelector(`[data-answer="${answer}"]`)?.focus({preventScroll:true});
+}
+$("nextButton").addEventListener("click",()=>nextStep());
+$("backButton").addEventListener("click",()=>{
+ if(!past.length)return;
+ stopAuto();state=past.pop();render(true);scrollToStep();
+});
+$("resetButton").addEventListener("click",()=>startProblem(state.n,state.d,state.mode,true));
+$("guidedMode").addEventListener("click",()=>{if(state.mode!=="guided")startProblem(state.n,state.d,"guided");});
+$("practiceMode").addEventListener("click",()=>{if(state.mode!=="practice")startProblem(state.n,state.d,"practice");});
+document.querySelectorAll(".preset[data-n]").forEach(button=>button.addEventListener("click",()=>startProblem(Number(button.dataset.n),Number(button.dataset.d))));
+$("randomProblem").addEventListener("click",()=>{const p=randomProblem();startProblem(p.n,p.d);});
+$("customForm").addEventListener("submit",event=>{
+ event.preventDefault();
+ const n=Number($("customN").value),d=Number($("customD").value);
+ if(!E.validate(n,d)){
+  $("formError").hidden=false;
+  $("formError").textContent="どちらの数も、10〜99の整数で入れてね。";
+  return;
+ }
+ $("customDetails").open=false;startProblem(n,d,state.mode,true);
+});
+$("coachContent").addEventListener("click",event=>{
+ const button=event.target.closest("button");
+ if(!button)return;
+ stopAuto();
+ if(button.hasAttribute("data-guess")){
+  const q=Number(button.dataset.guess);state={...state,q};render(false);
+  $("coachContent").querySelector(`[data-guess="${q}"]`)?.focus({preventScroll:true});
+  $("liveStatus").textContent=`まず試す商に${q}をえらびました。「${q}でかけてみる」で進もう。`;
+ }else if(button.id==="toggleHint"){
+  state={...state,hint:!state.hint};render(false);$("toggleHint")?.focus({preventScroll:true});
+ }else if(button.hasAttribute("data-answer")){
+  chooseAnswer(button.dataset.answer);
+ }else if(button.dataset.action==="practice-again")startProblem(state.n,state.d,"practice",true);
+});
+$("autoButton").addEventListener("click",()=>{
+ if(auto)stopAuto();
+ else if(state.mode==="guided"&&state.phase!=="done"){
+  auto=true;scheduleAuto();scrollToStep();
+ }
+ syncControls();
+});
+$("speedSelect").addEventListener("change",()=>{if(auto)scheduleAuto();syncControls();});
+$("reduceMotion").addEventListener("change",()=>{
+ reduceMotion=$("reduceMotion").checked;
+ if(reduceMotion){activeAnimations.forEach(a=>a.cancel());activeAnimations=[];}
+ render(false);
+});
+if(typeof reducedQuery.addEventListener==="function"){
+ reducedQuery.addEventListener("change",event=>{reduceMotion=event.matches;render(false);});
+}
+document.addEventListener("visibilitychange",()=>{
+ if(document.hidden&&auto){stopAuto();syncControls();}
+});
+document.addEventListener("keydown",event=>{
+ if(event.ctrlKey||event.metaKey||event.altKey)return;
+ if(["INPUT","SELECT","TEXTAREA","SUMMARY"].includes(document.activeElement?.tagName))return;
+ if(event.key==="ArrowRight"){event.preventDefault();nextStep();}
+ else if(event.key==="ArrowLeft"&&past.length){event.preventDefault();$("backButton").click();}
+ else if(event.key==="Escape"&&auto){stopAuto();syncControls();}
+});
+globalThis.DivisionLab=Object.freeze({
+ getState:()=>clone(state),
+ getHistory:()=>clone(past),
+ isPlaying:()=>auto
+});
+render();
+})();
+</script>
+<noscript><div style="padding:25px;margin:20px;background:white">このツールはJavaScriptを使います。HTMLファイルを保存し、JavaScriptが使えるブラウザーで開いてください。</div></noscript>
+</body>
+</html>
