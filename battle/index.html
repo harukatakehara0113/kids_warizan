@@ -463,6 +463,33 @@
     .round-summary > b { font-size: 24px; }
     .round-summary-note { text-align: center; font-size: 10px; font-weight: 1000; }
 
+    .digit-scan { min-height: 73px; display: grid; place-items: center; align-content: center; gap: 6px; }
+    .scan-caption { font-size: 10px; font-weight: 1000; }
+    .digit-row { display: flex; justify-content: center; gap: 4px; }
+    .digit-cell { width: 37px; height: 42px; display: grid; place-items: center; background: var(--paper); border: 3px solid var(--ink); border-radius: 7px; font-size: 23px; font-weight: 1000; }
+    .scan-rule { padding: 2px 8px; background: var(--gray); border: 2px solid var(--ink); border-radius: 999px; font-size: 10px; font-weight: 1000; }
+
+    .place-guide { min-height: 76px; display: grid; place-items: center; text-align: center; }
+    .place-guide strong { font-size: 22px; }
+    .place-options { display: flex; justify-content: center; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    .place-option { min-width: 62px; min-height: 42px; padding: 4px 9px; border: 3px solid var(--ink); border-radius: 9px; background: var(--paper); box-shadow: 3px 3px 0 var(--ink); font-size: 19px; font-weight: 1000; cursor: pointer; }
+    .place-option:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+    .place-option.chosen { background: var(--event-hint); }
+    .place-option.tried { background: #d0d0d0; color: #666; box-shadow: none; transform: translate(3px, 3px); }
+    .place-option:disabled { opacity: 1; cursor: default; }
+    .place-reveal { min-height: 76px; display: grid; place-items: center; align-content: center; text-align: center; }
+    .place-bracket { position: relative; display: inline-block; min-width: 72px; padding: 8px 13px 4px; border-top: 4px solid var(--event-hint); font-size: 27px; font-weight: 1000; }
+    .place-bracket::before, .place-bracket::after { content: ""; position: absolute; top: -4px; width: 4px; height: 11px; background: var(--event-hint); }
+    .place-bracket::before { left: 0; }
+    .place-bracket::after { right: 0; }
+    .place-reveal small { display: block; margin-top: 5px; font-size: 10px; font-weight: 1000; }
+
+    .product-grid { min-height: 76px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; align-items: stretch; }
+    .product-card { display: grid; place-items: center; align-content: center; padding: 5px 2px; background: var(--paper); border: 2px solid var(--ink); border-radius: 8px; font-size: 10px; font-weight: 1000; }
+    .product-card b { display: block; margin-top: 3px; font-size: 17px; }
+    .product-card.over { background: repeating-linear-gradient(135deg, #ffe1dd 0 7px, var(--paper) 7px 14px); box-shadow: inset 0 -5px 0 var(--event-miss); }
+    .product-note { margin-top: 5px; text-align: center; font-size: 10px; font-weight: 1000; }
+
     .numberline { position: relative; height: 64px; margin: 4px 8px 0; border-bottom: 4px solid var(--ink); }
     .numberline::before, .numberline::after { content: ""; position: absolute; bottom: -7px; width: 12px; height: 12px; border-top: 4px solid var(--ink); border-right: 4px solid var(--ink); }
     .numberline::before { left: -2px; transform: rotate(-135deg); }
@@ -611,7 +638,7 @@
         <span class="mode-level">中くらい</span><span class="mode-name">見立て</span><span class="mode-dots" aria-hidden="true"></span>
       </button>
       <button class="mode-tab" type="button" data-mode="strong">
-        <span class="mode-level">強い敵</span><span class="mode-name">何個入る？</span><span class="mode-dots" aria-hidden="true"></span>
+        <span class="mode-level">強い敵</span><span class="mode-name">商を立てる</span><span class="mode-dots" aria-hidden="true"></span>
       </button>
     </nav>
 
@@ -700,13 +727,13 @@
       strong: {
         name: "親に替えられたパスワード",
         kind: "tablet",
-        badge: "商を見抜け",
-        intro: ["何個入るか分かっても、<br>解除とは別です。", "入れすぎたら、<br>普通にオーバーです。"],
+        badge: "商を立てろ",
+        intro: ["左から、どこまで見るか。<br>そこからです。", "商を立てても、<br>解除とは別です。"],
         hits: ["ロックが一個だけ弱い。", "かけ算で確認するのやめて。", "残りの鍵、がんばれ。", "まだ親には言ってない。"],
         misses: ["その個数、入ってない。", "オーバーはロックの味方。", "積を見たら分かるかもね。"],
         win: "親には言うけどね。",
         stamp: "解除した。",
-        finish: "除数を何個入れても被除数をこえないか、5回判断した。『商を立てて、かけて確かめる』感覚が育っている。"
+        finish: "割られる数を左から見て、割る数が入る最初のまとまりを決め、かけ算で商を確かめる流れを5回使った。"
       }
     };
 
@@ -736,6 +763,7 @@
     let lastMidIndex = -1;
     let lastStrongIndex = -1;
     let roundingGuide = null;
+    let placeGuide = null;
     let eventTimer = null;
 
     function makeWeak() {
@@ -764,7 +792,10 @@
       lastStrongIndex = nextFrom(strongProblems, lastStrongIndex);
       const [a, b] = strongProblems[lastStrongIndex];
       const answer = Math.floor(a / b);
-      return { a, b, answer, remainder: a - b * answer, values: shuffle([answer - 1, answer, answer + 1]) };
+      const prefixes = String(a).split("").map((_, index, digits) => Number(digits.slice(0, index + 1).join("")));
+      const partialIndex = prefixes.findIndex((value) => value >= b);
+      const partial = prefixes[partialIndex];
+      return { a, b, answer, remainder: a - b * answer, values: shuffle([answer - 1, answer, answer + 1]), prefixes, partialIndex, partial };
     }
 
     function makeProblem() {
@@ -927,6 +958,66 @@
       eventPulse("hint");
     }
 
+    function strongStartVisual(p) {
+      const digits = String(p.a).split("").map((digit) => `<span class="digit-cell">${digit}</span>`).join("");
+      return `<div class="digit-scan"><div class="scan-caption">左から、見る範囲を広げる</div><div class="digit-row">${digits}</div><span class="scan-rule">${p.b} 以上になる所を探す</span></div>`;
+    }
+
+    function renderPlaceQuestion() {
+      if (!placeGuide) return;
+      const options = problem.prefixes.map((value, index) => `<button class="place-option" type="button" data-prefix-index="${index}">${value}</button>`).join("");
+      $("visual").innerHTML = `<div class="place-guide"><div><div class="round-progress">見る範囲を決める</div><div><strong>${problem.b}</strong> が入る最初のまとまりは？</div><div class="place-options">${options}</div></div></div>`;
+      document.querySelectorAll(".place-option").forEach((button) => button.addEventListener("click", () => choosePartialDividend(Number(button.dataset.prefixIndex), button)));
+    }
+
+    function choosePartialDividend(index, button) {
+      if (!placeGuide || button.disabled) return;
+      const guide = placeGuide;
+      const value = problem.prefixes[index];
+      if (index === problem.partialIndex) {
+        document.querySelectorAll(".place-option").forEach((option) => { option.disabled = true; });
+        button.classList.add("chosen");
+        guide.complete = true;
+        $("visual").innerHTML = `<div class="place-reveal"><span class="place-bracket">${problem.partial}</span><small>${problem.b}以上になる最初のまとまり</small></div>`;
+        $("hintbox").innerHTML = `<strong>${problem.partial}</strong>なら${problem.b}が入る。ここに最初の商を立てる。`;
+        $("desc").textContent = `${problem.partial}の中に${problem.b}が何個入るか考える。`;
+        eventPulse("hint");
+        window.setTimeout(() => {
+          if (placeGuide !== guide || mode !== "strong" || solved) return;
+          $("hint").disabled = false;
+          setChoicesLocked(false);
+        }, 720);
+      } else {
+        button.disabled = true;
+        button.classList.add("tried");
+        if (index < problem.partialIndex) {
+          $("hintbox").innerHTML = `<strong>${value}</strong>は${problem.b}より小さい。もう1桁まで見ると？`;
+        } else {
+          $("hintbox").innerHTML = `そこまで広げなくても、<strong>${problem.partial}</strong>で${problem.b}が入る。`;
+        }
+        eventPulse("miss");
+      }
+    }
+
+    function startPlaceGuide() {
+      placeGuide = { complete: false };
+      $("desc").textContent = "左から、割る数が入る最初のまとまりを探す。";
+      $("hintbox").innerHTML = "ヒント1：<strong>見る範囲</strong>を左から少しずつ広げよう。";
+      $("hint").disabled = true;
+      setChoicesLocked(true);
+      renderPlaceQuestion();
+      eventPulse("hint");
+    }
+
+    function productChoicesVisual(p) {
+      const sorted = [...p.values].sort((a, b) => a - b);
+      const cards = sorted.map((value) => {
+        const product = p.b * value;
+        return `<span class="product-card ${product > p.partial ? "over" : ""}">${p.b} × ${value}<b>${product}</b></span>`;
+      }).join("");
+      return `<div class="product-grid">${cards}</div><div class="product-note">${p.partial}をこえない最大の積はどれ？</div>`;
+    }
+
     function numberLine(target, values, selected) {
       const all = [...values, target];
       const min = Math.min(...all) - 2;
@@ -975,13 +1066,13 @@
         $("desc").textContent = "丸めて仮の商を決め、本当の数で確かめる。";
         $("visual").innerHTML = `<div class="estimate-start"><b>${problem.a}</b><i>÷</i><b>${problem.b}</b><small>近いキリのいい数にすると？</small></div>`;
       } else {
-        $("question").textContent = `${problem.b} は ${problem.a} の中に何個入る？`;
+        $("question").textContent = "見る範囲を決めて、商を立てよう";
         $("equation").textContent = `${problem.a} ÷ ${problem.b} = ?`;
-        $("desc").textContent = "入れすぎず、まだ入る数も残さない。";
-        $("visual").innerHTML = quantityVisual(problem.a, problem.b, 0);
+        $("desc").textContent = "左から見て、かけ算で確かめる。";
+        $("visual").innerHTML = strongStartVisual(problem);
       }
 
-      const smallLabel = mode === "weak" ? "こうげき" : mode === "mid" ? "仮の商" : "個";
+      const smallLabel = mode === "weak" ? "こうげき" : mode === "mid" ? "仮の商" : "商";
       $("choices").innerHTML = problem.values.map((value) => `<button class="choice" type="button" data-value="${value}" aria-label="${value}を選ぶ">${value}<small>${smallLabel}</small></button>`).join("");
       document.querySelectorAll(".choice").forEach((button) => button.addEventListener("click", () => answer(Number(button.dataset.value), button)));
     }
@@ -991,6 +1082,7 @@
       solved = false;
       attempted = new Set();
       roundingGuide = null;
+      placeGuide = null;
       $("hintbox").classList.remove("show");
       $("hintbox").innerHTML = "";
       $("hint").textContent = "ヒント 0/3";
@@ -1134,11 +1226,13 @@
           $("visual").innerHTML = quantityVisual(problem.ra, problem.rb, problem.estimate, `${problem.ra} の中に ${problem.rb} を並べる`);
         }
       } else {
-        const middle = [...problem.values].sort((a, b) => a - b)[1];
-        if (hintLevel === 1) $("hintbox").textContent = `ヒント1：${problem.b}を何回か足して、${problem.a}をこえない所を探す。`;
-        if (hintLevel === 2) $("hintbox").textContent = `ヒント2：${problem.b}×${middle}=${problem.b * middle}。まだ入る？ もうこえる？`;
+        if (hintLevel === 1) startPlaceGuide();
+        if (hintLevel === 2) {
+          $("hintbox").innerHTML = `ヒント2：候補を<strong>かけ算</strong>にして、${problem.partial}と比べよう。`;
+          $("visual").innerHTML = productChoicesVisual(problem);
+        }
         if (hintLevel === 3) {
-          $("hintbox").innerHTML = `ヒント3：${problem.b}を${problem.answer}個なら、${problem.b * problem.answer}。`;
+          $("hintbox").innerHTML = `ヒント3：${problem.b}×${problem.answer}=${problem.b * problem.answer}。${problem.partial}をこえず、次はこえる。`;
           $("visual").innerHTML = quantityVisual(problem.a, problem.b, problem.answer);
         }
       }
