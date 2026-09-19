@@ -1,49 +1,69 @@
 <!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>ギリギリバトル</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>ギリギリバトル v0.2</title>
 <style>
-:root{--g:#82c46c;--gd:#4b8f49;--y:#f4d74d;--r:#f26b64;--ink:#111;--p:#fffdf8}
+:root{--g:#82c46c;--gd:#4b8f49;--y:#f4d74d;--r:#f26b64;--ink:#111;--p:#fffdf8;--blue:#7897b5}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%;margin:0;overflow:hidden;background:#edf5e8;color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif}button{font:inherit;color:inherit}
-.app{width:min(430px,100vw);height:100dvh;margin:auto;padding:8px 10px calc(9px + env(safe-area-inset-bottom));background:linear-gradient(#dff0d6,#c6e6b7);display:grid;grid-template-rows:auto auto auto auto auto 1fr auto;gap:6px}
-.head{text-align:center}.title{display:inline-block;background:var(--y);border:3px solid var(--ink);border-radius:15px;padding:5px 13px 8px;font-size:32px;font-weight:900;letter-spacing:-2px;transform:rotate(-2deg)}.sub{font-weight:900;font-size:14px;margin-top:2px}
-.tabs,.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.tab,.card,.btn{border:3px solid var(--ink);background:#fff;border-radius:14px;font-weight:900;cursor:pointer}.tab{padding:8px 3px;font-size:15px}.tab.on,.card.on,.btn.main{background:var(--y)}
-.arena{position:relative;overflow:hidden;border:3px solid var(--ink);border-radius:18px;background:var(--g);padding:8px;min-height:151px}.arena:after{content:"";position:absolute;left:-20px;right:-20px;bottom:-52px;height:92px;background:var(--gd);border-radius:50%}
-.scene{position:relative;z-index:1;display:grid;grid-template-columns:1fr 138px;gap:7px;align-items:center}.mood{font-size:20px;font-weight:900}.talk{background:#fff;border:3px solid var(--ink);border-radius:15px;padding:8px 10px;font-size:14px;font-weight:900;line-height:1.25;min-height:54px}.name{display:inline-block;margin-top:5px;background:var(--p);border:3px solid var(--ink);border-radius:10px;padding:5px 8px;font-size:14px;font-weight:900;line-height:1.1}
-.monster{height:112px;display:flex;align-items:center;justify-content:center;position:relative}.face{width:112px;height:88px;border:5px solid var(--ink);border-radius:18px;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;font-size:48px}.face:after{content:"—  —";position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:18px;font-weight:900;letter-spacing:8px}.tag{position:absolute;right:-2px;top:0;background:#fff;border:3px solid var(--ink);border-radius:9px;padding:3px 5px;font-size:10px;font-weight:900;transform:rotate(6deg)}
-.fx{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0}.fx.go{animation:pop .9s ease}.fx span{background:#fff;border:4px solid var(--ink);border-radius:17px;padding:8px 11px;font-size:27px;font-weight:900;text-align:center}@keyframes pop{0%{opacity:0;transform:scale(.5)}20%,75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(-20px)}}@keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}.shake{animation:shake .28s}
-.hp{display:flex;align-items:center;gap:7px;background:#111;color:#fff;border-radius:13px;padding:7px 10px;font-weight:900}.bar{height:15px;flex:1;background:#444;border-radius:20px;overflow:hidden}.fill{height:100%;background:var(--r);transition:width .35s}.hpnum{font-size:21px;min-width:43px;text-align:right}
-.rule{background:var(--p);border:3px solid var(--ink);border-radius:16px;padding:7px 9px;font-size:15px;font-weight:900;line-height:1.25}.rule b{color:var(--r);font-size:21px}.rule .chip{background:var(--y);border-radius:20px;padding:1px 8px}
-.card{padding:7px 5px;min-height:106px;display:flex;flex-direction:column;justify-content:space-between;text-align:center}.ico{font-size:27px}.act{font-size:13px;line-height:1.05}.num{background:#fff;border-radius:10px;padding:4px;font-size:27px}
-.bottom{align-self:end}.status{border:3px solid var(--ink);border-radius:14px;background:#f3f3f3;padding:7px 10px;min-height:45px;font-size:13px;font-weight:800;line-height:1.25}.buttons{display:flex;gap:7px;margin-top:6px}.btn{flex:1;padding:9px;font-size:14px}
-@media(max-height:700px){.app{gap:4px}.title{font-size:27px}.sub{display:none}.arena{min-height:132px}.monster{height:95px}.face{height:78px}.card{min-height:94px}.ico{font-size:23px}.num{font-size:24px}.rule{font-size:13px}.status{min-height:40px}}
-</style></head>
-<body><main class="app">
-<div class="head"><div class="title">ギリギリバトル</div><div class="sub">日常のこまりごとと たたかう。</div></div>
+.app{width:min(430px,100vw);height:100dvh;margin:auto;padding:7px 9px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(#dff0d6,#c6e6b7);display:grid;grid-template-rows:auto auto auto auto auto 1fr auto;gap:5px}.head{text-align:center}.title{display:inline-block;background:var(--y);border:3px solid #111;border-radius:14px;padding:4px 12px 7px;font-size:29px;font-weight:900;letter-spacing:-2px;transform:rotate(-2deg)}.sub{font-size:12px;font-weight:900}
+.tabs,.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.tab,.choice,.btn{border:3px solid #111;background:#fff;border-radius:13px;font-weight:900}.tab{padding:7px 2px}.tab.on,.choice.on,.btn.main{background:var(--y)}
+.arena{position:relative;overflow:hidden;border:3px solid #111;border-radius:17px;background:var(--g);padding:7px;min-height:130px}.arena:after{content:"";position:absolute;left:-20px;right:-20px;bottom:-55px;height:90px;background:var(--gd);border-radius:50%}.scene{position:relative;z-index:1;display:grid;grid-template-columns:1fr 125px;gap:6px;align-items:center}.turn{font-size:12px;font-weight:900;background:#fff;border:2px solid #111;border-radius:999px;padding:2px 7px;display:inline-block}.talk{background:#fff;border:3px solid #111;border-radius:14px;padding:7px 9px;font-size:13px;font-weight:900;line-height:1.2;margin-top:4px;min-height:50px}.name{font-size:13px;font-weight:900;margin-top:4px}.monster{height:100px;display:flex;align-items:center;justify-content:center;position:relative}.face{width:102px;height:78px;border:5px solid #111;border-radius:17px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:43px;position:relative}.face:after{content:"—  —";position:absolute;bottom:8px;font-size:16px;letter-spacing:7px;font-weight:900}.tag{position:absolute;right:-2px;top:0;background:#fff;border:3px solid #111;border-radius:8px;padding:3px 5px;font-size:9px;font-weight:900;transform:rotate(6deg)}
+.fx{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0}.fx.go{animation:pop .85s ease}.fx span{background:#fff;border:4px solid #111;border-radius:16px;padding:7px 10px;font-size:25px;font-weight:900;text-align:center}@keyframes pop{0%{opacity:0;transform:scale(.5)}20%,72%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(-18px)}}@keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}.shake{animation:shake .25s}
+.hp{display:flex;align-items:center;gap:7px;background:#111;color:#fff;border-radius:12px;padding:6px 9px;font-weight:900}.bar{height:14px;flex:1;background:#444;border-radius:20px;overflow:hidden}.fill{height:100%;background:var(--r);transition:width .35s}.hpnum{font-size:20px;min-width:38px;text-align:right}
+.stackBox{background:var(--p);border:3px solid #111;border-radius:14px;padding:6px 8px}.stackTop{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:900}.stack{display:flex;gap:3px;height:28px;margin-top:4px;overflow:hidden}.seg{height:28px;min-width:25px;border:2px solid #111;border-radius:7px;background:var(--y);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;animation:segin .25s ease}@keyframes segin{from{transform:scale(.4)}to{transform:scale(1)}}.remain{background:#fff;border:2px dashed #777;color:#555}
+.mission{background:#fff;border:3px solid #111;border-radius:15px;padding:7px 9px;text-align:center;font-weight:900;font-size:14px}.mission b{font-size:24px;color:var(--r)}.hint{font-size:11px;color:#555;margin-top:1px}
+.choice{padding:6px 4px;min-height:94px;display:flex;flex-direction:column;justify-content:space-between;text-align:center}.ico{font-size:23px}.act{font-size:11px;line-height:1.05}.num{background:#fff;border-radius:9px;padding:3px;font-size:26px}
+.bottom{align-self:end}.status{border:3px solid #111;border-radius:13px;background:#f3f3f3;padding:6px 9px;min-height:40px;font-size:12px;font-weight:800;line-height:1.2}.buttons{display:flex;gap:6px;margin-top:5px}.btn{flex:1;padding:8px;font-size:13px}
+@media(max-height:690px){.app{gap:3px}.title{font-size:25px}.sub{display:none}.arena{min-height:115px}.monster{height:88px}.face{height:70px}.choice{min-height:82px}.ico{font-size:20px}.num{font-size:23px}.mission{padding:5px}.stackBox{padding:4px 7px}.status{min-height:35px}}
+</style></head><body><main class="app">
+<div class="head"><div class="title">ギリギリバトル</div><div class="sub">攻撃をつないで HPを0にしろ。</div></div>
 <div class="tabs"><button class="tab on" data-mode="weak">弱い敵</button><button class="tab" data-mode="mid">中くらい</button><button class="tab" data-mode="strong">強い敵</button></div>
-<section class="arena"><div class="scene"><div><div class="mood" id="mood"></div><div class="talk" id="talk"></div><div class="name" id="name"></div></div><div class="monster" id="monster"></div></div><div class="fx" id="fx"><span></span></div></section>
+<section class="arena"><div class="scene"><div><div class="turn" id="turn"></div><div class="talk" id="talk"></div><div class="name" id="name"></div></div><div class="monster" id="monster"></div></div><div class="fx" id="fx"><span></span></div></section>
 <div class="hp"><span>HP</span><div class="bar"><div class="fill" id="fill"></div></div><span class="hpnum" id="hp"></span></div>
-<div class="rule" id="rule"></div>
-<div class="cards" id="cards"></div>
-<div class="bottom"><div class="status" id="status"></div><div class="buttons"><button class="btn main" id="reset">リセット</button><button class="btn" id="demo">デモ再生</button></div></div>
+<div class="stackBox"><div class="stackTop"><span>こうげきの合計 <b id="sum">0</b></span><span>スタート <b id="startHp"></b></span></div><div class="stack" id="stack"></div></div>
+<div class="mission"><div id="mission"></div><div class="hint">毎ターン、お題も選択肢も変わります。</div></div>
+<div class="choices" id="choices"></div>
+<div class="bottom"><div class="status" id="status"></div><div class="buttons"><button class="btn main" id="reset">もう一回</button><button class="btn" id="demo">デモ再生</button></div></div>
 </main><script>
-const M={
-weak:{label:"弱い敵",mood:"モワ…",name:"洗濯の生乾き臭",emoji:"👕",tag:"まだ湿ってる",hp:28,min:24,max:28,damage:7,talk:"乾いた“つもり”が<br>いちばん危ない。",cards:[["😅","そのまま着る",22],["☀️","ちゃんと乾かす",26],["🌪️","香りでごまかす",31]],low:"そのくらいでは、まだ臭う。",ok:"おっ、ちゃんと乾いた。",exact:"そこだけは完璧。",high:"香りで押し切るのは、だいたい無理。",dead:"……今日は着られる。"},
-mid:{label:"中くらい",mood:"ズシ…",name:"しゅくだいの山",emoji:"📚",tag:"まだある",hp:63,min:59,max:63,damage:15,talk:"サボっても終わらない。<br>詰め込みすぎてもミスる。",cards:[["😪","あとでやる",57],["📘","集中する",61],["🔥","気合いで一気",66]],low:"惜しいとかじゃなく、足りない。",ok:"そこは効くんかい。",exact:"ぴったりは聞いてない。",high:"詰め込みすぎで、逆に増えた。",dead:"終わった…ように見える。"},
-strong:{label:"強い敵",mood:"スヤ…",name:"親に替えられた<br>タブレットのパスワード",emoji:"🔒",tag:"変更済み",hp:93,min:88,max:93,damage:21,talk:"昨日まで使えてた。<br>今日はもう無理。",cards:[["🤔","思い出す",86],["🙋","親に聞く",91],["💥","ぜんぶ試す",97]],low:"思い当たる番号？ それじゃない。",ok:"親は覚えてる。君は今わかった。",exact:"ぴたり。ちょっと悔しい。",high:"総当たりは、だいたい親にバレる。",dead:"……解除成功。"}};
-let mode="weak",hp=0,busy=false;
-const $=id=>document.getElementById(id),tabs=[...document.querySelectorAll(".tab")];
-function d(){return M[mode]}
-function render(all=true){const x=d();if(all){$("mood").textContent=x.mood;$("talk").innerHTML=x.talk;$("name").innerHTML=x.name;$("monster").innerHTML='<div class="face">'+x.emoji+'</div><div class="tag">'+x.tag+'</div>';$("rule").innerHTML='こうげきが <b>'+x.min+'</b> いじょう <b>'+x.max+'</b> いかなら <span class="chip">ダメージ！</span><br><b>'+x.max+'</b> をこえると敵がかいふく！';$("cards").innerHTML=x.cards.map((c,i)=>'<button class="card '+(i==1?'on':'')+'" data-i="'+i+'"><div class="ico">'+c[0]+'</div><div class="act">'+c[1]+'</div><div class="num">'+c[2]+'</div></button>').join("");[...document.querySelectorAll(".card")].forEach(b=>b.onclick=()=>{if(!busy){select(b);play(+b.dataset.i)}})}$("fill").style.width=Math.max(0,hp/x.hp*100)+"%";$("hp").textContent=hp}
-function select(b){document.querySelectorAll(".card").forEach(c=>c.classList.remove("on"));b.classList.add("on")}
+const MODES={
+weak:{label:"弱い敵",name:"洗濯の生乾き臭",emoji:"👕",tag:"まだ湿ってる",hp:36,rounds:4,talk:"ちょっとずつ乾かすのが<br>いちばん効くらしい。",range:2},
+mid:{label:"中くらい",name:"しゅくだいの山",emoji:"📚",tag:"まだある",hp:63,rounds:5,talk:"一気にやると雑になる。<br>でも残すと明日もいる。",range:2},
+strong:{label:"強い敵",name:"親に替えられた<br>タブレットのパスワード",emoji:"🔒",tag:"変更済み",hp:91,rounds:6,talk:"解除エネルギーを積め。<br>最後はぴったりで。",range:3}};
+let mode="weak",hp=0,sum=0,turn=1,history=[],target=0,options=[],busy=false,finished=false;
+const $=id=>document.getElementById(id); const D=()=>MODES[mode]; const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function enemy(){let d=D();$("name").innerHTML=d.name;$("monster").innerHTML='<div class="face">'+d.emoji+'</div><div class="tag">'+d.tag+'</div>'; $("talk").innerHTML=d.talk}
+function hpdraw(){$("hp").textContent=hp;$("fill").style.width=Math.max(0,hp/D().hp*100)+"%";$("sum").textContent=sum;$("startHp").textContent=D().hp}
+function stackdraw(){let max=D().hp;let html=history.map(v=>'<div class="seg" style="flex:'+v+'">'+v+'</div>').join(""); if(hp>0)html+='<div class="seg remain" style="flex:'+hp+'">'+hp+'</div>';$("stack").innerHTML=html}
+function makeTurn(){
+ if(hp<=0){win();return}
+ let d=D(),left=Math.max(1,d.rounds-turn+1);
+ if(left===1){target=hp}else{let avg=Math.floor(hp/left),lo=Math.max(4,avg-3),hi=Math.max(lo,Math.min(hp-3,avg+4));target=rnd(lo,hi)}
+ let delta=d.range,low=Math.max(1,target-rnd(1,delta+1)),high=target+rnd(1,delta+2);
+ if(high===hp && target!==hp)high++; options=[low,target,high].sort(()=>Math.random()-.5);
+ $("turn").textContent="TURN "+turn+" / "+d.rounds;
+ $("mission").innerHTML=left===1?'とどめ！ 残りHP <b>'+hp+'</b> をねらえ！':'今回のねらいは <b>'+target+'</b> くらい';
+ $("choices").innerHTML=options.map((v,i)=>'<button class="choice" data-v="'+v+'"><div class="ico">'+["🎯","⚡","💥"][i]+'</div><div class="act">こうげき</div><div class="num">'+v+'</div></button>').join("");
+ document.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{if(!busy&&!finished)attack(+b.dataset.v,b)});
+}
 function fx(t){$("fx").classList.remove("go");$("fx").querySelector("span").innerHTML=t;void $("fx").offsetWidth;$("fx").classList.add("go");$("monster").classList.remove("shake");void $("monster").offsetWidth;$("monster").classList.add("shake")}
-function play(i){const x=d(),c=x.cards[i],v=c[2];if(v<x.min){let n=x.min-v;$("talk").textContent=x.low;$("status").innerHTML="<b>"+c[1]+"（"+v+"）</b>：あと <b>"+n+"</b> 足りない。";fx("あと "+n)}else if(v>x.max){let n=v-x.max;hp=Math.min(x.hp,hp+n);$("talk").textContent=x.high;$("status").innerHTML="<b>"+c[1]+"（"+v+"）</b>："+n+"オーバー。敵が <b>+"+n+"</b> 回復。";fx(n+" オーバー<br>+"+n+" 回復")}else{let exact=v===x.max,dam=x.damage+(exact?Math.ceil(x.damage*.4):0);hp=Math.max(0,hp-dam);$("talk").textContent=hp<=0?x.dead:(exact?x.exact:x.ok);$("status").innerHTML="<b>"+c[1]+"（"+v+"）</b>："+dam+" ダメージ！";fx(exact?"ジャスト！":v+" ヒット！")}render(false)}
-function reset(){hp=d().hp;$("talk").innerHTML=d().talk;$("status").innerHTML="「"+d().label+"」です。数字を見て攻撃を選んでみよう。";render(false)}
-tabs.forEach(t=>t.onclick=()=>{if(busy)return;mode=t.dataset.mode;tabs.forEach(q=>q.classList.toggle("on",q===t));hp=d().hp;render();reset()});
-$("reset").onclick=()=>{busy=false;reset()};
-$("demo").onclick=async()=>{if(busy)return;busy=true;reset();for(const i of [0,2,1,1,1,1,1]){const b=document.querySelector('.card[data-i="'+i+'"]');select(b);await new Promise(r=>setTimeout(r,350));play(i);await new Promise(r=>setTimeout(r,750));if(hp<=0)break}busy=false};
-hp=d().hp;render();reset();
+function attack(v,b){
+ busy=true;document.querySelectorAll(".choice").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+ let diff=v-target,actual=v;
+ if(turn===D().rounds||hp<=Math.max(...options)){
+   if(v>hp){let over=v-hp;$("status").innerHTML="<b>"+v+"</b> は強すぎ！ 残り "+hp+" を <b>"+over+"</b> オーバー。";$("talk").textContent="それ、強すぎて逆に元気出た。";hp=Math.min(D().hp,hp+over);fx(over+" オーバー<br>+"+over+" HP");hpdraw();stackdraw();setTimeout(()=>{busy=false;makeTurn()},850);return}
+   actual=Math.min(v,hp);
+ }
+ hp=Math.max(0,hp-actual);sum+=actual;history.push(actual);
+ if(diff===0){$("status").innerHTML="<b>"+v+"</b>！ お題にぴったり。攻撃が積み上がった！";$("talk").textContent=hp===0?"……ちょうど0。これは負け。":"ぴったり狙ってくるの、やめて。";fx(hp===0?"ジャスト撃破！":v+" ジャスト！")}
+ else if(diff<0){$("status").innerHTML="<b>"+v+"</b>！ お題より "+(-diff)+" 小さいけど、ダメージは入った。";$("talk").textContent="ちょっと弱い。でも普通に痛い。";fx(v+" ダメージ")}
+ else{$("status").innerHTML="<b>"+v+"</b>！ お題より "+diff+" 大きめ。攻めた！";$("talk").textContent="ちょっと強い。まあ、まだ平気。";fx(v+" ダメージ")}
+ hpdraw();stackdraw();
+ if(hp<=0){setTimeout(win,650)}else{turn++;setTimeout(()=>{busy=false;makeTurn()},850)}
+}
+function win(){finished=true;busy=false;$("mission").innerHTML='<b>HP 0！</b> げきは！';$("choices").innerHTML='<button class="choice" style="grid-column:1/4;background:var(--y)"><div class="ico">🎉</div><div class="act">こうげき合計</div><div class="num">'+sum+'</div></button>';$("status").innerHTML="攻撃は <b>"+history.join(" + ")+" = "+sum+"</b>。スタートHP "+D().hp+" をちょうど削り切った！";$("talk").textContent="合計まで見せるのは聞いてない。";stackdraw();hpdraw()}
+function reset(){
+ hp=D().hp;sum=0;turn=1;history=[];busy=false;finished=false;enemy();hpdraw();stackdraw();$("status").innerHTML="毎ターン数字が変わります。攻撃を積み上げて、最後はHPを0にしよう。";makeTurn()
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{if(busy)return;mode=t.dataset.mode;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));reset()});
+$("reset").onclick=reset;
+$("demo").onclick=async()=>{if(busy)return;reset();busy=true;while(!finished){let v=target,b=[...document.querySelectorAll(".choice")].find(x=>+x.dataset.v===v);busy=false;attack(v,b);await new Promise(r=>setTimeout(r,950));if(turn>D().rounds+2)break}busy=false};
+reset();
 </script></body></html>
