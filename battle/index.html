@@ -18,6 +18,9 @@
       --backdrop: #d2d2d2;
       --main: #3554ff;
       --accent: #d6ff37;
+      --event-hint: #ffc928;
+      --event-miss: #ff6b5f;
+      --event-win: #9462ff;
       --shadow: 5px 5px 0 var(--ink);
     }
 
@@ -151,6 +154,20 @@
       padding: 9px 8px 7px 11px;
       position: relative;
       transition: background .25s ease;
+    }
+
+    .app.event-hint { --event-color: var(--event-hint); }
+    .app.event-hit { --event-color: var(--accent); }
+    .app.event-miss { --event-color: var(--event-miss); }
+    .app.event-win { --event-color: var(--event-win); }
+    .app.event-hint .game,
+    .app.event-hit .arena,
+    .app.event-miss .arena,
+    .app.event-win .arena { animation: event-ring .62s ease; }
+    .app.event-win .arena { animation-duration: 1s; }
+
+    @keyframes event-ring {
+      45% { box-shadow: var(--shadow), 0 0 0 9px var(--event-color); }
     }
 
     .mission {
@@ -387,6 +404,10 @@
     .equation.rounding { word-spacing: .06em; }
     .ones-muted { opacity: .28; font-weight: 700; transition: opacity .2s ease; }
     .rounded-number { display: inline-block; padding: 0 4px; color: var(--main); text-decoration: underline 5px var(--accent); text-underline-offset: 3px; }
+    .equation-stack { display: inline-grid; grid-template-rows: auto auto; place-items: center; margin: 0 2px; vertical-align: middle; line-height: .95; }
+    .equation-stack b { min-width: 40px; padding: 2px 5px; color: var(--ink); background: var(--accent); border: 2px solid var(--ink); border-radius: 7px; font-size: .52em; animation: round-drop .28s ease; }
+    .equation-stack span { font-size: .82em; }
+    @keyframes round-drop { from { opacity: 0; transform: translateY(-8px); } }
     .desc { min-height: 20px; font-size: 12px; font-weight: 800; color: #4f4f4f; }
 
     .visual {
@@ -419,6 +440,28 @@
     .estimate-start b { min-width: 58px; padding: 7px; text-align: center; background: var(--paper); border: 3px solid var(--ink); border-radius: 9px; font-size: 21px; }
     .estimate-start i { font-style: normal; font-size: 24px; }
     .estimate-start small { position: absolute; bottom: 0; font-size: 10px; }
+
+    .round-guide { min-height: 76px; display: grid; place-items: center; text-align: center; }
+    .round-progress { margin-bottom: 3px; font-size: 10px; font-weight: 1000; }
+    .round-prompt { font-size: 13px; font-weight: 1000; }
+    .round-prompt strong { font-size: 25px; }
+    .round-options { display: flex; justify-content: center; gap: 9px; margin-top: 7px; }
+    .round-option { min-width: 76px; min-height: 43px; border: 3px solid var(--ink); border-radius: 9px; background: var(--paper); box-shadow: 3px 3px 0 var(--ink); font-size: 20px; font-weight: 1000; cursor: pointer; }
+    .round-option:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+    .round-option.chosen { background: var(--accent); }
+    .round-option.tried { background: #d0d0d0; color: #666; box-shadow: none; transform: translate(3px, 3px); }
+    .round-option:disabled { opacity: 1; cursor: default; }
+    .round-reveal { min-height: 76px; display: grid; grid-template-rows: auto 11px auto auto; place-items: center; line-height: 1; }
+    .round-reveal .rounded { min-width: 58px; padding: 3px 9px; background: var(--accent); border: 3px solid var(--ink); border-radius: 8px; box-shadow: 3px 3px 0 var(--ink); font-size: 24px; font-weight: 1000; animation: round-drop .28s ease; }
+    .round-reveal .lift { font-size: 17px; font-weight: 1000; }
+    .round-reveal .original { font-size: 22px; font-weight: 1000; }
+    .round-reveal small { margin-top: 5px; font-size: 10px; font-weight: 900; }
+    .round-summary { min-height: 76px; display: flex; align-items: center; justify-content: center; gap: 13px; }
+    .round-summary .pair { display: grid; place-items: center; line-height: 1; }
+    .round-summary .pair b { min-width: 60px; padding: 4px 8px; background: var(--accent); border: 3px solid var(--ink); border-radius: 8px; box-shadow: 3px 3px 0 var(--ink); font-size: 22px; }
+    .round-summary .pair span { margin-top: 5px; font-size: 15px; font-weight: 1000; }
+    .round-summary > b { font-size: 24px; }
+    .round-summary-note { text-align: center; font-size: 10px; font-weight: 1000; }
 
     .numberline { position: relative; height: 64px; margin: 4px 8px 0; border-bottom: 4px solid var(--ink); }
     .numberline::before, .numberline::after { content: ""; position: absolute; bottom: -7px; width: 12px; height: 12px; border-top: 4px solid var(--ink); border-right: 4px solid var(--ink); }
@@ -487,7 +530,7 @@
     }
 
     .feedback.good { background: #e7e7e7; box-shadow: inset 8px 0 0 var(--accent); }
-    .feedback.try { background: #d2d2d2; box-shadow: inset 8px 0 0 #777; }
+    .feedback.try { background: #ffe1dd; box-shadow: inset 8px 0 0 var(--event-miss); }
     .feedback strong { font-size: 16px; }
 
     .hintbox {
@@ -496,8 +539,8 @@
       padding: 8px 9px;
       border: 3px dashed var(--ink);
       border-radius: 10px;
-      background: #e2e2e2;
-      box-shadow: inset 7px 0 0 var(--accent);
+      background: #fff0bd;
+      box-shadow: inset 7px 0 0 var(--event-hint);
       font-size: 12px;
       font-weight: 900;
       line-height: 1.35;
@@ -692,6 +735,8 @@
     let soundOn = false;
     let lastMidIndex = -1;
     let lastStrongIndex = -1;
+    let roundingGuide = null;
+    let eventTimer = null;
 
     function makeWeak() {
       const target = rnd(18, 82);
@@ -787,6 +832,101 @@
       return `${digits.slice(0, -1)}<span class="ones-muted">${digits.slice(-1)}</span>`;
     }
 
+    function eventPulse(kind) {
+      const app = $("app");
+      ["hint", "hit", "miss", "win"].forEach((name) => app.classList.remove(`event-${name}`));
+      app.classList.add(`event-${kind}`);
+      if (eventTimer) window.clearTimeout(eventTimer);
+      eventTimer = window.setTimeout(() => app.classList.remove(`event-${kind}`), kind === "win" ? 1050 : 680);
+    }
+
+    function roundingItem(value, rounded) {
+      const lower = Math.floor(value / 10) * 10;
+      const upper = lower + 10;
+      return { value, rounded, lower, upper, tie: value % 10 === 5 };
+    }
+
+    function roundEquationPart(item, result) {
+      if (!result) return muteOnes(item.value);
+      return `<span class="equation-stack"><b>${result.rounded}</b><span>${muteOnes(item.value)}</span></span>`;
+    }
+
+    function updateRoundingEquation() {
+      if (!roundingGuide) return;
+      $("equation").classList.add("rounding");
+      $("equation").innerHTML = `${roundEquationPart(roundingGuide.items[0], roundingGuide.results[0])} ÷ ${roundEquationPart(roundingGuide.items[1], roundingGuide.results[1])}`;
+    }
+
+    function renderRoundingQuestion() {
+      if (!roundingGuide) return;
+      const item = roundingGuide.items[roundingGuide.index];
+      const wording = item.tie ? "ちょうど真ん中。四捨五入ではどっち？" : "どちらの10に近い？";
+      $("visual").innerHTML = `<div class="round-guide"><div><div class="round-progress">概数づくり ${roundingGuide.index + 1}/2</div><div class="round-prompt"><strong>${item.value}</strong> は、${wording}</div><div class="round-options"><button class="round-option" type="button" data-rounded="${item.lower}">${item.lower}</button><button class="round-option" type="button" data-rounded="${item.upper}">${item.upper}</button></div></div></div>`;
+      document.querySelectorAll(".round-option").forEach((button) => button.addEventListener("click", () => chooseRoundedNumber(Number(button.dataset.rounded), button)));
+    }
+
+    function renderRoundingReveal(item) {
+      const distance = Math.abs(item.value - item.rounded);
+      const note = item.tie ? "ちょうど真ん中なので、大きい方へ" : `${item.rounded}まで ${distance}`;
+      $("visual").innerHTML = `<div class="round-reveal"><span class="rounded">${item.rounded}</span><span class="lift">↑</span><span class="original">${muteOnes(item.value)}</span><small>${note}</small></div>`;
+    }
+
+    function finishRoundingGuide(guide) {
+      if (roundingGuide !== guide || mode !== "mid" || solved) return;
+      const [first, second] = guide.results;
+      $("visual").innerHTML = `<div class="round-summary"><span class="pair"><b>${first.rounded}</b><span>${muteOnes(first.value)}</span></span><b>÷</b><span class="pair"><b>${second.rounded}</b><span>${muteOnes(second.value)}</span></span></div><div class="round-summary-note">上の概数で、商を見立てる</div>`;
+      $("hintbox").innerHTML = `2つの概数ができた。<strong>${first.rounded}÷${second.rounded}</strong> は、だいたい何個？`;
+      $("hint").disabled = false;
+      setChoicesLocked(false);
+      eventPulse("hint");
+    }
+
+    function chooseRoundedNumber(chosen, button) {
+      if (!roundingGuide || button.disabled) return;
+      const guide = roundingGuide;
+      const item = guide.items[guide.index];
+      if (chosen === item.rounded) {
+        document.querySelectorAll(".round-option").forEach((option) => { option.disabled = true; });
+        button.classList.add("chosen");
+        guide.results[guide.index] = item;
+        updateRoundingEquation();
+        renderRoundingReveal(item);
+        $("hintbox").innerHTML = item.tie
+          ? `<strong>${item.value}</strong>はちょうど真ん中。四捨五入では<strong>${item.rounded}</strong>にする。`
+          : `<strong>${item.value}</strong>は、${item.rounded}まで${Math.abs(item.value - item.rounded)}。こちらが近い。`;
+        eventPulse("hint");
+        window.setTimeout(() => {
+          if (roundingGuide !== guide || mode !== "mid" || solved) return;
+          guide.index += 1;
+          if (guide.index < guide.items.length) renderRoundingQuestion();
+          else finishRoundingGuide(guide);
+        }, 720);
+      } else {
+        const chosenDistance = Math.abs(item.value - chosen);
+        const correctDistance = Math.abs(item.value - item.rounded);
+        button.disabled = true;
+        button.classList.add("tried");
+        $("hintbox").innerHTML = `<strong>${chosen}</strong>までは${chosenDistance}。<strong>${item.rounded}</strong>までは${correctDistance}。距離をくらべて、もう一度。`;
+        eventPulse("miss");
+      }
+    }
+
+    function startRoundingGuide() {
+      roundingGuide = {
+        index: 0,
+        items: [roundingItem(problem.a, problem.ra), roundingItem(problem.b, problem.rb)],
+        results: []
+      };
+      $("equation").classList.add("rounding");
+      updateRoundingEquation();
+      $("desc").textContent = "まず、それぞれに近い10を選ぶ。";
+      $("hintbox").innerHTML = "ヒント1：<strong>近い方の10</strong>を選んで、概数をつくろう。";
+      $("hint").disabled = true;
+      setChoicesLocked(true);
+      renderRoundingQuestion();
+      eventPulse("hint");
+    }
+
     function numberLine(target, values, selected) {
       const all = [...values, target];
       const min = Math.min(...all) - 2;
@@ -850,6 +990,7 @@
       hintLevel = 0;
       solved = false;
       attempted = new Set();
+      roundingGuide = null;
       $("hintbox").classList.remove("show");
       $("hintbox").innerHTML = "";
       $("hint").textContent = "ヒント 0/3";
@@ -941,6 +1082,7 @@
         $("feedback").innerHTML = `${message}<br>ほかの数字を選んでみよう。`;
         say(pick(enemies[mode].misses));
         renderEnemy("miss");
+        eventPulse("miss");
         playTone("miss");
       }
     }
@@ -951,7 +1093,8 @@
       if (state[mode].progress >= 5) state[mode].defeated = true;
       renderEnemy(state[mode].defeated ? "victory" : "hit");
       say(state[mode].defeated ? enemies[mode].win : enemies[mode].hits[state[mode].progress - 1]);
-      burst(state[mode].defeated ? 20 : 9);
+      eventPulse(state[mode].defeated ? "win" : "hit");
+      burst(state[mode].defeated ? 20 : 9, state[mode].defeated ? "win" : "hit");
       playTone(state[mode].defeated ? "win" : "hit");
 
       if (state[mode].defeated) {
@@ -971,6 +1114,7 @@
       hintLevel = Math.min(3, hintLevel + 1);
       $("hint").textContent = `ヒント ${hintLevel}/3`;
       $("hintbox").classList.add("show");
+      eventPulse("hint");
 
       if (mode === "weak") {
         if (hintLevel === 1) $("hintbox").textContent = `ヒント1：${problem.target}より小さいか、大きいかを先に見る。`;
@@ -978,10 +1122,7 @@
         if (hintLevel === 3) $("hintbox").textContent = `ヒント3：${problem.values.map((value) => `${value}は${Math.abs(value - problem.target)}はなれる`).join(" ／ ")}`;
       } else if (mode === "mid") {
         if (hintLevel === 1) {
-          $("equation").classList.add("rounding");
-          $("equation").innerHTML = `${muteOnes(problem.a)} ÷ ${muteOnes(problem.b)}`;
-          $("desc").textContent = "薄くなった1の位をいったん脇に置き、十のまとまりで眺める。";
-          $("hintbox").innerHTML = "ヒント1：<strong>1の位を少し薄くした。</strong> 近いキリのいい数が見えてくる？";
+          startRoundingGuide();
         }
         if (hintLevel === 2) {
           $("equation").innerHTML = `<span class="rounded-number">${problem.ra}</span> ÷ <span class="rounded-number">${problem.rb}</span>`;
@@ -1030,8 +1171,10 @@
       else newProblem();
     }
 
-    function burst(count) {
-      const colors = ["var(--main)", "var(--main)", "var(--main)", "var(--accent)", "var(--paper)"];
+    function burst(count, kind = "hit") {
+      const colors = kind === "win"
+        ? ["var(--main)", "var(--accent)", "var(--event-win)", "var(--event-hint)", "var(--paper)"]
+        : ["var(--main)", "var(--main)", "var(--accent)", "var(--paper)"];
       $("particles").innerHTML = Array.from({ length: count }, (_, index) => {
         const angle = (Math.PI * 2 * index) / count;
         const distance = rnd(55, 130);
