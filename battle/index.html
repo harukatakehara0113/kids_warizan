@@ -1,36 +1,1063 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>ギリギリバトル v0.3</title><style>
-:root{--g:#82c46c;--gd:#4b8f49;--y:#f4d74d;--r:#f26b64;--ink:#111;--paper:#fffdf8;--blue:#a8c9dd}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:#edf5e8;color:#111;font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif}button{font:inherit;color:inherit}.app{width:min(430px,100vw);min-height:100dvh;margin:auto;padding:8px 9px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(#dff0d6,#c6e6b7)}.head{text-align:center}.title{display:inline-block;background:var(--y);border:3px solid #111;border-radius:14px;padding:4px 12px 7px;font-size:28px;font-weight:900;letter-spacing:-2px;transform:rotate(-2deg)}.sub{font-size:12px;font-weight:900;margin:2px}.tabs,.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.tab,.choice,.btn{border:3px solid #111;background:#fff;border-radius:13px;font-weight:900}.tab{padding:7px 2px}.tab.on,.btn.main{background:var(--y)}
-.arena{border:3px solid #111;border-radius:17px;background:var(--g);padding:8px;display:grid;grid-template-columns:1fr 120px;gap:7px;align-items:center}.badge{display:inline-block;background:#fff;border:2px solid #111;border-radius:99px;padding:2px 7px;font-size:11px;font-weight:900}.talk{background:#fff;border:3px solid #111;border-radius:13px;padding:7px 9px;font-size:13px;font-weight:900;line-height:1.25;margin-top:5px;min-height:50px}.ename{font-size:11px;font-weight:900;margin-top:3px;text-align:center}
-.character{height:92px;position:relative;display:flex;align-items:center;justify-content:center}.body{width:82px;height:66px;background:#fff;border:4px solid #111;border-radius:15px;position:relative;display:flex;align-items:center;justify-content:center;font-size:31px;font-weight:900}.eye{position:absolute;top:20px;width:7px;height:7px;background:#111;border-radius:50%}.e1{left:22px}.e2{right:22px}.mouth{position:absolute;bottom:13px;width:19px;border-top:4px solid #111}.arm{position:absolute;width:27px;border-top:4px solid #111;top:49px}.al{left:2px;transform:rotate(22deg)}.ar{right:2px;transform:rotate(-22deg)}.leg{position:absolute;height:23px;border-left:4px solid #111;top:70px}.l1{left:43px;transform:rotate(12deg)}.l2{right:43px;transform:rotate(-12deg)}.shirt .body{background:#d8e9e0}.book .body{background:#f5e6a5;width:86px}.tablet .body{background:#c7c7c7;height:72px}.tablet .body:before{content:"🔒";font-size:25px}.shirt .body:before{content:"T";font-size:28px}.book .body:before{content:"宿";font-size:27px}.game{background:var(--paper);border:3px solid #111;border-radius:16px;padding:9px;margin-top:6px}.question{text-align:center;font-size:14px;font-weight:900}.equation{text-align:center;font-size:30px;font-weight:900;margin:2px}.desc{text-align:center;font-size:12px;font-weight:800;color:#444;min-height:30px}.visual{min-height:78px;border:2px dashed #777;border-radius:12px;margin:7px 0;padding:7px;background:#fff}.meter{height:25px;border:3px solid #111;border-radius:8px;overflow:hidden;display:flex}.chunk{height:100%;background:var(--y);border-right:2px solid #111;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900}.rest{height:100%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900}.numberline{position:relative;height:48px;border-bottom:4px solid #111;margin:2px 8px}.mark{position:absolute;bottom:-9px;transform:translateX(-50%);font-size:11px;font-weight:900;text-align:center}.mark:before{content:"";display:block;height:15px;border-left:3px solid #111;margin:auto}.target{font-size:20px;color:var(--r)}.choice{padding:8px 3px;min-height:64px;font-size:25px}.choice small{display:block;font-size:10px}.hintbox{display:none;background:#e9f3f8;border:3px solid #111;border-radius:13px;padding:7px;margin-top:6px;font-size:13px;font-weight:900;text-align:center}.hintbox.show{display:block}.feedback{min-height:40px;border:3px solid #111;border-radius:13px;background:#f2f2f2;padding:7px 9px;font-size:12px;font-weight:900;margin-top:6px}.buttons{display:flex;gap:6px;margin-top:6px}.btn{flex:1;padding:8px;font-size:13px}.btn.hint{background:var(--blue)}
-@keyframes hit{25%{transform:translateX(-5px) rotate(-3deg)}50%{transform:translateX(5px) rotate(3deg)}75%{transform:translateX(-3px)}}.hit{animation:hit .35s}.resultGood{background:#fff1a9}.resultBad{background:#ffd2cf}
-</style></head><body><main class="app"><div class="head"><div class="title">ギリギリバトル</div><div class="sub">数字の感覚で、日常のこまりごとを倒せ。</div></div>
-<div class="tabs"><button class="tab on" data-mode="weak">弱：近さ</button><button class="tab" data-mode="mid">中：見立て</button><button class="tab" data-mode="strong">強：商</button></div>
-<section class="arena"><div><span class="badge" id="badge"></span><div class="talk" id="talk"></div></div><div><div class="character" id="char"></div><div class="ename" id="ename"></div></div></section>
-<section class="game"><div class="question" id="question"></div><div class="equation" id="equation"></div><div class="desc" id="desc"></div><div class="visual" id="visual"></div><div class="choices" id="choices"></div><div class="hintbox" id="hintbox"></div></section>
-<div class="feedback" id="feedback"></div><div class="buttons"><button class="btn hint" id="hint">ヒント</button><button class="btn main" id="next">つぎのお題</button></div></main>
-<script>
-const $=x=>document.getElementById(x), rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;let mode="weak",problem,hintLevel=0,locked=false;
-const enemies={weak:{name:"まだ湿ってるTシャツ",kind:"shirt",talk:"乾いたつもりです。<br>たぶん。"},mid:{name:"終わらない宿題プリント",kind:"book",talk:"だいたいで考える？<br>そういうの困るんだけど。"},strong:{name:"親に替えられたパスワード",kind:"tablet",talk:"何回入るか分かっても、<br>パスワードは教えません。"}};
-function character(){let e=enemies[mode];$("char").className="character "+e.kind;$("char").innerHTML='<span class="arm al"></span><span class="arm ar"></span><div class="body"><i class="eye e1"></i><i class="eye e2"></i><i class="mouth"></i></div><i class="leg l1"></i><i class="leg l2"></i>';$("ename").textContent=e.name;$("talk").innerHTML=e.talk;$("badge").textContent=mode==="weak"?"近さを感じろ":mode==="mid"?"ざっくり見立てろ":"商を見抜け"}
-function uniq(a){return [...new Set(a)]}
-function makeWeak(){let t=rnd(18,68),ds=uniq([rnd(1,4),rnd(5,8),rnd(2,6)]);while(ds.length<3)ds.push(rnd(1,9));let vals=ds.slice(0,3).map((d,i)=>t+(i===1?d:-d));vals=uniq(vals);while(vals.length<3){let v=t+rnd(-9,9);if(v!==t&&!vals.includes(v))vals.push(v)}return{t,vals:vals.sort(()=>Math.random()-.5)}}
-const mids=[[68,23,70,20],[74,18,70,20],[86,29,90,30],[57,19,60,20],[92,31,90,30],[78,26,80,30]];
-function makeMid(){let p=mids[rnd(0,mids.length-1)],q=Math.floor(p[2]/p[3]);return{a:p[0],b:p[1],ra:p[2],rb:p[3],ans:q,vals:uniq([Math.max(1,q-1),q,q+2]).sort(()=>Math.random()-.5)}}
-const strongs=[[105,25],[93,22],[118,29],[84,19],[127,31],[76,18]];
-function makeStrong(){let p=strongs[rnd(0,strongs.length-1)],q=Math.floor(p[0]/p[1]);return{a:p[0],b:p[1],ans:q,rem:p[0]-q*p[1],vals:uniq([Math.max(1,q-1),q,q+1]).sort(()=>Math.random()-.5)}}
-function newProblem(){locked=false;hintLevel=0;$("hintbox").classList.remove("show");$("feedback").textContent="数字を見て選んでみよう。困ったらヒント。";character();problem=mode==="weak"?makeWeak():mode==="mid"?makeMid():makeStrong();render()}
-function render(){if(mode==="weak"){let p=problem;$("question").textContent="この数字に、いちばん近い攻撃は？";$("equation").innerHTML='<span class="target">'+p.t+'</span> くらい';$("desc").textContent="ぴったりの数字は出ません。距離で考えよう。";$("visual").innerHTML='<div class="numberline"><span class="mark" style="left:50%"><b class="target">'+p.t+'</b></span></div>'}
-else if(mode==="mid"){let p=problem;$("question").textContent="商は、だいたいどのくらい？";$("equation").textContent=p.a+" ÷ "+p.b;$("desc").textContent="正確に計算する前に、ざっくり見立てよう。";$("visual").innerHTML='<div style="text-align:center;font-weight:900;padding:19px 0">まずは数字の大きさを眺めよう。</div>'}
-else{let p=problem;$("question").textContent=p.b+" は "+p.a+" の中に何個入りそう？";$("equation").textContent=p.a+" ÷ "+p.b+" = ?";$("desc").textContent="入れすぎるとオーバー。";$("visual").innerHTML=bar(p.a,p.b,0)}
-$("choices").innerHTML=problem.vals.map(v=>'<button class="choice" data-v="'+v+'">'+v+'<small>'+(mode==="weak"?"こうげき":"個")+'</small></button>').join("");document.querySelectorAll(".choice").forEach(b=>b.onclick=()=>answer(+b.dataset.v,b))}
-function bar(total,unit,n){let used=Math.min(total,unit*n),h="";for(let i=0;i<n&&i*unit<total;i++){let w=Math.min(unit,total-i*unit)/total*100;h+='<span class="chunk" style="width:'+w+'%">'+unit+'</span>'}let rest=total-used;if(rest>0)h+='<span class="rest" style="width:'+(rest/total*100)+'%">'+rest+'</span>';return '<div style="font-size:11px;font-weight:900;margin-bottom:4px">'+total+' の中に '+unit+' を並べる</div><div class="meter">'+h+'</div>'}
-function answer(v,b){if(locked)return;locked=true;let ok=false,msg="";if(mode==="weak"){let diffs=problem.vals.map(x=>Math.abs(x-problem.t)),best=Math.min(...diffs),d=Math.abs(v-problem.t);ok=d===best;msg=v+" は "+problem.t+" まで "+d+"。"+(ok?" いちばん近い！":" もっと近い数字がある。");$("visual").innerHTML='<div class="numberline">'+problem.vals.concat([problem.t]).map(x=>'<span class="mark" style="left:'+(10+(x-Math.min(...problem.vals,problem.t))/(Math.max(...problem.vals,problem.t)-Math.min(...problem.vals,problem.t))*80)+'%">'+x+'</span>').join("")+'</div>'}
-else if(mode==="mid"){ok=v===problem.ans;msg=(ok?"いい見立て！ ":"もう一度、丸めて見ると… ")+problem.ra+" ÷ "+problem.rb+" なら、だいたい "+problem.ans+" 個。";$("visual").innerHTML=bar(problem.ra,problem.rb,v)}
-else{ok=v===problem.ans;let prod=v*problem.b;msg=v+"個なら "+problem.b+" × "+v+" = "+prod+"。"+(prod<=problem.a?" 入る！ 残り "+(problem.a-prod)+"。":" "+(prod-problem.a)+" オーバー！");$("visual").innerHTML=bar(problem.a,problem.b,v)}
-b.classList.add(ok?"resultGood":"resultBad");$("feedback").innerHTML=(ok?"✓ ":"")+msg;$("char").classList.add("hit");setTimeout(()=>$("char").classList.remove("hit"),400)}
-function hint(){hintLevel=Math.min(3,hintLevel+1);$("hintbox").classList.add("show");if(mode==="weak"){let p=problem;if(hintLevel===1)$("hintbox").textContent="ヒント1：左右にどれだけ離れているか見よう。";else if(hintLevel===2)$("hintbox").textContent="ヒント2："+p.vals.map(v=>v+" → あと"+Math.abs(v-p.t)).join(" ／ ");else $("hintbox").textContent="ヒント3：『差』がいちばん小さい数字を選ぼう。"}
-else if(mode==="mid"){let p=problem;if(hintLevel===1)$("hintbox").innerHTML="ヒント1：<b>"+p.a+" → "+p.ra+"</b>、<b>"+p.b+" → "+p.rb+"</b> と見てみよう。";else if(hintLevel===2)$("hintbox").innerHTML="ヒント2：<b>"+p.ra+" ÷ "+p.rb+"</b> なら？";else{$("hintbox").innerHTML="ヒント3："+p.rb+" を並べてみると…";$("visual").innerHTML=bar(p.ra,p.rb,p.ans)}}
-else{let p=problem;if(hintLevel===1)$("hintbox").textContent="ヒント1："+p.b+"を何回か足して、"+p.a+"を超えないところを探そう。";else if(hintLevel===2)$("hintbox").textContent="ヒント2："+p.b+" × "+Math.max(1,p.ans-1)+" = "+p.b*Math.max(1,p.ans-1)+"。もう1個入りそう？";else{$("hintbox").textContent="ヒント3：ブロックで並べてみよう。";$("visual").innerHTML=bar(p.a,p.b,p.ans)}}}
-document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{mode=t.dataset.mode;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));newProblem()});$("hint").onclick=hint;$("next").onclick=newProblem;newProblem();
-</script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#3554ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="数字の近さ・見立て・商の感覚を、日常の困りごととのバトルで身につける算数ゲーム。">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23d6ff37'/%3E%3Cpath d='M12 35h40M23 17l-9 18 9 12M41 17l9 18-9 12' fill='none' stroke='%23111111' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='35' r='6' fill='%23ff5a5f' stroke='%23111111' stroke-width='4'/%3E%3C/svg%3E">
+  <title>ギリギリバトル v0.4</title>
+  <style>
+    :root {
+      --ink: #111111;
+      --paper: #fffdf5;
+      --gray: #c9c9c9;
+      --gray-dark: #737373;
+      --blue: #3554ff;
+      --acid: #d6ff37;
+      --hot: #ff5a5f;
+      --shadow: 5px 5px 0 var(--ink);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body { margin: 0; min-height: 100%; }
+
+    body {
+      color: var(--ink);
+      font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 13% 9%, var(--acid) 0 7%, transparent 7.3%),
+        radial-gradient(circle at 88% 88%, var(--hot) 0 12%, transparent 12.3%),
+        var(--blue);
+      overscroll-behavior-y: none;
+    }
+
+    button { font: inherit; color: inherit; }
+
+    button:focus-visible {
+      outline: 4px solid var(--paper);
+      outline-offset: 3px;
+    }
+
+    .app {
+      width: min(440px, 100%);
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: calc(8px + env(safe-area-inset-top)) 10px calc(14px + env(safe-area-inset-bottom));
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .app::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background-image: radial-gradient(var(--ink) 1.5px, transparent 1.5px);
+      background-size: 14px 14px;
+      opacity: .13;
+    }
+
+    .app::after {
+      content: "";
+      position: absolute;
+      width: 230px;
+      height: 70px;
+      right: -80px;
+      top: 92px;
+      background: var(--paper);
+      border: 4px solid var(--ink);
+      transform: rotate(14deg);
+      z-index: -1;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 7px;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 12px 17px 12px 15px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 5px 10px 6px;
+      transform: rotate(-1.4deg);
+    }
+
+    .brand strong { font-size: clamp(21px, 6.2vw, 28px); line-height: 1; letter-spacing: -.08em; }
+    .brand small { font-size: 10px; font-weight: 1000; letter-spacing: .04em; }
+
+    .sound {
+      min-width: 68px;
+      min-height: 38px;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      background: var(--acid);
+      box-shadow: 3px 3px 0 var(--ink);
+      font-size: 12px;
+      font-weight: 1000;
+      cursor: pointer;
+    }
+
+    .modes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 7px;
+    }
+
+    .mode-tab {
+      min-height: 54px;
+      padding: 5px 2px 4px;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      background: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink);
+      cursor: pointer;
+      font-weight: 1000;
+      line-height: 1.05;
+      transition: transform .15s ease, background .15s ease;
+    }
+
+    .mode-tab:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+    .mode-tab.on { background: var(--acid); transform: translateY(-2px) rotate(-1deg); }
+    .mode-tab:nth-child(2).on { background: var(--hot); }
+    .mode-tab:nth-child(3).on { background: var(--blue); color: var(--paper); }
+    .mode-level { display: block; font-size: 10px; margin-bottom: 3px; }
+    .mode-name { display: block; font-size: 14px; }
+    .mode-dots { display: flex; justify-content: center; gap: 3px; margin-top: 5px; }
+    .mode-dots i { width: 7px; height: 7px; border: 1.5px solid currentColor; border-radius: 50%; background: transparent; }
+    .mode-dots i.done { background: currentColor; }
+
+    .arena {
+      min-height: 156px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 148px;
+      align-items: center;
+      gap: 6px;
+      border: 4px solid var(--ink);
+      border-radius: 22px 14px 22px 15px;
+      box-shadow: var(--shadow);
+      background: var(--acid);
+      padding: 9px 8px 7px 11px;
+      position: relative;
+      transition: background .25s ease;
+    }
+
+    [data-mode="mid"] .arena { background: var(--hot); }
+    [data-mode="strong"] .arena { background: var(--blue); }
+
+    .mission {
+      display: inline-block;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 1000;
+      letter-spacing: .03em;
+    }
+
+    .talk {
+      position: relative;
+      min-height: 62px;
+      margin-top: 8px;
+      padding: 9px 10px;
+      display: flex;
+      align-items: center;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 14px 14px 5px 14px;
+      font-size: 14px;
+      font-weight: 1000;
+      line-height: 1.3;
+    }
+
+    .talk::after {
+      content: "";
+      position: absolute;
+      right: -13px;
+      bottom: 7px;
+      width: 19px;
+      height: 19px;
+      background: var(--paper);
+      border-right: 3px solid var(--ink);
+      border-bottom: 3px solid var(--ink);
+      transform: rotate(-32deg) skew(-8deg);
+    }
+
+    .remaining {
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 1000;
+    }
+
+    .enemy-wrap { text-align: center; min-width: 0; }
+    .character { height: 118px; position: relative; display: grid; place-items: center; }
+    .enemy-name { margin-top: -2px; font-size: 11px; font-weight: 1000; line-height: 1.15; }
+    [data-mode="strong"] .enemy-name { color: var(--paper); }
+
+    .enemy {
+      width: 138px;
+      height: 116px;
+      position: relative;
+      filter: drop-shadow(3px 4px 0 rgba(17,17,17,.24));
+      transform-origin: 50% 80%;
+    }
+
+    .enemy .eye {
+      position: absolute;
+      width: 7px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--ink);
+      z-index: 7;
+    }
+
+    .enemy .mouth {
+      position: absolute;
+      width: 20px;
+      height: 9px;
+      border-bottom: 4px solid var(--ink);
+      border-radius: 50%;
+      z-index: 7;
+    }
+
+    .enemy.hit { animation: enemy-hit .48s cubic-bezier(.2,.9,.25,1.2); }
+    .enemy.miss { animation: enemy-nope .38s ease; }
+    .enemy.victory { animation: enemy-defeat .75s ease both; }
+
+    @keyframes enemy-hit {
+      20% { transform: translateX(-8px) rotate(-5deg) scale(1.03); }
+      45% { transform: translateX(8px) rotate(5deg) scale(.96); }
+      70% { transform: translateX(-3px) rotate(-2deg); }
+    }
+
+    @keyframes enemy-nope {
+      30% { transform: translateY(-4px) rotate(2deg); }
+      60% { transform: translateY(2px) rotate(-2deg); }
+    }
+
+    @keyframes enemy-defeat {
+      45% { transform: translateY(-9px) rotate(-5deg); }
+      100% { transform: translateY(3px) rotate(2deg); }
+    }
+
+    .shirt-shape {
+      position: absolute;
+      width: 88px;
+      height: 76px;
+      left: 25px;
+      top: 22px;
+      background: var(--ink);
+      clip-path: polygon(20% 0, 37% 0, 42% 12%, 58% 12%, 63% 0, 80% 0, 100% 24%, 83% 39%, 76% 31%, 78% 100%, 22% 100%, 24% 31%, 17% 39%, 0 24%);
+    }
+
+    .shirt-shape::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      background: var(--enemy-fill, #a9a9a9);
+      clip-path: inherit;
+      transition: background .35s ease;
+    }
+
+    .enemy-shirt .eye.one { left: 54px; top: 54px; }
+    .enemy-shirt .eye.two { right: 53px; top: 54px; }
+    .enemy-shirt .mouth { left: 59px; top: 68px; }
+    .enemy-shirt.phase-4 .mouth, .enemy-shirt.phase-5 .mouth { border-bottom: 0; border-top: 4px solid var(--ink); top: 74px; }
+
+    .drop {
+      --x: 0px;
+      --y: 0px;
+      position: absolute;
+      left: calc(50% + var(--x));
+      top: calc(50% + var(--y));
+      width: 13px;
+      height: 18px;
+      background: #efefef;
+      border: 3px solid var(--ink);
+      border-radius: 60% 60% 60% 20%;
+      transform: rotate(45deg);
+      z-index: 8;
+      transition: transform .35s ease, opacity .35s ease;
+    }
+
+    .drop.gone { opacity: 0; transform: translateY(-16px) rotate(90deg) scale(.2); }
+    .dry-stamp { position: absolute; inset: 45px 0 auto; z-index: 9; font-size: 14px; font-weight: 1000; transform: rotate(-8deg); }
+
+    .enemy-book .paper {
+      position: absolute;
+      width: 82px;
+      height: 78px;
+      left: calc(28px + var(--i) * 2px);
+      top: calc(20px - var(--i) * 3px);
+      background: #f4f4f4;
+      border: 4px solid var(--ink);
+      border-radius: 3px;
+      transform: rotate(calc((var(--i) - 2) * 2deg));
+    }
+
+    .enemy-book .paper::before,
+    .enemy-book .paper::after {
+      content: "";
+      position: absolute;
+      left: 13px;
+      right: 13px;
+      border-top: 3px solid #8d8d8d;
+    }
+
+    .enemy-book .paper::before { top: 18px; box-shadow: 0 12px 0 #8d8d8d, 0 24px 0 #8d8d8d; }
+    .enemy-book .eye.one { left: 54px; top: 52px; }
+    .enemy-book .eye.two { right: 48px; top: 52px; }
+    .enemy-book .mouth { left: 62px; top: 67px; }
+    .enemy-book.phase-4 .paper { transform: rotate(8deg) translateY(7px); }
+
+    .done-paper {
+      position: absolute;
+      left: 27px;
+      top: 25px;
+      width: 86px;
+      height: 69px;
+      display: grid;
+      place-items: center;
+      background: #f5f5f5;
+      border: 4px solid var(--ink);
+      font-size: 28px;
+      font-weight: 1000;
+      transform: rotate(8deg);
+    }
+
+    .tablet-body {
+      position: absolute;
+      left: 25px;
+      top: 16px;
+      width: 90px;
+      height: 88px;
+      border: 5px solid var(--ink);
+      border-radius: 13px;
+      background: #777;
+      box-shadow: inset 0 0 0 6px #bfbfbf;
+    }
+
+    .tablet-body::after { content: ""; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--ink); bottom: 3px; left: 38px; }
+    .enemy-tablet .eye.one { left: 53px; top: 48px; }
+    .enemy-tablet .eye.two { right: 51px; top: 48px; }
+    .enemy-tablet .mouth { left: 59px; top: 65px; }
+
+    .lock {
+      --angle: 0deg;
+      --radius: 48px;
+      position: absolute;
+      left: 63px;
+      top: 55px;
+      width: 18px;
+      height: 16px;
+      border: 3px solid var(--ink);
+      background: #f3f3f3;
+      transform: rotate(var(--angle)) translateY(calc(-1 * var(--radius))) rotate(calc(-1 * var(--angle)));
+      transform-origin: 8px 8px;
+      z-index: 9;
+      transition: opacity .3s ease, scale .3s ease;
+    }
+
+    .lock::before { content: ""; position: absolute; width: 9px; height: 9px; left: 1.5px; top: -10px; border: 3px solid var(--ink); border-bottom: 0; border-radius: 8px 8px 0 0; }
+    .unlock { position: absolute; inset: 36px 0 auto; z-index: 10; font-size: 13px; font-weight: 1000; background: var(--paper); border: 3px solid var(--ink); padding: 4px; transform: rotate(-7deg); }
+
+    .game {
+      margin-top: 10px;
+      padding: 10px;
+      background: var(--paper);
+      border: 4px solid var(--ink);
+      border-radius: 15px 23px 16px 18px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .problem-head { text-align: center; }
+    .kicker { display: inline-block; padding: 3px 8px; border: 2px solid var(--ink); border-radius: 999px; background: var(--gray); font-size: 10px; font-weight: 1000; }
+    .question { margin-top: 4px; font-size: 15px; font-weight: 1000; line-height: 1.25; }
+    .equation { margin: 0; font-size: clamp(29px, 9vw, 39px); font-weight: 1000; line-height: 1.15; letter-spacing: -.04em; }
+    .equation .target-num { color: var(--blue); text-decoration: underline 5px var(--acid); text-underline-offset: 2px; }
+    .desc { min-height: 20px; font-size: 12px; font-weight: 800; color: #4f4f4f; }
+
+    .visual {
+      min-height: 91px;
+      margin: 8px 0;
+      padding: 8px;
+      background: #eeeeee;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .visual::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(90deg, rgba(17,17,17,.06) 1px, transparent 1px), linear-gradient(rgba(17,17,17,.06) 1px, transparent 1px);
+      background-size: 12px 12px;
+      pointer-events: none;
+    }
+
+    .visual > * { position: relative; z-index: 1; }
+
+    .target-poster { height: 69px; display: grid; place-items: center; }
+    .target-poster span { display: inline-block; background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); padding: 5px 15px; font-size: 26px; font-weight: 1000; transform: rotate(-2deg); }
+    .target-poster small { display: block; text-align: center; font-size: 10px; font-weight: 1000; margin-top: 5px; }
+
+    .estimate-start { min-height: 69px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 1000; }
+    .estimate-start b { min-width: 58px; padding: 7px; text-align: center; background: var(--paper); border: 3px solid var(--ink); border-radius: 9px; font-size: 21px; }
+    .estimate-start i { font-style: normal; font-size: 24px; }
+    .estimate-start small { position: absolute; bottom: 0; font-size: 10px; }
+
+    .numberline { position: relative; height: 64px; margin: 4px 8px 0; border-bottom: 4px solid var(--ink); }
+    .numberline::before, .numberline::after { content: ""; position: absolute; bottom: -7px; width: 12px; height: 12px; border-top: 4px solid var(--ink); border-right: 4px solid var(--ink); }
+    .numberline::before { left: -2px; transform: rotate(-135deg); }
+    .numberline::after { right: -2px; transform: rotate(45deg); }
+    .nmark { position: absolute; bottom: -12px; transform: translateX(-50%); text-align: center; font-size: 11px; font-weight: 1000; }
+    .nmark::before { content: ""; display: block; width: 3px; height: 20px; margin: 0 auto 2px; background: var(--ink); }
+    .nmark.target { color: var(--blue); font-size: 15px; }
+    .nmark.target::before { width: 6px; background: var(--blue); }
+    .nmark.selected { color: var(--hot); }
+    .nmark.selected::before { width: 6px; background: var(--hot); }
+    .distance-note { text-align: center; font-size: 11px; font-weight: 1000; margin-top: 2px; }
+
+    .q-caption { font-size: 11px; font-weight: 1000; margin-bottom: 7px; }
+    .q-track { height: 48px; position: relative; border: 3px solid var(--ink); background: #d8d8d8; overflow: hidden; }
+    .capacity { position: absolute; inset: 0 auto 0 0; background: var(--paper); border-right: 4px dashed var(--ink); }
+    .q-block { position: absolute; top: 4px; bottom: 4px; display: grid; place-items: center; background: var(--acid); border: 2px solid var(--ink); border-left-width: 1px; font-size: 10px; font-weight: 1000; overflow: hidden; }
+    .q-block.overflow { background: var(--hot); }
+    .limit-label { position: absolute; top: 2px; padding: 1px 4px; background: var(--ink); color: var(--paper); font-size: 9px; font-style: normal; font-weight: 1000; transform: translateX(-100%); }
+    .unit-chip { position: absolute; right: 8px; bottom: 7px; background: var(--gray); border: 2px solid var(--ink); border-radius: 999px; padding: 2px 7px; font-size: 10px; font-weight: 1000; }
+
+    .mid-steps { display: grid; grid-template-columns: 1fr auto 1fr; gap: 5px; align-items: stretch; }
+    .mid-step { padding: 5px; background: var(--paper); border: 2px solid var(--ink); border-radius: 8px; text-align: center; font-size: 10px; font-weight: 900; }
+    .mid-step b { display: block; font-size: 17px; }
+    .mid-arrow { align-self: center; font-size: 20px; font-weight: 1000; }
+    .adjust { margin-top: 6px; text-align: center; font-size: 11px; font-weight: 1000; }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin: 0;
+    }
+
+    .choice {
+      min-height: 65px;
+      border: 3px solid var(--ink);
+      border-radius: 10px 15px 11px 13px;
+      background: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink);
+      cursor: pointer;
+      font-size: 26px;
+      font-weight: 1000;
+      line-height: 1;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    }
+
+    .choice small { display: block; margin-top: 5px; font-size: 10px; font-weight: 900; }
+    .choice:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+    .choice.good { background: var(--acid); animation: choice-pop .35s ease; }
+    .choice.tried { background: #b9b9b9; color: #4a4a4a; box-shadow: none; transform: translate(3px, 3px); }
+    .choice:disabled { cursor: default; opacity: 1; }
+
+    @keyframes choice-pop { 50% { transform: translateY(-6px) rotate(-2deg); } }
+
+    .feedback {
+      min-height: 59px;
+      margin-top: 8px;
+      padding: 8px 9px;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      background: #e4e4e4;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .feedback.good { background: var(--acid); }
+    .feedback.try { background: #ffd0d2; }
+    .feedback strong { font-size: 16px; }
+
+    .hintbox {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 9px;
+      border: 3px dashed var(--ink);
+      border-radius: 10px;
+      background: #d9dfff;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .hintbox.show { display: block; animation: slide-in .2s ease; }
+    @keyframes slide-in { from { opacity: 0; transform: translateY(-4px); } }
+
+    .actions { display: grid; grid-template-columns: .8fr 1.2fr; gap: 7px; margin-top: 8px; }
+    .action {
+      min-height: 46px;
+      border: 3px solid var(--ink);
+      border-radius: 11px;
+      background: var(--gray);
+      box-shadow: 3px 3px 0 var(--ink);
+      font-size: 13px;
+      font-weight: 1000;
+      cursor: pointer;
+    }
+    .action.primary { background: var(--hot); }
+    .action:disabled { background: #d8d8d8; color: #777; box-shadow: none; transform: translate(3px, 3px); cursor: default; }
+
+    .finish { text-align: center; padding: 5px 2px 3px; }
+    .finish[hidden], .round[hidden] { display: none; }
+    .finish-stamp { display: inline-block; padding: 5px 13px; background: var(--acid); border: 4px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); font-size: 23px; font-weight: 1000; transform: rotate(-3deg); }
+    .finish h2 { margin: 12px 0 4px; font-size: 21px; line-height: 1.2; }
+    .finish p { margin: 0 auto 12px; max-width: 310px; font-size: 13px; font-weight: 900; line-height: 1.45; }
+    .finish .actions { grid-template-columns: 1fr 1fr; }
+    .finish .action:first-child { background: var(--acid); }
+    .finish .action:last-child { background: var(--blue); color: var(--paper); }
+
+    .tiny-note { margin: 9px 2px 0; color: var(--paper); text-align: center; font-size: 10px; font-weight: 900; text-shadow: 1px 1px 0 var(--ink); }
+
+    .particles { position: fixed; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; }
+    .particle { position: absolute; left: var(--x); top: var(--y); width: 9px; height: 17px; background: var(--c); border: 2px solid var(--ink); animation: burst .8s ease-out both; animation-delay: var(--delay); }
+    @keyframes burst { from { opacity: 1; transform: translate(0,0) rotate(0); } to { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(220deg); } }
+
+    @media (max-width: 360px) {
+      .app { padding-left: 7px; padding-right: 7px; }
+      .arena { grid-template-columns: minmax(0, 1fr) 132px; }
+      .enemy { transform: scale(.91); }
+      .talk { font-size: 12px; }
+      .equation { font-size: 29px; }
+      .mode-name { font-size: 12px; }
+    }
+
+    @media (min-width: 700px) {
+      .app { padding-top: 18px; padding-bottom: 24px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app" data-mode="weak">
+    <header class="topbar">
+      <div class="brand"><strong>ギリギリバトル</strong><small>v0.4</small></div>
+      <button class="sound" id="sound" type="button" aria-pressed="false">音 OFF</button>
+    </header>
+
+    <nav class="modes" aria-label="バトルを選ぶ">
+      <button class="mode-tab on" type="button" data-mode="weak">
+        <span class="mode-level">弱い敵</span><span class="mode-name">近さ</span><span class="mode-dots" aria-hidden="true"></span>
+      </button>
+      <button class="mode-tab" type="button" data-mode="mid">
+        <span class="mode-level">中くらい</span><span class="mode-name">見立て</span><span class="mode-dots" aria-hidden="true"></span>
+      </button>
+      <button class="mode-tab" type="button" data-mode="strong">
+        <span class="mode-level">強い敵</span><span class="mode-name">何個入る？</span><span class="mode-dots" aria-hidden="true"></span>
+      </button>
+    </nav>
+
+    <section class="arena" aria-label="敵のようす">
+      <div class="enemy-copy">
+        <span class="mission" id="badge"></span>
+        <div class="talk" id="talk" aria-live="polite"></div>
+        <div class="remaining" id="remaining"></div>
+      </div>
+      <div class="enemy-wrap">
+        <div class="character" id="character" aria-hidden="true"></div>
+        <div class="enemy-name" id="enemyName"></div>
+      </div>
+    </section>
+
+    <section class="game" aria-label="数字バトル">
+      <div class="round" id="round">
+        <div class="problem-head">
+          <span class="kicker" id="kicker"></span>
+          <div class="question" id="question"></div>
+          <p class="equation" id="equation"></p>
+          <div class="desc" id="desc"></div>
+        </div>
+        <div class="visual" id="visual" aria-label="数字の関係を表す図"></div>
+        <div class="choices" id="choices" role="group" aria-label="答えを選ぶ"></div>
+        <div class="hintbox" id="hintbox" aria-live="polite"></div>
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <div class="actions">
+          <button class="action" id="hint" type="button">ヒント 0/3</button>
+          <button class="action primary" id="next" type="button" disabled>数字をえらぼう</button>
+        </div>
+      </div>
+
+      <div class="finish" id="finish" hidden>
+        <div class="finish-stamp" id="finishStamp">やっつけた。</div>
+        <h2 id="finishTitle"></h2>
+        <p id="finishText"></p>
+        <div class="actions">
+          <button class="action" id="replay" type="button">もう一回</button>
+          <button class="action" id="nextEnemy" type="button">つぎの敵へ</button>
+        </div>
+      </div>
+    </section>
+
+    <p class="tiny-note">まちがえてもHPは減らない。数字の差が見えるだけ。</p>
+    <div class="particles" id="particles" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const rnd = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const pick = (items) => items[rnd(0, items.length - 1)];
+    const shuffle = (items) => {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = rnd(0, i);
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+
+    const modeOrder = ["weak", "mid", "strong"];
+    const enemies = {
+      weak: {
+        name: "まだ湿ってるTシャツ",
+        kind: "shirt",
+        badge: "近さを感じろ",
+        intro: ["乾いてます。<br>気持ちとしては。", "その距離感、<br>信用していい？"],
+        hits: ["水分にだけ効いた。", "ちょっと風、強くない？", "乾燥という名の攻撃。", "あと一滴は聞いてない。"],
+        misses: ["そこ、わりと遠い。", "数字との距離あるね。", "湿度は変わりません。"],
+        win: "敵だったっけ、俺。",
+        stamp: "乾いた。",
+        finish: "数字どうしの『近い・遠い』を5回見抜いた。ぴったりの答えがなくても、距離で選べている。"
+      },
+      mid: {
+        name: "終わらない宿題プリント",
+        kind: "book",
+        badge: "ざっくり見立てろ",
+        intro: ["だいたいで考える？<br>それ、困るんだけど。", "丸めるの禁止。<br>こっちが困るので。"],
+        hits: ["一枚だけだからね。", "見立てからの確認、ずるい。", "また減った。遺憾です。", "終わりが見えてきた。嫌。"],
+        misses: ["丸めた数字を見よう。", "その仮の商、雑すぎる。", "まだ一枚も減りません。"],
+        win: "……終わった。",
+        stamp: "終わった。",
+        finish: "『丸めて予想 → 本当の数で確かめる → 大きければ1つ下げる』を5回使った。筆算の仮の商につながる動きだ。"
+      },
+      strong: {
+        name: "親に替えられたパスワード",
+        kind: "tablet",
+        badge: "商を見抜け",
+        intro: ["何個入るか分かっても、<br>解除とは別です。", "入れすぎたら、<br>普通にオーバーです。"],
+        hits: ["ロックが一個だけ弱い。", "かけ算で確認するのやめて。", "残りの鍵、がんばれ。", "まだ親には言ってない。"],
+        misses: ["その個数、入ってない。", "オーバーはロックの味方。", "積を見たら分かるかもね。"],
+        win: "親には言うけどね。",
+        stamp: "解除した。",
+        finish: "除数を何個入れても被除数をこえないか、5回判断した。『商を立てて、かけて確かめる』感覚が育っている。"
+      }
+    };
+
+    const midProblems = [
+      { a: 68, b: 23, ra: 70, rb: 20, estimate: 3 },
+      { a: 87, b: 28, ra: 90, rb: 30, estimate: 3 },
+      { a: 96, b: 19, ra: 100, rb: 20, estimate: 5 },
+      { a: 119, b: 31, ra: 120, rb: 30, estimate: 4 },
+      { a: 83, b: 21, ra: 80, rb: 20, estimate: 4 },
+      { a: 124, b: 42, ra: 120, rb: 40, estimate: 3 },
+      { a: 161, b: 39, ra: 160, rb: 40, estimate: 4 },
+      { a: 146, b: 29, ra: 150, rb: 30, estimate: 5 }
+    ];
+
+    const strongProblems = [
+      [105, 25], [93, 22], [118, 29], [84, 19], [127, 31], [76, 18],
+      [96, 24], [132, 26], [143, 35], [108, 21], [92, 27], [174, 28]
+    ];
+
+    const state = Object.fromEntries(modeOrder.map((key) => [key, { progress: 0, defeated: false }]));
+    let mode = "weak";
+    let problem = null;
+    let hintLevel = 0;
+    let solved = false;
+    let attempted = new Set();
+    let soundOn = false;
+    let lastMidIndex = -1;
+    let lastStrongIndex = -1;
+
+    function makeWeak() {
+      const target = rnd(18, 82);
+      const distances = [rnd(1, 2), rnd(3, 5), rnd(7, 10)];
+      const signs = shuffle([-1, 1, Math.random() < .5 ? -1 : 1]);
+      const values = shuffle(distances.map((distance, index) => target + distance * signs[index]));
+      const bestDistance = Math.min(...values.map((value) => Math.abs(value - target)));
+      return { target, values, answer: values.find((value) => Math.abs(value - target) === bestDistance) };
+    }
+
+    function nextFrom(items, previousIndex) {
+      let index = rnd(0, items.length - 1);
+      if (items.length > 1 && index === previousIndex) index = (index + 1) % items.length;
+      return index;
+    }
+
+    function makeMid() {
+      lastMidIndex = nextFrom(midProblems, lastMidIndex);
+      const base = midProblems[lastMidIndex];
+      const final = Math.floor(base.a / base.b);
+      return { ...base, final, values: shuffle([base.estimate - 1, base.estimate, base.estimate + 1]) };
+    }
+
+    function makeStrong() {
+      lastStrongIndex = nextFrom(strongProblems, lastStrongIndex);
+      const [a, b] = strongProblems[lastStrongIndex];
+      const answer = Math.floor(a / b);
+      return { a, b, answer, remainder: a - b * answer, values: shuffle([answer - 1, answer, answer + 1]) };
+    }
+
+    function makeProblem() {
+      if (mode === "weak") return makeWeak();
+      if (mode === "mid") return makeMid();
+      return makeStrong();
+    }
+
+    function say(message) { $("talk").innerHTML = message; }
+
+    function renderModeTabs() {
+      document.querySelectorAll(".mode-tab").forEach((tab) => {
+        const key = tab.dataset.mode;
+        const selected = key === mode;
+        tab.classList.toggle("on", selected);
+        tab.setAttribute("aria-current", selected ? "true" : "false");
+        tab.setAttribute("aria-label", `${tab.querySelector(".mode-level").textContent} ${tab.querySelector(".mode-name").textContent} ${state[key].progress}/5`);
+        tab.querySelector(".mode-dots").innerHTML = Array.from({ length: 5 }, (_, index) => `<i class="${index < state[key].progress ? "done" : ""}"></i>`).join("");
+      });
+    }
+
+    function shirtCharacter(progress) {
+      const fillSteps = ["#8b8b8b", "#9f9f9f", "#b4b4b4", "#c9c9c9", "#dedede", "#f1f1f1"];
+      const positions = [[-48, -35], [32, -30], [-37, 8], [24, 15], [-4, 34]];
+      const drops = positions.map(([x, y], index) => `<i class="drop ${index < progress ? "gone" : ""}" style="--x:${x}px;--y:${y}px"></i>`).join("");
+      return `<div class="enemy enemy-shirt phase-${progress}" style="--enemy-fill:${fillSteps[progress]}"><div class="shirt-shape"></div><i class="eye one"></i><i class="eye two"></i><i class="mouth"></i>${drops}${progress === 5 ? '<span class="dry-stamp">DRY.</span>' : ""}</div>`;
+    }
+
+    function bookCharacter(progress) {
+      const remaining = 5 - progress;
+      if (remaining === 0) return '<div class="enemy enemy-book phase-5"><div class="done-paper">済</div></div>';
+      const papers = Array.from({ length: remaining }, (_, index) => `<i class="paper" style="--i:${index}"></i>`).join("");
+      return `<div class="enemy enemy-book phase-${progress}">${papers}<i class="eye one"></i><i class="eye two"></i><i class="mouth"></i></div>`;
+    }
+
+    function tabletCharacter(progress) {
+      const locks = Array.from({ length: 5 }, (_, index) => {
+        if (index < progress) return "";
+        return `<i class="lock" style="--angle:${index * 72}deg"></i>`;
+      }).join("");
+      return `<div class="enemy enemy-tablet phase-${progress}"><div class="tablet-body"></div><i class="eye one"></i><i class="eye two"></i><i class="mouth"></i>${locks}${progress === 5 ? '<span class="unlock">UNLOCKED</span>' : ""}</div>`;
+    }
+
+    function renderEnemy(animation = "") {
+      const info = enemies[mode];
+      const progress = state[mode].progress;
+      $("badge").textContent = info.badge;
+      $("enemyName").textContent = info.name;
+      $("character").innerHTML = info.kind === "shirt" ? shirtCharacter(progress) : info.kind === "book" ? bookCharacter(progress) : tabletCharacter(progress);
+      const enemy = $("character").firstElementChild;
+      if (animation && enemy) {
+        requestAnimationFrame(() => enemy.classList.add(animation));
+      }
+      const left = 5 - progress;
+      $("remaining").textContent = left > 0 ? `あと ${left} 回でやっつける` : "5回成功。もう言い訳できない。";
+      renderModeTabs();
+    }
+
+    function targetStart(target) {
+      return `<div class="target-poster"><div><span>${target} くらい</span><small>ぴったりの ${target} は選択肢にいない</small></div></div>`;
+    }
+
+    function numberLine(target, values, selected) {
+      const all = [...values, target];
+      const min = Math.min(...all) - 2;
+      const max = Math.max(...all) + 2;
+      const left = (value) => 5 + ((value - min) / (max - min)) * 90;
+      const marks = values.map((value) => `<span class="nmark ${value === selected ? "selected" : ""}" style="left:${left(value)}%">${value}</span>`).join("");
+      const distance = Math.abs(selected - target);
+      const direction = selected < target ? `${distance} 足りない` : `${distance} 大きい`;
+      return `<div class="numberline">${marks}<span class="nmark target" style="left:${left(target)}%">${target}</span></div><div class="distance-note">${selected} は ${target} より ${direction}</div>`;
+    }
+
+    function quantityVisual(total, unit, count, caption = "") {
+      const used = unit * count;
+      const scale = Math.max(total, used, unit);
+      const targetPercent = (total / scale) * 100;
+      const blocks = Array.from({ length: count }, (_, index) => {
+        const left = (index * unit / scale) * 100;
+        const width = (unit / scale) * 100;
+        const overflow = (index + 1) * unit > total;
+        return `<span class="q-block ${overflow ? "overflow" : ""}" style="left:${left}%;width:${width}%">${unit}</span>`;
+      }).join("");
+      const relation = count === 0 ? `${unit} が何個入る？` : `${unit} × ${count} = ${used}`;
+      return `<div class="q-caption">${caption || relation}</div><div class="q-track"><span class="capacity" style="width:${targetPercent}%"></span>${blocks}<i class="limit-label" style="left:${targetPercent}%">${total}</i></div><span class="unit-chip">1個 = ${unit}</span>`;
+    }
+
+    function midCheckVisual(p, selected) {
+      const actualProduct = p.b * selected;
+      const isEstimate = selected === p.estimate;
+      const adjusted = p.estimate > p.final;
+      let last = `${p.b} × ${selected} = ${actualProduct}`;
+      if (isEstimate) last += adjusted ? `<br>${actualProduct - p.a}こえた → ${p.final} に直す` : `<br>${p.a - actualProduct}余る → そのまま`;
+      return `<div class="mid-steps"><div class="mid-step">丸める<b>${p.ra} ÷ ${p.rb}</b></div><div class="mid-arrow">→</div><div class="mid-step">仮の商<b>${selected}</b></div></div><div class="adjust">本当の数で確認：${last}</div>`;
+    }
+
+    function renderProblem() {
+      $("kicker").textContent = `成功 ${state[mode].progress}/5`;
+      if (mode === "weak") {
+        $("question").textContent = "いちばん近い攻撃はどれ？";
+        $("equation").innerHTML = `<span class="target-num">${problem.target}</span> くらい`;
+        $("desc").textContent = "同じ数字は出ない。近さで選ぼう。";
+        $("visual").innerHTML = targetStart(problem.target);
+      } else if (mode === "mid") {
+        $("question").textContent = "まず、商をざっくり見立てると？";
+        $("equation").textContent = `${problem.a} ÷ ${problem.b}`;
+        $("desc").textContent = "丸めて仮の商を決め、本当の数で確かめる。";
+        $("visual").innerHTML = `<div class="estimate-start"><b>${problem.a}</b><i>÷</i><b>${problem.b}</b><small>近いキリのいい数にすると？</small></div>`;
+      } else {
+        $("question").textContent = `${problem.b} は ${problem.a} の中に何個入る？`;
+        $("equation").textContent = `${problem.a} ÷ ${problem.b} = ?`;
+        $("desc").textContent = "入れすぎず、まだ入る数も残さない。";
+        $("visual").innerHTML = quantityVisual(problem.a, problem.b, 0);
+      }
+
+      const smallLabel = mode === "weak" ? "こうげき" : mode === "mid" ? "仮の商" : "個";
+      $("choices").innerHTML = problem.values.map((value) => `<button class="choice" type="button" data-value="${value}" aria-label="${value}を選ぶ">${value}<small>${smallLabel}</small></button>`).join("");
+      document.querySelectorAll(".choice").forEach((button) => button.addEventListener("click", () => answer(Number(button.dataset.value), button)));
+    }
+
+    function resetRoundUi() {
+      hintLevel = 0;
+      solved = false;
+      attempted = new Set();
+      $("hintbox").classList.remove("show");
+      $("hintbox").innerHTML = "";
+      $("hint").textContent = "ヒント 0/3";
+      $("hint").disabled = false;
+      $("next").disabled = true;
+      $("next").textContent = "数字をえらぼう";
+      $("feedback").className = "feedback";
+      $("feedback").textContent = "選ぶと、数字の差や量が見える。";
+    }
+
+    function newProblem() {
+      if (state[mode].defeated) {
+        showFinish();
+        return;
+      }
+      $("round").hidden = false;
+      $("finish").hidden = true;
+      resetRoundUi();
+      problem = makeProblem();
+      renderEnemy();
+      say(state[mode].progress === 0 ? pick(enemies[mode].intro) : "つぎも来るの。<br>聞いてないけど。" );
+      renderProblem();
+    }
+
+    function setChoicesLocked(locked) {
+      document.querySelectorAll(".choice").forEach((button) => {
+        button.disabled = locked || attempted.has(Number(button.dataset.value));
+      });
+    }
+
+    function answer(value, button) {
+      if (solved || attempted.has(value)) return;
+
+      let correct = false;
+      let message = "";
+
+      if (mode === "weak") {
+        const distance = Math.abs(value - problem.target);
+        correct = value === problem.answer;
+        $("visual").innerHTML = numberLine(problem.target, problem.values, value);
+        message = correct
+          ? `<strong>${value}</strong> は ${problem.target} まで ${distance}。いちばん近い。`
+          : `<strong>${value}</strong> は ${problem.target} まで ${distance}。まだ近い数字がある。`;
+      } else if (mode === "mid") {
+        correct = value === problem.estimate;
+        $("visual").innerHTML = midCheckVisual(problem, value);
+        if (correct) {
+          const product = problem.b * value;
+          message = value > problem.final
+            ? `<strong>見立ては ${value}。</strong> でも ${problem.b}×${value}=${product} で ${product - problem.a} こえる。だから商を ${problem.final} に1つ下げる。`
+            : `<strong>見立ては ${value}。</strong> ${problem.b}×${value}=${product} は入る。次はこえるので、そのままでOK。`;
+        } else {
+          message = value < problem.estimate
+            ? `<strong>${problem.ra}÷${problem.rb}</strong> なら、${value}個よりもう少し入りそう。`
+            : `<strong>${problem.ra}÷${problem.rb}</strong> で見ると、${value}個は大きそう。`;
+        }
+      } else {
+        const product = problem.b * value;
+        correct = value === problem.answer;
+        $("visual").innerHTML = quantityVisual(problem.a, problem.b, value);
+        if (correct) {
+          message = problem.remainder === 0
+            ? `<strong>${problem.b}×${value}=${product}</strong>。ぴったり入った。`
+            : `<strong>${problem.b}×${value}=${product}</strong>。${problem.a}まであと${problem.remainder}だから、${value}個入る。`;
+        } else if (product > problem.a) {
+          message = `<strong>${problem.b}×${value}=${product}</strong>。${problem.a}を${product - problem.a}こえた。1個へらすと？`;
+        } else {
+          const nextProduct = problem.b * (value + 1);
+          message = `<strong>${problem.b}×${value}=${product}</strong>。まだ${problem.a - product}ある。もう1個なら${nextProduct}。`;
+        }
+      }
+
+      if (correct) {
+        solved = true;
+        button.classList.add("good");
+        setChoicesLocked(true);
+        $("feedback").className = "feedback good";
+        $("feedback").innerHTML = message;
+        $("hint").disabled = true;
+        registerHit();
+      } else {
+        attempted.add(value);
+        button.classList.add("tried");
+        button.disabled = true;
+        $("feedback").className = "feedback try";
+        $("feedback").innerHTML = `${message}<br>ほかの数字を選んでみよう。`;
+        say(pick(enemies[mode].misses));
+        renderEnemy("miss");
+        playTone("miss");
+      }
+    }
+
+    function registerHit() {
+      const solvedMode = mode;
+      state[mode].progress += 1;
+      if (state[mode].progress >= 5) state[mode].defeated = true;
+      renderEnemy(state[mode].defeated ? "victory" : "hit");
+      say(state[mode].defeated ? enemies[mode].win : enemies[mode].hits[state[mode].progress - 1]);
+      burst(state[mode].defeated ? 20 : 9);
+      playTone(state[mode].defeated ? "win" : "hit");
+
+      if (state[mode].defeated) {
+        $("next").disabled = true;
+        $("next").textContent = "やっつけた";
+        window.setTimeout(() => {
+          if (mode === solvedMode && state[mode].defeated) showFinish();
+        }, 850);
+      } else {
+        $("next").disabled = false;
+        $("next").textContent = "つぎの一撃";
+      }
+    }
+
+    function hint() {
+      if (solved) return;
+      hintLevel = Math.min(3, hintLevel + 1);
+      $("hint").textContent = `ヒント ${hintLevel}/3`;
+      $("hintbox").classList.add("show");
+
+      if (mode === "weak") {
+        if (hintLevel === 1) $("hintbox").textContent = `ヒント1：${problem.target}より小さいか、大きいかを先に見る。`;
+        if (hintLevel === 2) $("hintbox").textContent = `ヒント2：候補から${problem.target}まで、いくつ動くか数えてみる。`;
+        if (hintLevel === 3) $("hintbox").textContent = `ヒント3：${problem.values.map((value) => `${value}は${Math.abs(value - problem.target)}はなれる`).join(" ／ ")}`;
+      } else if (mode === "mid") {
+        if (hintLevel === 1) $("hintbox").innerHTML = `ヒント1：<strong>${problem.a}→${problem.ra}</strong>、<strong>${problem.b}→${problem.rb}</strong> と見てみる。`;
+        if (hintLevel === 2) $("hintbox").innerHTML = `ヒント2：<strong>${problem.ra}÷${problem.rb}</strong> なら、だいたい何個？`;
+        if (hintLevel === 3) {
+          $("hintbox").innerHTML = `ヒント3：仮の商は <strong>${problem.estimate}</strong>。このあと本当の ${problem.b} で確かめる。`;
+          $("visual").innerHTML = quantityVisual(problem.ra, problem.rb, problem.estimate, `${problem.ra} の中に ${problem.rb} を並べる`);
+        }
+      } else {
+        const middle = [...problem.values].sort((a, b) => a - b)[1];
+        if (hintLevel === 1) $("hintbox").textContent = `ヒント1：${problem.b}を何回か足して、${problem.a}をこえない所を探す。`;
+        if (hintLevel === 2) $("hintbox").textContent = `ヒント2：${problem.b}×${middle}=${problem.b * middle}。まだ入る？ もうこえる？`;
+        if (hintLevel === 3) {
+          $("hintbox").innerHTML = `ヒント3：${problem.b}を${problem.answer}個なら、${problem.b * problem.answer}。`;
+          $("visual").innerHTML = quantityVisual(problem.a, problem.b, problem.answer);
+        }
+      }
+    }
+
+    function showFinish() {
+      $("round").hidden = true;
+      $("finish").hidden = false;
+      $("finishStamp").textContent = enemies[mode].stamp;
+      $("finishTitle").textContent = enemies[mode].name;
+      $("finishText").textContent = enemies[mode].finish;
+      renderEnemy("victory");
+      say(enemies[mode].win);
+    }
+
+    function restartMode() {
+      state[mode] = { progress: 0, defeated: false };
+      newProblem();
+    }
+
+    function moveToNextEnemy() {
+      const nextMode = modeOrder[(modeOrder.indexOf(mode) + 1) % modeOrder.length];
+      switchMode(nextMode);
+    }
+
+    function switchMode(nextMode) {
+      mode = nextMode;
+      $("app").dataset.mode = mode;
+      if (state[mode].defeated) showFinish();
+      else newProblem();
+    }
+
+    function burst(count) {
+      const colors = ["var(--acid)", "var(--hot)", "var(--paper)"];
+      $("particles").innerHTML = Array.from({ length: count }, (_, index) => {
+        const angle = (Math.PI * 2 * index) / count;
+        const distance = rnd(55, 130);
+        return `<i class="particle" style="--x:${rnd(38, 62)}%;--y:${rnd(26, 43)}%;--dx:${Math.cos(angle) * distance}px;--dy:${Math.sin(angle) * distance}px;--delay:${index * 8}ms;--c:${colors[index % colors.length]}"></i>`;
+      }).join("");
+      window.setTimeout(() => { $("particles").innerHTML = ""; }, 1100);
+    }
+
+    function playTone(kind) {
+      if (!soundOn) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const context = playTone.context || (playTone.context = new AudioContext());
+      const notes = kind === "win" ? [392, 523, 659] : kind === "hit" ? [330, 494] : [180];
+      notes.forEach((frequency, index) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = kind === "miss" ? "square" : "triangle";
+        oscillator.frequency.value = frequency;
+        gain.gain.setValueAtTime(.0001, context.currentTime + index * .08);
+        gain.gain.exponentialRampToValueAtTime(.07, context.currentTime + index * .08 + .01);
+        gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + index * .08 + .13);
+        oscillator.connect(gain).connect(context.destination);
+        oscillator.start(context.currentTime + index * .08);
+        oscillator.stop(context.currentTime + index * .08 + .15);
+      });
+    }
+
+    document.querySelectorAll(".mode-tab").forEach((tab) => tab.addEventListener("click", () => switchMode(tab.dataset.mode)));
+    $("hint").addEventListener("click", hint);
+    $("next").addEventListener("click", () => { if (solved && !state[mode].defeated) newProblem(); });
+    $("replay").addEventListener("click", restartMode);
+    $("nextEnemy").addEventListener("click", moveToNextEnemy);
+    $("sound").addEventListener("click", () => {
+      soundOn = !soundOn;
+      $("sound").textContent = soundOn ? "音 ON" : "音 OFF";
+      $("sound").setAttribute("aria-pressed", String(soundOn));
+      if (soundOn) playTone("hit");
+    });
+
+    newProblem();
+  </script>
+</body>
+</html>
