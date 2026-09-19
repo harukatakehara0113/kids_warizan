@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#3554ff">
+  <meta name="theme-color" content="#d2d2d2">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="数字の近さ・見立て・商の感覚を、日常の困りごととのバトルで身につける算数ゲーム。">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23d6ff37'/%3E%3Cpath d='M12 35h40M23 17l-9 18 9 12M41 17l9 18-9 12' fill='none' stroke='%23111111' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='35' r='6' fill='%23ff5a5f' stroke='%23111111' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23d6ff37'/%3E%3Cpath d='M12 35h40M23 17l-9 18 9 12M41 17l9 18-9 12' fill='none' stroke='%23111111' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='35' r='6' fill='%233554ff' stroke='%23111111' stroke-width='4'/%3E%3C/svg%3E">
   <title>ギリギリバトル v0.4</title>
   <style>
     :root {
@@ -15,9 +15,9 @@
       --paper: #fffdf5;
       --gray: #c9c9c9;
       --gray-dark: #737373;
-      --blue: #3554ff;
-      --acid: #d6ff37;
-      --hot: #ff5a5f;
+      --backdrop: #d2d2d2;
+      --main: #3554ff;
+      --accent: #d6ff37;
       --shadow: 5px 5px 0 var(--ink);
     }
 
@@ -28,10 +28,7 @@
     body {
       color: var(--ink);
       font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
-      background:
-        radial-gradient(circle at 13% 9%, var(--acid) 0 7%, transparent 7.3%),
-        radial-gradient(circle at 88% 88%, var(--hot) 0 12%, transparent 12.3%),
-        var(--blue);
+      background: var(--backdrop);
       overscroll-behavior-y: none;
     }
 
@@ -70,7 +67,7 @@
       height: 70px;
       right: -80px;
       top: 92px;
-      background: var(--paper);
+      background: var(--main);
       border: 4px solid var(--ink);
       transform: rotate(14deg);
       z-index: -1;
@@ -104,7 +101,7 @@
       min-height: 38px;
       border: 3px solid var(--ink);
       border-radius: 999px;
-      background: var(--acid);
+      background: var(--accent);
       box-shadow: 3px 3px 0 var(--ink);
       font-size: 12px;
       font-weight: 1000;
@@ -132,9 +129,9 @@
     }
 
     .mode-tab:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
-    .mode-tab.on { background: var(--acid); transform: translateY(-2px) rotate(-1deg); }
-    .mode-tab:nth-child(2).on { background: var(--hot); }
-    .mode-tab:nth-child(3).on { background: var(--blue); color: var(--paper); }
+    .mode-tab.on,
+    .mode-tab:nth-child(2).on,
+    .mode-tab:nth-child(3).on { background: var(--main); color: var(--paper); transform: translateY(-2px) rotate(-1deg); }
     .mode-level { display: block; font-size: 10px; margin-bottom: 3px; }
     .mode-name { display: block; font-size: 14px; }
     .mode-dots { display: flex; justify-content: center; gap: 3px; margin-top: 5px; }
@@ -150,14 +147,11 @@
       border: 4px solid var(--ink);
       border-radius: 22px 14px 22px 15px;
       box-shadow: var(--shadow);
-      background: var(--acid);
+      background: var(--main);
       padding: 9px 8px 7px 11px;
       position: relative;
       transition: background .25s ease;
     }
-
-    [data-mode="mid"] .arena { background: var(--hot); }
-    [data-mode="strong"] .arena { background: var(--blue); }
 
     .mission {
       display: inline-block;
@@ -206,8 +200,7 @@
 
     .enemy-wrap { text-align: center; min-width: 0; }
     .character { height: 118px; position: relative; display: grid; place-items: center; }
-    .enemy-name { margin-top: -2px; font-size: 11px; font-weight: 1000; line-height: 1.15; }
-    [data-mode="strong"] .enemy-name { color: var(--paper); }
+    .enemy-name { margin-top: -2px; color: var(--paper); font-size: 11px; font-weight: 1000; line-height: 1.15; }
 
     .enemy {
       width: 138px;
@@ -390,7 +383,10 @@
     .kicker { display: inline-block; padding: 3px 8px; border: 2px solid var(--ink); border-radius: 999px; background: var(--gray); font-size: 10px; font-weight: 1000; }
     .question { margin-top: 4px; font-size: 15px; font-weight: 1000; line-height: 1.25; }
     .equation { margin: 0; font-size: clamp(29px, 9vw, 39px); font-weight: 1000; line-height: 1.15; letter-spacing: -.04em; }
-    .equation .target-num { color: var(--blue); text-decoration: underline 5px var(--acid); text-underline-offset: 2px; }
+    .equation .target-num { color: var(--main); text-decoration: underline 5px var(--accent); text-underline-offset: 2px; }
+    .equation.rounding { word-spacing: .06em; }
+    .ones-muted { opacity: .28; font-weight: 700; transition: opacity .2s ease; }
+    .rounded-number { display: inline-block; padding: 0 4px; color: var(--main); text-decoration: underline 5px var(--accent); text-underline-offset: 3px; }
     .desc { min-height: 20px; font-size: 12px; font-weight: 800; color: #4f4f4f; }
 
     .visual {
@@ -430,17 +426,17 @@
     .numberline::after { right: -2px; transform: rotate(45deg); }
     .nmark { position: absolute; bottom: -12px; transform: translateX(-50%); text-align: center; font-size: 11px; font-weight: 1000; }
     .nmark::before { content: ""; display: block; width: 3px; height: 20px; margin: 0 auto 2px; background: var(--ink); }
-    .nmark.target { color: var(--blue); font-size: 15px; }
-    .nmark.target::before { width: 6px; background: var(--blue); }
-    .nmark.selected { color: var(--hot); }
-    .nmark.selected::before { width: 6px; background: var(--hot); }
+    .nmark.target { color: var(--main); font-size: 15px; }
+    .nmark.target::before { width: 6px; background: var(--main); }
+    .nmark.selected { color: var(--ink); }
+    .nmark.selected::before { width: 6px; background: var(--accent); }
     .distance-note { text-align: center; font-size: 11px; font-weight: 1000; margin-top: 2px; }
 
     .q-caption { font-size: 11px; font-weight: 1000; margin-bottom: 7px; }
     .q-track { height: 48px; position: relative; border: 3px solid var(--ink); background: #d8d8d8; overflow: hidden; }
     .capacity { position: absolute; inset: 0 auto 0 0; background: var(--paper); border-right: 4px dashed var(--ink); }
-    .q-block { position: absolute; top: 4px; bottom: 4px; display: grid; place-items: center; background: var(--acid); border: 2px solid var(--ink); border-left-width: 1px; font-size: 10px; font-weight: 1000; overflow: hidden; }
-    .q-block.overflow { background: var(--hot); }
+    .q-block { position: absolute; top: 4px; bottom: 4px; display: grid; place-items: center; background: var(--main); color: var(--paper); border: 2px solid var(--ink); border-left-width: 1px; font-size: 10px; font-weight: 1000; overflow: hidden; }
+    .q-block.overflow { background: repeating-linear-gradient(135deg, #777 0 6px, var(--paper) 6px 12px); color: var(--ink); }
     .limit-label { position: absolute; top: 2px; padding: 1px 4px; background: var(--ink); color: var(--paper); font-size: 9px; font-style: normal; font-weight: 1000; transform: translateX(-100%); }
     .unit-chip { position: absolute; right: 8px; bottom: 7px; background: var(--gray); border: 2px solid var(--ink); border-radius: 999px; padding: 2px 7px; font-size: 10px; font-weight: 1000; }
 
@@ -472,7 +468,7 @@
 
     .choice small { display: block; margin-top: 5px; font-size: 10px; font-weight: 900; }
     .choice:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
-    .choice.good { background: var(--acid); animation: choice-pop .35s ease; }
+    .choice.good { background: var(--accent); animation: choice-pop .35s ease; }
     .choice.tried { background: #b9b9b9; color: #4a4a4a; box-shadow: none; transform: translate(3px, 3px); }
     .choice:disabled { cursor: default; opacity: 1; }
 
@@ -490,8 +486,8 @@
       line-height: 1.35;
     }
 
-    .feedback.good { background: var(--acid); }
-    .feedback.try { background: #ffd0d2; }
+    .feedback.good { background: #e7e7e7; box-shadow: inset 8px 0 0 var(--accent); }
+    .feedback.try { background: #d2d2d2; box-shadow: inset 8px 0 0 #777; }
     .feedback strong { font-size: 16px; }
 
     .hintbox {
@@ -500,7 +496,8 @@
       padding: 8px 9px;
       border: 3px dashed var(--ink);
       border-radius: 10px;
-      background: #d9dfff;
+      background: #e2e2e2;
+      box-shadow: inset 7px 0 0 var(--accent);
       font-size: 12px;
       font-weight: 900;
       line-height: 1.35;
@@ -520,19 +517,19 @@
       font-weight: 1000;
       cursor: pointer;
     }
-    .action.primary { background: var(--hot); }
+    .action.primary { background: var(--main); color: var(--paper); }
     .action:disabled { background: #d8d8d8; color: #777; box-shadow: none; transform: translate(3px, 3px); cursor: default; }
 
     .finish { text-align: center; padding: 5px 2px 3px; }
     .finish[hidden], .round[hidden] { display: none; }
-    .finish-stamp { display: inline-block; padding: 5px 13px; background: var(--acid); border: 4px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); font-size: 23px; font-weight: 1000; transform: rotate(-3deg); }
+    .finish-stamp { display: inline-block; padding: 5px 13px; background: var(--accent); border: 4px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); font-size: 23px; font-weight: 1000; transform: rotate(-3deg); }
     .finish h2 { margin: 12px 0 4px; font-size: 21px; line-height: 1.2; }
     .finish p { margin: 0 auto 12px; max-width: 310px; font-size: 13px; font-weight: 900; line-height: 1.45; }
     .finish .actions { grid-template-columns: 1fr 1fr; }
-    .finish .action:first-child { background: var(--acid); }
-    .finish .action:last-child { background: var(--blue); color: var(--paper); }
+    .finish .action:first-child { background: var(--accent); }
+    .finish .action:last-child { background: var(--main); color: var(--paper); }
 
-    .tiny-note { margin: 9px 2px 0; color: var(--paper); text-align: center; font-size: 10px; font-weight: 900; text-shadow: 1px 1px 0 var(--ink); }
+    .tiny-note { margin: 9px 2px 0; color: var(--ink); text-align: center; font-size: 10px; font-weight: 900; }
 
     .particles { position: fixed; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; }
     .particle { position: absolute; left: var(--x); top: var(--y); width: 9px; height: 17px; background: var(--c); border: 2px solid var(--ink); animation: burst .8s ease-out both; animation-delay: var(--delay); }
@@ -785,6 +782,11 @@
       return `<div class="target-poster"><div><span>${target} くらい</span><small>ぴったりの ${target} は選択肢にいない</small></div></div>`;
     }
 
+    function muteOnes(value) {
+      const digits = String(value);
+      return `${digits.slice(0, -1)}<span class="ones-muted">${digits.slice(-1)}</span>`;
+    }
+
     function numberLine(target, values, selected) {
       const all = [...values, target];
       const min = Math.min(...all) - 2;
@@ -821,6 +823,7 @@
 
     function renderProblem() {
       $("kicker").textContent = `成功 ${state[mode].progress}/5`;
+      $("equation").className = "equation";
       if (mode === "weak") {
         $("question").textContent = "いちばん近い攻撃はどれ？";
         $("equation").innerHTML = `<span class="target-num">${problem.target}</span> くらい`;
@@ -892,6 +895,9 @@
           : `<strong>${value}</strong> は ${problem.target} まで ${distance}。まだ近い数字がある。`;
       } else if (mode === "mid") {
         correct = value === problem.estimate;
+        $("equation").className = "equation";
+        $("equation").textContent = `${problem.a} ÷ ${problem.b}`;
+        $("desc").textContent = "本当の数に戻して、かけ算で確かめる。";
         $("visual").innerHTML = midCheckVisual(problem, value);
         if (correct) {
           const product = problem.b * value;
@@ -971,8 +977,17 @@
         if (hintLevel === 2) $("hintbox").textContent = `ヒント2：候補から${problem.target}まで、いくつ動くか数えてみる。`;
         if (hintLevel === 3) $("hintbox").textContent = `ヒント3：${problem.values.map((value) => `${value}は${Math.abs(value - problem.target)}はなれる`).join(" ／ ")}`;
       } else if (mode === "mid") {
-        if (hintLevel === 1) $("hintbox").innerHTML = `ヒント1：<strong>${problem.a}→${problem.ra}</strong>、<strong>${problem.b}→${problem.rb}</strong> と見てみる。`;
-        if (hintLevel === 2) $("hintbox").innerHTML = `ヒント2：<strong>${problem.ra}÷${problem.rb}</strong> なら、だいたい何個？`;
+        if (hintLevel === 1) {
+          $("equation").classList.add("rounding");
+          $("equation").innerHTML = `${muteOnes(problem.a)} ÷ ${muteOnes(problem.b)}`;
+          $("desc").textContent = "薄くなった1の位をいったん脇に置き、十のまとまりで眺める。";
+          $("hintbox").innerHTML = "ヒント1：<strong>1の位を少し薄くした。</strong> 近いキリのいい数が見えてくる？";
+        }
+        if (hintLevel === 2) {
+          $("equation").innerHTML = `<span class="rounded-number">${problem.ra}</span> ÷ <span class="rounded-number">${problem.rb}</span>`;
+          $("desc").textContent = `${problem.a}は${problem.ra}くらい、${problem.b}は${problem.rb}くらい。`;
+          $("hintbox").innerHTML = `ヒント2：<strong>${problem.a}→${problem.ra}</strong>、<strong>${problem.b}→${problem.rb}</strong>。だいたい何個？`;
+        }
         if (hintLevel === 3) {
           $("hintbox").innerHTML = `ヒント3：仮の商は <strong>${problem.estimate}</strong>。このあと本当の ${problem.b} で確かめる。`;
           $("visual").innerHTML = quantityVisual(problem.ra, problem.rb, problem.estimate, `${problem.ra} の中に ${problem.rb} を並べる`);
@@ -1016,7 +1031,7 @@
     }
 
     function burst(count) {
-      const colors = ["var(--acid)", "var(--hot)", "var(--paper)"];
+      const colors = ["var(--main)", "var(--main)", "var(--main)", "var(--accent)", "var(--paper)"];
       $("particles").innerHTML = Array.from({ length: count }, (_, index) => {
         const angle = (Math.PI * 2 * index) / count;
         const distance = rnd(55, 130);
