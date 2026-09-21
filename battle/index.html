@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="数字の近さ・見立て・商の感覚から筆算の手順まで、日常の困りごととのバトルで身につける算数ゲーム。">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23d6ff37'/%3E%3Cpath d='M12 35h40M23 17l-9 18 9 12M41 17l9 18-9 12' fill='none' stroke='%23111111' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='35' r='6' fill='%233554ff' stroke='%23111111' stroke-width='4'/%3E%3C/svg%3E">
-  <title>ギリギリバトル v0.5</title>
+  <title>ギリギリバトル v0.6</title>
   <style>
     :root {
       --ink: #111111;
@@ -635,6 +635,109 @@
     .boss-choice:disabled { cursor: default; opacity: 1; }
     .boss-choice.wide { grid-column: 1 / -1; min-height: 52px; color: var(--paper); background: var(--main); }
 
+    .app[data-mode="boss"] { width: min(500px, 100%); }
+    .app[data-mode="boss"] .visual { min-height: 390px; overflow: visible; }
+
+    .long-division {
+      --cell: 42px;
+      padding: 7px 5px 9px;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 9px;
+      box-shadow: 3px 3px 0 var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ld-now {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 6px;
+      padding: 4px 6px;
+      background: #dedede;
+      border: 2px solid var(--ink);
+      border-radius: 7px;
+      font-size: 10px;
+      font-weight: 1000;
+    }
+
+    .ld-chip { display: inline-grid; place-items: center; min-width: 28px; min-height: 25px; padding: 2px 6px; border: 2px solid var(--ink); border-radius: 6px; font-size: 16px; }
+    .ld-chip.main { color: var(--paper); background: var(--main); }
+    .ld-chip.accent { background: var(--accent); }
+    .ld-chip.carry { background: var(--event-hint); border-radius: 999px; font-size: 13px; }
+
+    .ld-grid { display: grid; gap: 1px; justify-content: center; }
+    .ld-row { display: grid; grid-template-columns: 58px repeat(var(--digit-count), var(--cell)); min-height: 39px; align-items: stretch; }
+    .ld-prefix { min-width: 58px; display: flex; align-items: center; justify-content: flex-end; padding-right: 7px; font-size: 21px; font-weight: 1000; }
+    .ld-prefix.minus { color: var(--main); font-size: 25px; }
+    .ld-cell { min-width: var(--cell); min-height: 39px; position: relative; display: grid; place-items: center; border: 2px solid transparent; border-radius: 6px; font-size: 24px; font-weight: 1000; line-height: 1; transition: background .2s ease, color .2s ease, transform .2s ease; }
+    .ld-cell.empty { color: transparent; }
+    .ld-cell.ghost { color: #888; border-color: #aaa; border-style: dashed; }
+    .ld-cell.quotient { background: #e2e2e2; border-color: #777; border-style: dashed; }
+    button.ld-cell { cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+    button.ld-cell:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+    .ld-cell small { display: block; margin-top: 2px; font-size: 7px; line-height: 1; }
+    .ld-cell.fixed { background: var(--accent); border-color: var(--ink); border-style: solid; }
+    .ld-cell.trial { background: var(--paper); border-color: var(--main); border-style: solid; }
+    .ld-cell.tried { color: #777; background: #c7c7c7; box-shadow: none; }
+
+    .ld-dividend-cell { border-top: 4px solid var(--ink); border-radius: 0; }
+    .ld-dividend-cell.first { border-left: 4px solid var(--ink); border-radius: 9px 0 0 0; }
+    .ld-divisor { min-width: 58px; display: flex; align-items: center; justify-content: flex-end; gap: 1px; padding-right: 7px; }
+    .ld-divisor-digit { min-width: 24px; min-height: 30px; display: grid; place-items: center; border: 2px solid transparent; border-radius: 5px; font-size: 22px; font-style: normal; font-weight: 1000; }
+
+    .ld-cell.use-main, .ld-divisor-digit.use-main { color: var(--paper); background: var(--main); border-color: var(--ink); animation: use-pulse .72s ease infinite alternate; }
+    .ld-cell.use-accent, .ld-divisor-digit.use-accent { color: var(--ink); background: var(--accent); border-color: var(--ink); animation: use-pulse .72s ease infinite alternate; }
+    .ld-cell.use-carry { background: var(--event-hint); border-color: var(--ink); }
+    .ld-cell.just-written { color: var(--main); background: var(--accent); border-color: var(--ink); animation: write-pop .32s ease; }
+    @keyframes use-pulse { to { transform: translateY(-2px) scale(1.06); box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink); } }
+    @keyframes write-pop { 50% { transform: translateY(-5px) scale(1.12); } }
+
+    .ld-carry-note {
+      position: absolute;
+      left: -2px;
+      top: -10px;
+      z-index: 4;
+      min-width: 21px;
+      height: 21px;
+      display: grid;
+      place-items: center;
+      background: var(--event-hint);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 1000;
+      animation: write-pop .32s ease;
+    }
+    .ld-carry-note.spent { opacity: .72; transform: scale(.86); animation: none; }
+
+    .ld-rule-row { min-height: 8px; }
+    .ld-rule-cell { min-height: 8px; border-bottom: 3px solid var(--ink); border-radius: 0; }
+    .ld-work-row { min-height: 43px; }
+    .ld-work-row .ld-cell { min-height: 43px; }
+    .ld-row-label { align-self: center; justify-self: end; padding-right: 6px; color: #555; font-size: 8px; font-weight: 1000; }
+
+    .ld-borrowed { position: relative; }
+    .ld-borrowed .ld-old { opacity: .42; text-decoration: line-through 3px var(--event-miss); }
+    .ld-borrow-value { position: absolute; right: -2px; top: -9px; z-index: 5; min-width: 25px; padding: 2px 3px; background: var(--event-hint); border: 2px solid var(--ink); border-radius: 6px; font-size: 12px; font-weight: 1000; }
+    .ld-down-arrow { position: absolute; right: -2px; top: -15px; z-index: 4; color: var(--main); font-size: 18px; font-weight: 1000; animation: digit-down .5s ease infinite alternate; }
+    .ld-step-gap { height: 5px; }
+
+    .column-name { display: inline-block; padding: 2px 7px; background: var(--ink); color: var(--paper); border-radius: 999px; font-size: 9px; font-weight: 1000; }
+    .column-equation { margin-top: 5px; font-size: 20px; font-weight: 1000; }
+    .column-note { margin-top: 4px; font-size: 11px; font-weight: 900; line-height: 1.35; }
+
+    @media (max-width: 380px) {
+      .long-division { --cell: 37px; padding-left: 3px; padding-right: 3px; }
+      .ld-row { grid-template-columns: 51px repeat(var(--digit-count), var(--cell)); }
+      .ld-prefix, .ld-divisor { min-width: 51px; padding-right: 4px; }
+      .ld-divisor-digit { min-width: 21px; font-size: 20px; }
+      .ld-cell { font-size: 22px; }
+    }
+
     .numberline { position: relative; height: 64px; margin: 4px 8px 0; border-bottom: 4px solid var(--ink); }
     .numberline::before, .numberline::after { content: ""; position: absolute; bottom: -7px; width: 12px; height: 12px; border-top: 4px solid var(--ink); border-right: 4px solid var(--ink); }
     .numberline::before { left: -2px; transform: rotate(-135deg); }
@@ -777,7 +880,7 @@
 <body>
   <main class="app" id="app" data-mode="weak">
     <header class="topbar">
-      <div class="brand"><strong>ギリギリバトル</strong><small>v0.5</small></div>
+      <div class="brand"><strong>ギリギリバトル</strong><small>v0.6</small></div>
       <button class="sound" id="sound" type="button" aria-pressed="false">音 OFF</button>
     </header>
 
@@ -1037,6 +1140,7 @@
         candidate: null,
         candidateVerified: false,
         retryReason: "",
+        subtraction: null,
         history: [],
         completedDigits: {},
         feedback: "商を立てる場所から始めよう。",
@@ -1351,32 +1455,267 @@
       return `<div class="boss-steps">${bossPhaseLabels.map((label, index) => `<span class="boss-step ${index < current ? "done" : ""} ${index === current ? "now" : ""}">${index + 1}<br>${label}</span>`).join("")}</div>`;
     }
 
+    function alignedDigits(value, endIndex) {
+      const map = {};
+      const digits = String(value).split("");
+      const start = endIndex - digits.length + 1;
+      digits.forEach((digit, index) => { map[start + index] = digit; });
+      return map;
+    }
+
+    function mergeClasses(target, index, className) {
+      target[index] = [target[index], className].filter(Boolean).join(" ");
+    }
+
+    function renderLongCells(count, values = {}, classes = {}, annotations = {}, carries = {}, arrows = {}) {
+      return Array.from({ length: count }, (_, index) => {
+        const hasValue = Object.prototype.hasOwnProperty.call(values, index);
+        const value = hasValue ? values[index] : "";
+        const annotated = Object.prototype.hasOwnProperty.call(annotations, index);
+        const content = annotated
+          ? `<span class="ld-old">${value}</span><span class="ld-borrow-value">${annotations[index]}</span>`
+          : value;
+        const carry = Object.prototype.hasOwnProperty.call(carries, index)
+          ? `<span class="ld-carry-note ${carries[index].spent ? "spent" : ""}">${carries[index].value}</span>`
+          : "";
+        const arrow = Object.prototype.hasOwnProperty.call(arrows, index)
+          ? `<span class="ld-down-arrow">↓${arrows[index]}</span>`
+          : "";
+        return `<span class="ld-cell ${hasValue ? "" : "empty"} ${annotated ? "ld-borrowed" : ""} ${classes[index] || ""}">${content}${carry}${arrow}</span>`;
+      }).join("");
+    }
+
+    function buildSubtractionPlan(top, bottom) {
+      const width = Math.max(String(top).length, String(bottom).length);
+      const topDigits = String(top).padStart(width, "0").split("").map(Number);
+      const bottomDigits = String(bottom).padStart(width, "0").split("").map(Number);
+      const working = [...topDigits];
+      const steps = [];
+
+      for (let column = width - 1; column >= 0; column -= 1) {
+        const changes = [];
+        let borrowed = false;
+        if (working[column] < bottomDigits[column]) {
+          let lender = column - 1;
+          while (lender >= 0 && working[lender] === 0) lender -= 1;
+          if (lender >= 0) {
+            borrowed = true;
+            working[lender] -= 1;
+            changes.push({ column: lender, value: working[lender] });
+            for (let index = lender + 1; index < column; index += 1) {
+              working[index] += 9;
+              changes.push({ column: index, value: working[index] });
+            }
+            working[column] += 10;
+            changes.push({ column, value: working[column] });
+          }
+        }
+        steps.push({
+          column,
+          borrowed,
+          changes,
+          minuend: working[column],
+          subtrahend: bottomDigits[column],
+          result: working[column] - bottomDigits[column]
+        });
+      }
+
+      return {
+        width,
+        topDigits,
+        bottomDigits,
+        steps,
+        index: 0,
+        action: steps[0].borrowed ? "borrow" : "digit",
+        results: Array(width).fill(null)
+      };
+    }
+
+    function subtractionAnnotations() {
+      const annotations = {};
+      const subtraction = bossRun.subtraction;
+      if (!subtraction || bossRun.phase !== "subtract") return annotations;
+      const includeCurrent = subtraction.action === "digit" || bossRun.phaseReady;
+      const limit = subtraction.index - (includeCurrent ? 0 : 1);
+      subtraction.steps.forEach((item, index) => {
+        if (index > limit) return;
+        item.changes.forEach((change) => { annotations[change.column] = change.value; });
+      });
+      return annotations;
+    }
+
+    function subtractionPlaceName(column, width) {
+      return placeName(column, width);
+    }
+
+    function longDivisionNow() {
+      const step = bossStep();
+      const q = bossRun.candidate;
+      if (bossRun.phase === "place") return `いま：<strong>${bossRun.b}が入る最初のまとまり</strong>を左から探す`;
+      if (bossRun.phase === "estimate") return `いま：<span class="ld-chip main">${step.partial}</span>を<span class="ld-chip accent">${bossRun.b}</span>でわる見当をつける`;
+      if (bossRun.phase === "multiply-ones") return `いま：商<span class="ld-chip main">${q}</span> × 一の位<span class="ld-chip accent">${bossRun.b % 10}</span>`;
+      if (bossRun.phase === "multiply-tens") {
+        const carry = Math.floor(((bossRun.b % 10) * q) / 10);
+        return `いま：商<span class="ld-chip main">${q}</span> × 十の位<span class="ld-chip accent">${Math.floor(bossRun.b / 10)}</span> ＋ <span class="ld-chip carry">${carry}</span>`;
+      }
+      if (bossRun.phase === "compare") return `いま：上の<span class="ld-chip main">${step.partial}</span>と下の積<span class="ld-chip accent">${bossRun.b * q}</span>をくらべる`;
+      if (bossRun.phase === "subtract" && bossRun.subtraction) {
+        const current = bossRun.subtraction.steps[bossRun.subtraction.index];
+        if (bossRun.subtraction.action === "borrow") return `いま：<span class="ld-chip main">${current.minuend - 10}</span>から<span class="ld-chip accent">${current.subtrahend}</span>は引けない → 左から1をかりる`;
+        return `いま：上の<span class="ld-chip main">${current.minuend}</span> − 下の<span class="ld-chip accent">${current.subtrahend}</span>`;
+      }
+      if (bossRun.phase === "bring") return `いま：余り<span class="ld-chip main">${step.remainder}</span>の右へ<span class="ld-chip accent">${step.nextDigit}</span>をおろす`;
+      return `完成：<strong>${bossRun.a} ÷ ${bossRun.b} = ${bossRun.quotient}</strong>`;
+    }
+
     function bossDivisionBoard(interactivePlace = false) {
       const step = bossStep();
       const count = bossRun.digits.length;
-      const qSlots = bossRun.digits.map((_, index) => {
+      const currentQ = bossRun.candidate;
+      const qCells = bossRun.digits.map((_, index) => {
         const fixed = bossRun.completedDigits[index];
         const isCurrent = index === step.digitIndex;
-        const trial = isCurrent && bossRun.candidate !== null && bossRun.phase !== "place";
-        const value = fixed !== undefined ? fixed : trial ? bossRun.candidate : isCurrent && bossRun.phaseReady && bossRun.phase === "place" ? "?" : "";
-        const classes = ["q-slot", fixed !== undefined ? "fixed" : "", trial ? "trial" : "", isCurrent ? "current" : "", bossRun.phase === "place" && bossRun.phaseAttempts.has(index) ? "tried" : ""].filter(Boolean).join(" ");
+        const trial = isCurrent && currentQ !== null && bossRun.phase !== "place";
+        const value = fixed !== undefined ? fixed : trial ? currentQ : isCurrent && bossRun.phaseReady && bossRun.phase === "place" ? "?" : "";
+        const activeMultiply = isCurrent && (bossRun.phase === "multiply-ones" || bossRun.phase === "multiply-tens");
+        const classes = ["ld-cell", "quotient", fixed !== undefined ? "fixed" : "", trial ? "trial" : "", activeMultiply ? "use-main" : "", bossRun.phase === "place" && bossRun.phaseAttempts.has(index) ? "tried" : ""].filter(Boolean).join(" ");
         if (interactivePlace) {
           return `<button class="${classes}" type="button" data-place="${index}" ${bossRun.phaseReady ? "disabled" : ""} aria-label="${placeName(index, count)}に商を立てる"><span>?</span><small>${placeName(index, count, true)}の位</small></button>`;
         }
-        return `<span class="${classes}">${value}</span>`;
+        return `<span class="${classes} ${value === "" ? "empty" : ""}">${value}</span>`;
       }).join("");
 
-      const digitCells = bossRun.digits.map((digit, index) => {
-        const firstCycleFocus = bossRun.stepIndex === 0 && bossRun.phase === "place" && index <= step.digitIndex;
-        const dropped = bossRun.phase === "bring" && bossRun.phaseReady && index === step.digitIndex + 1;
-        return `<span class="boss-digit ${firstCycleFocus ? "focus" : ""} ${dropped ? "down" : ""}">${digit}</span>`;
-      }).join("");
-      const history = bossRun.history.map((item) => {
-        const down = item.nextDigit === null ? "" : ` ↓${item.nextDigit} → ${item.nextPartial}`;
-        return `<span class="history-chip">${item.partial}−${item.product}=${item.remainder}${down}</span>`;
-      }).join("");
+      const sourceClasses = {};
+      const sourceAnnotations = {};
+      const sourceStart = step.digitIndex - String(step.partial).length + 1;
+      const sourceIndices = Object.keys(alignedDigits(step.partial, step.digitIndex)).map(Number);
+      if (bossRun.phase === "place") {
+        for (let index = 0; index <= step.digitIndex; index += 1) mergeClasses(sourceClasses, index, "use-main");
+      }
+      if (bossRun.phase === "estimate" || bossRun.phase === "compare") {
+        sourceIndices.forEach((index) => mergeClasses(sourceClasses, index, "use-main"));
+      }
+      if (bossRun.phase === "subtract" && bossRun.subtraction) {
+        const current = bossRun.subtraction.steps[bossRun.subtraction.index];
+        mergeClasses(sourceClasses, sourceStart + current.column, "use-main");
+        const annotations = subtractionAnnotations();
+        Object.entries(annotations).forEach(([column, value]) => { sourceAnnotations[sourceStart + Number(column)] = value; });
+        if (bossRun.subtraction.action === "borrow") {
+          current.changes.forEach((change) => {
+            if (change.column !== current.column) mergeClasses(sourceClasses, sourceStart + change.column, "use-carry");
+          });
+        }
+      }
 
-      return `<div class="boss-paper"><div class="q-row" style="--digit-count:${count}"><span class="q-spacer"></span>${qSlots}</div><div class="division-row"><span class="boss-divisor">${bossRun.b}</span><div class="boss-dividend" style="--digit-count:${count}">${digitCells}</div></div><div class="boss-history">${history || '<span class="history-chip">途中の計算がここにつながる</span>'}</div></div>`;
+      const divisorDigits = String(bossRun.b).split("");
+      const divisorActive = bossRun.phase === "multiply-ones" ? divisorDigits.length - 1 : bossRun.phase === "multiply-tens" ? 0 : -1;
+      const divisor = `<span class="ld-divisor">${divisorDigits.map((digit, index) => `<i class="ld-divisor-digit ${index === divisorActive ? "use-accent" : ""}">${digit}</i>`).join("")}</span>`;
+
+      const dividendValues = Object.fromEntries(bossRun.digits.map((digit, index) => [index, digit]));
+      const dividendClasses = {};
+      bossRun.digits.forEach((_, index) => {
+        mergeClasses(dividendClasses, index, `ld-dividend-cell ${index === 0 ? "first" : ""}`);
+        if (bossRun.stepIndex === 0 && sourceClasses[index]) mergeClasses(dividendClasses, index, sourceClasses[index]);
+        if (bossRun.phase === "bring" && index === step.digitIndex + 1) mergeClasses(dividendClasses, index, "use-accent");
+      });
+      const dividendAnnotations = bossRun.stepIndex === 0 ? sourceAnnotations : {};
+
+      const rows = [];
+      rows.push(`<div class="ld-row"><span class="ld-prefix ld-row-label">商</span>${qCells}</div>`);
+      rows.push(`<div class="ld-row">${divisor}${renderLongCells(count, dividendValues, dividendClasses, dividendAnnotations)}</div>`);
+
+      bossRun.history.forEach((item, historyIndex) => {
+        const productValues = alignedDigits(item.product, item.digitIndex);
+        rows.push(`<div class="ld-row ld-work-row"><span class="ld-prefix minus">−</span>${renderLongCells(count, productValues)}</div>`);
+        const ruleClasses = {};
+        Object.keys(productValues).forEach((index) => { ruleClasses[index] = "ld-rule-cell"; });
+        rows.push(`<div class="ld-row ld-rule-row"><span class="ld-prefix"></span>${renderLongCells(count, {}, ruleClasses)}</div>`);
+        const resultEnd = item.nextDigit === null ? item.digitIndex : item.digitIndex + 1;
+        const resultValue = item.nextDigit === null ? item.remainder : item.nextPartial;
+        const resultValues = alignedDigits(resultValue, resultEnd);
+        const resultClasses = {};
+        const resultAnnotations = {};
+        if (historyIndex === bossRun.stepIndex - 1) {
+          Object.entries(sourceClasses).forEach(([index, value]) => { resultClasses[index] = value; });
+          Object.entries(sourceAnnotations).forEach(([index, value]) => { resultAnnotations[index] = value; });
+        }
+        rows.push(`<div class="ld-row ld-work-row"><span class="ld-prefix ld-row-label">${item.nextDigit === null ? "余り" : "おろす"}</span>${renderLongCells(count, resultValues, resultClasses, resultAnnotations)}</div>`);
+        rows.push('<div class="ld-step-gap"></div>');
+      });
+
+      if (bossRun.phase !== "place" && bossRun.phase !== "estimate" && bossRun.phase !== "done") {
+        const product = bossRun.b * currentQ;
+        const fullProduct = alignedDigits(product, step.digitIndex);
+        const productValues = {};
+        const productClasses = {};
+        const carries = {};
+        const productIndices = Object.keys(fullProduct).map(Number);
+        const onesRaw = (bossRun.b % 10) * currentQ;
+        const carry = Math.floor(onesRaw / 10);
+        const carryIndex = Math.max(0, step.digitIndex - 1);
+
+        if (bossRun.phase === "multiply-ones") {
+          productValues[step.digitIndex] = bossRun.phaseReady ? onesRaw % 10 : "?";
+          mergeClasses(productClasses, step.digitIndex, bossRun.phaseReady ? "just-written" : "use-accent");
+          if (bossRun.phaseReady && carry) carries[carryIndex] = { value: carry, spent: false };
+        } else if (bossRun.phase === "multiply-tens") {
+          productValues[step.digitIndex] = onesRaw % 10;
+          if (carry) carries[carryIndex] = { value: carry, spent: bossRun.phaseReady };
+          if (bossRun.phaseReady) {
+            Object.assign(productValues, fullProduct);
+            productIndices.filter((index) => index !== step.digitIndex).forEach((index) => mergeClasses(productClasses, index, "just-written"));
+          } else {
+            productIndices.filter((index) => index !== step.digitIndex).forEach((index) => {
+              productValues[index] = "?";
+              mergeClasses(productClasses, index, "use-accent");
+            });
+          }
+        } else {
+          Object.assign(productValues, fullProduct);
+          if (carry) carries[carryIndex] = { value: carry, spent: true };
+          if (bossRun.phase === "compare") productIndices.forEach((index) => mergeClasses(productClasses, index, "use-accent"));
+          if (bossRun.phase === "subtract" && bossRun.subtraction) {
+            const current = bossRun.subtraction.steps[bossRun.subtraction.index];
+            mergeClasses(productClasses, sourceStart + current.column, "use-accent");
+          }
+        }
+
+        rows.push(`<div class="ld-row ld-work-row"><span class="ld-prefix minus">−</span>${renderLongCells(count, productValues, productClasses, {}, carries)}</div>`);
+        if (bossRun.phase === "compare" || bossRun.phase === "subtract" || bossRun.phase === "bring" || (bossRun.phase === "multiply-tens" && bossRun.phaseReady)) {
+          const ruleClasses = {};
+          productIndices.forEach((index) => { ruleClasses[index] = "ld-rule-cell"; });
+          rows.push(`<div class="ld-row ld-rule-row"><span class="ld-prefix"></span>${renderLongCells(count, {}, ruleClasses)}</div>`);
+        }
+
+        if (bossRun.phase === "subtract" && bossRun.subtraction) {
+          const resultValues = {};
+          const resultClasses = {};
+          bossRun.subtraction.results.forEach((value, column) => {
+            if (value !== null) resultValues[sourceStart + column] = value;
+          });
+          const current = bossRun.subtraction.steps[bossRun.subtraction.index];
+          const currentGlobal = sourceStart + current.column;
+          if (bossRun.subtraction.action === "digit" && !bossRun.phaseReady) {
+            resultValues[currentGlobal] = "?";
+            resultClasses[currentGlobal] = "ghost";
+          }
+          if (bossRun.phaseReady && bossRun.subtraction.action === "digit") resultClasses[currentGlobal] = "just-written";
+          rows.push(`<div class="ld-row ld-work-row"><span class="ld-prefix ld-row-label">答え</span>${renderLongCells(count, resultValues, resultClasses)}</div>`);
+        }
+
+        if (bossRun.phase === "bring") {
+          const resultEnd = bossRun.phaseReady ? step.digitIndex + 1 : step.digitIndex;
+          const resultValue = bossRun.phaseReady ? step.remainder * 10 + step.nextDigit : step.remainder;
+          const resultValues = alignedDigits(resultValue, resultEnd);
+          const resultClasses = {};
+          const arrows = {};
+          if (bossRun.phaseReady) mergeClasses(resultClasses, step.digitIndex + 1, "just-written");
+          else arrows[step.digitIndex + 1] = step.nextDigit;
+          rows.push(`<div class="ld-row ld-work-row"><span class="ld-prefix ld-row-label">おろす</span>${renderLongCells(count, resultValues, resultClasses, {}, {}, arrows)}</div>`);
+        }
+      }
+
+      return `<div class="long-division"><div class="ld-now">${longDivisionNow()}</div><div class="ld-grid" style="--digit-count:${count}">${rows.join("")}</div></div>`;
     }
 
     function bossEstimateCandidates(step) {
@@ -1403,6 +1742,15 @@
       return values.sort((a, b) => a - b);
     }
 
+    function bossDigitChoices(correct) {
+      const values = [correct];
+      [1, -1, 2, -2, 3, -3, 4, -4].forEach((delta) => {
+        const value = correct + delta;
+        if (value >= 0 && value <= 9 && !values.includes(value) && values.length < 3) values.push(value);
+      });
+      return values.sort((a, b) => a - b);
+    }
+
     function multiplicationPanel(part) {
       const step = bossStep();
       const q = bossRun.candidate;
@@ -1415,23 +1763,17 @@
       const ready = bossRun.phaseReady;
 
       if (part === "ones") {
-        const result = ready
-          ? `<div class="multiply-result"><span class="carry-visual">${carry}</span><span class="product-digit new">${writtenOne}</span></div>`
-          : `<div class="multiply-result"><span class="product-digit">?</span></div>`;
         const note = ready
-          ? `<strong>${onesRaw}</strong>の一の位${writtenOne}を書く。${carry ? `${carry}は小さく持っておく。` : "くり上がりはない。"}`
-          : `まず、割る数の一の位 <strong>${ones}</strong> と商をかける。`;
-        return `<div class="boss-panel"><div class="boss-panel-title">一の位からかける</div><div class="multiply-focus"><div class="multiply-sum">${ready && carry ? `<span class="carry-chip">小さく ${carry}</span>` : ""}${ones} × ${q} = ${ready ? onesRaw : "?"}</div><div><div>${result}</div><div class="multiply-note">${note}</div></div></div></div>`;
+          ? `積の一の位に<strong>${writtenOne}</strong>を書き、${carry ? `<strong>${carry}</strong>を左上へ小さく書く。` : "くり上がりはなし。"}`
+          : `黄色の<strong>${ones}</strong>と青い商<strong>${q}</strong>を使う。`;
+        return `<div class="boss-panel"><div class="boss-panel-title"><span class="column-name">積の一の位</span></div><div class="column-equation">${ones} × ${q} = ${ready ? onesRaw : "?"}</div><div class="column-note">${note}<br>答えは上の筆算へ書きこまれる。</div></div>`;
       }
 
       const candidateProduct = bossRun.b * q;
-      const productDigits = ready
-        ? String(candidateProduct).split("").map((digit) => `<span class="product-digit new">${digit}</span>`).join("")
-        : `<span class="carry-visual">${carry}</span><span class="product-digit">…</span><span class="product-digit">${writtenOne}</span>`;
       const note = ready
-        ? `<strong>${tensRaw}</strong>を${writtenOne}の左につなげると、積は<strong>${candidateProduct}</strong>。`
-        : `${tens}×${q} に、さっきの小さな <strong>${carry}</strong> を足す。`;
-      return `<div class="boss-panel"><div class="boss-panel-title">十の位をかけ、くり上がりを足す</div><div class="multiply-focus"><div class="multiply-sum"><span class="carry-chip">くり上がり ${carry}</span>${tens} × ${q} ＋ ${carry} = ${ready ? tensRaw : "?"}</div><div><div class="multiply-result">${productDigits}</div><div class="multiply-note">${note}</div></div></div></div>`;
+        ? `<strong>${tensRaw}</strong>を一の位${writtenOne}の左へ書いて、積は<strong>${candidateProduct}</strong>。`
+        : `黄色の<strong>${tens}</strong>と青い商<strong>${q}</strong>をかけ、小さな<strong>${carry}</strong>も足す。`;
+      return `<div class="boss-panel"><div class="boss-panel-title"><span class="column-name">積の十の位から</span></div><div class="column-equation">${tens} × ${q} ＋ <span class="carry-visual">${carry}</span> = ${ready ? tensRaw : "?"}</div><div class="column-note">${note}<br>上の筆算で、使う数字が光っている。</div></div>`;
     }
 
     function bossVerdict(step, candidate = bossRun.candidate) {
@@ -1465,7 +1807,15 @@
       if (bossRun.phase === "multiply-tens") return multiplicationPanel("tens");
       if (bossRun.phase === "compare") return comparePanel();
       if (bossRun.phase === "subtract") {
-        return `<div class="boss-panel"><div class="boss-panel-title">商が決まった。積をひく</div><div class="subtract-stack"><span class="sub-a">${step.partial}</span><span class="minus">−</span><span class="sub-b">${step.product}</span><span class="sub-result">${bossRun.phaseReady ? step.remainder : "?"}</span></div></div>`;
+        const subtraction = bossRun.subtraction;
+        const current = subtraction.steps[subtraction.index];
+        const place = subtractionPlaceName(current.column, subtraction.width);
+        if (subtraction.action === "borrow") {
+          const original = current.minuend - 10;
+          const result = bossRun.phaseReady ? `${original} → ${current.minuend}` : `${original} → ?`;
+          return `<div class="boss-panel"><div class="boss-panel-title"><span class="column-name">${place}</span> そのままでは引けない</div><div class="column-equation">${original} − ${current.subtrahend}</div><div class="column-note">左の位から1をかりる：<strong>${result}</strong><br>変わった数字は上の筆算に小さく残る。</div></div>`;
+        }
+        return `<div class="boss-panel"><div class="boss-panel-title"><span class="column-name">${place}</span> 右から1桁ずつひく</div><div class="column-equation">${current.minuend} − ${current.subtrahend} = ${bossRun.phaseReady ? current.result : "?"}</div><div class="column-note">青い上の数字から、黄色い下の数字をひく。答えは同じ位へ。</div></div>`;
       }
       if (bossRun.phase === "bring") {
         const nextPartial = step.remainder * 10 + step.nextDigit;
@@ -1500,19 +1850,31 @@
           button("under", "まだ入る", "verdict")
         ].join("");
       }
-      if (bossRun.phase === "subtract") return bossNumberChoices(step.remainder, Math.max(1, bossRun.b % 10)).map((value) => button(value, value, "subtract")).join("");
+      if (bossRun.phase === "subtract") {
+        const subtraction = bossRun.subtraction;
+        const current = subtraction.steps[subtraction.index];
+        if (subtraction.action === "borrow") {
+          return `<button class="boss-choice wide ${bossRun.phaseReady ? "good" : ""}" type="button" data-boss-action="borrow" ${bossRun.phaseReady ? "disabled" : ""}>左の位から 1 をかりる</button>`;
+        }
+        return bossDigitChoices(current.result).map((value) => button(value, value, "subtract")).join("");
+      }
       if (bossRun.phase === "bring") return `<button class="boss-choice wide ${bossRun.phaseReady ? "good" : ""}" type="button" data-boss-action="bring" ${bossRun.phaseReady ? "disabled" : ""}>「${step.nextDigit}」をおろす</button>`;
       return "";
     }
 
     function bossQuestion() {
+      if (bossRun.phase === "subtract" && bossRun.subtraction) {
+        const subtraction = bossRun.subtraction;
+        const current = subtraction.steps[subtraction.index];
+        const place = subtractionPlaceName(current.column, subtraction.width);
+        return subtraction.action === "borrow" ? `${place}：引けないときは？` : `${place}を引くと？`;
+      }
       const questions = {
         place: "最初の商を立てる場所は？",
         estimate: bossRun.retryReason ? "仮の商を直そう" : "だいたい何個入りそう？",
         "multiply-ones": "一の位からかけると？",
         "multiply-tens": "十の位と、くり上がりは？",
         compare: "この商でちょうどいい？",
-        subtract: "積をひくと？",
         bring: "次の桁をおろそう"
       };
       return questions[bossRun.phase] || "筆算がつながった";
@@ -1525,7 +1887,12 @@
       if (bossRun.phase === "multiply-ones") return "十の位へ";
       if (bossRun.phase === "multiply-tens") return "積をくらべる";
       if (bossRun.phase === "compare") return bossRun.candidateVerified ? "ひき算へ" : "商を直す";
-      if (bossRun.phase === "subtract") return bossStep().nextDigit === null ? "答えを確定" : "次の桁へ";
+      if (bossRun.phase === "subtract") {
+        const subtraction = bossRun.subtraction;
+        if (subtraction.action === "borrow") return "借りた数で計算";
+        if (subtraction.index < subtraction.steps.length - 1) return "次の位をひく";
+        return bossStep().nextDigit === null ? "答えを確定" : "次の桁へ";
+      }
       if (bossRun.phase === "bring") return "次の商へ";
       return "精算完了";
     }
@@ -1538,6 +1905,7 @@
         if (action === "estimate") chooseBossEstimate(Number(raw));
         if (action === "multiply-ones" || action === "multiply-tens") chooseBossCalculation(Number(raw));
         if (action === "verdict") chooseBossVerdict(raw);
+        if (action === "borrow") chooseBossBorrow();
         if (action === "subtract") chooseBossSubtraction(Number(raw));
         if (action === "bring") chooseBossBringDown();
       }));
@@ -1652,18 +2020,34 @@
       }
     }
 
+    function chooseBossBorrow() {
+      if (bossRun.phase !== "subtract" || bossRun.phaseReady || !bossRun.subtraction || bossRun.subtraction.action !== "borrow") return;
+      const subtraction = bossRun.subtraction;
+      const current = subtraction.steps[subtraction.index];
+      const original = current.minuend - 10;
+      bossRun.phaseReady = true;
+      bossRun.phaseAnswer = "borrow";
+      setBossFeedback(`左の位から<strong>1</strong>をかりた。${original}は<strong>${current.minuend}</strong>になった。次はこの2つをひこう。`, "good");
+      eventPulse("hint");
+      playTone("hit");
+    }
+
     function chooseBossSubtraction(value) {
-      if (bossRun.phase !== "subtract" || bossRun.phaseReady || bossRun.phaseAttempts.has(value)) return;
-      const step = bossStep();
-      if (value === step.remainder) {
+      if (bossRun.phase !== "subtract" || bossRun.phaseReady || !bossRun.subtraction || bossRun.subtraction.action !== "digit" || bossRun.phaseAttempts.has(value)) return;
+      const subtraction = bossRun.subtraction;
+      const current = subtraction.steps[subtraction.index];
+      const place = subtractionPlaceName(current.column, subtraction.width);
+      if (value === current.result) {
+        subtraction.results[current.column] = value;
         bossRun.phaseReady = true;
         bossRun.phaseAnswer = value;
-        setBossFeedback(`<strong>${step.partial}−${step.product}=${step.remainder}</strong>。${step.nextDigit === null ? "これが最後の余り。" : "次の桁をおろそう。"}`, "good");
+        const last = subtraction.index === subtraction.steps.length - 1;
+        setBossFeedback(`<strong>${current.minuend}−${current.subtrahend}=${current.result}</strong>。${place}に${current.result}を書く。${last ? "引き算がつながった。" : "次は左の位へ。"}`, "good");
         eventPulse("hit");
         playTone("hit");
       } else {
         bossRun.phaseAttempts.add(value);
-        setBossFeedback(`<strong>${step.partial}−${step.product}</strong>を、位をそろえてもう一度。`, "try");
+        setBossFeedback(`${place}だけを見る。青い<strong>${current.minuend}</strong>から、黄色い<strong>${current.subtrahend}</strong>をひこう。`, "try");
         eventPulse("miss");
       }
     }
@@ -1681,6 +2065,10 @@
 
     function beginBossPhase(phase) {
       bossRun.phase = phase;
+      if (phase === "subtract") {
+        const step = bossStep();
+        bossRun.subtraction = buildSubtractionPlan(step.partial, step.product);
+      }
       bossRun.phaseReady = false;
       bossRun.phaseAnswer = null;
       bossRun.phaseAttempts = new Set();
@@ -1695,7 +2083,7 @@
         "multiply-ones": "割る数の一の位から、商をかける。",
         "multiply-tens": "小さく置いた数を忘れずに足す。",
         compare: "積と、もう1個分が入るかを見比べる。",
-        subtract: "商が決まったら、積をひく。",
+        subtract: "右の一の位から、積を1桁ずつひく。",
         bring: "余りの右に、次の桁をおろす。"
       };
       bossRun.feedback = prompts[phase] || "筆算を続けよう。";
@@ -1731,6 +2119,7 @@
       bossRun.candidate = null;
       bossRun.candidateVerified = false;
       bossRun.retryReason = "";
+      bossRun.subtraction = null;
       bossRun.attemptedQs = new Set();
       renderEnemy("hit");
       say(enemies.boss.hits[Math.min(state.boss.progress - 1, enemies.boss.hits.length - 1)]);
@@ -1752,6 +2141,38 @@
         return beginBossPhase("estimate");
       }
       if (bossRun.phase === "subtract") {
+        const subtraction = bossRun.subtraction;
+        if (subtraction.action === "borrow") {
+          subtraction.action = "digit";
+          bossRun.phaseReady = false;
+          bossRun.phaseAnswer = null;
+          bossRun.phaseAttempts = new Set();
+          bossRun.feedback = "借りたあとの数字で、同じ位をひこう。";
+          bossRun.feedbackKind = "";
+          hintLevel = 0;
+          $("hintbox").classList.remove("show");
+          $("hintbox").innerHTML = "";
+          $("hint").textContent = "ヒント 0/3";
+          renderBossPhase();
+          return;
+        }
+        if (subtraction.index < subtraction.steps.length - 1) {
+          subtraction.index += 1;
+          subtraction.action = subtraction.steps[subtraction.index].borrowed ? "borrow" : "digit";
+          bossRun.phaseReady = false;
+          bossRun.phaseAnswer = null;
+          bossRun.phaseAttempts = new Set();
+          bossRun.feedback = subtraction.action === "borrow" ? "そのまま引けるか、右から順に見よう。" : "1つ左の位へ進もう。";
+          bossRun.feedbackKind = "";
+          hintLevel = 0;
+          $("hintbox").classList.remove("show");
+          $("hintbox").innerHTML = "";
+          $("hint").textContent = "ヒント 0/3";
+          renderBossPhase();
+          return;
+        }
+        const written = Number(subtraction.results.join(""));
+        if (written !== bossStep().remainder) return;
         if (bossStep().nextDigit !== null) return beginBossPhase("bring");
         return completeBossDigit();
       }
@@ -1766,6 +2187,21 @@
       const step = bossStep();
       const q = bossRun.candidate;
       const verdict = q === null ? "" : bossVerdict(step, q);
+      const subtraction = bossRun.subtraction;
+      const subtractionStep = subtraction ? subtraction.steps[subtraction.index] : null;
+      const subtractionHints = subtractionStep
+        ? subtraction.action === "borrow"
+          ? [
+              `<strong>${subtractionStep.minuend - 10}</strong>から<strong>${subtractionStep.subtrahend}</strong>は、そのままでは引けない。`,
+              `左の位から<strong>1</strong>をかりる。上の筆算で黄色く光る位を見よう。`,
+              `<strong>${subtractionStep.minuend - 10}</strong>は<strong>${subtractionStep.minuend}</strong>になる。「1をかりる」を押そう。`
+            ]
+          : [
+              `今は<strong>${subtractionPlaceName(subtractionStep.column, subtraction.width)}</strong>だけを見る。`,
+              `青い<strong>${subtractionStep.minuend}</strong>から、黄色い<strong>${subtractionStep.subtrahend}</strong>をひく。`,
+              `答えは<strong>${subtractionStep.result}</strong>。同じ位に書く。`
+            ]
+        : ["右の位から順にひこう。"];
       const hints = {
         place: [
           `左から<strong>${bossRun.b}以上</strong>になるまで、見る桁を増やす。`,
@@ -1792,11 +2228,7 @@
           `点線の「もう1個」を足すと<strong>${bossRun.b * q + bossRun.b}</strong>。これも入る？`,
           verdict === "over" ? "今の商は<strong>大きすぎる</strong>。" : verdict === "under" ? "今の商では<strong>まだ1個入る</strong>。" : "今の商で<strong>これでOK</strong>。"
         ],
-        subtract: [
-          `見る数<strong>${step.partial}</strong>から、積<strong>${step.product}</strong>をひく。`,
-          `位をそろえて、<strong>${step.partial}−${step.product}</strong>。`,
-          `答えは<strong>${step.remainder}</strong>。`
-        ],
+        subtract: subtractionHints,
         bring: [
           `次の桁は<strong>${step.nextDigit}</strong>。`,
           `余り<strong>${step.remainder}</strong>の右に${step.nextDigit}を置く。`,
