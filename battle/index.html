@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#d2d2d2">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="数字の近さ・見立て・商の感覚を、日常の困りごととのバトルで身につける算数ゲーム。">
+  <meta name="description" content="数字の近さ・見立て・商の感覚から筆算の手順まで、日常の困りごととのバトルで身につける算数ゲーム。">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23d6ff37'/%3E%3Cpath d='M12 35h40M23 17l-9 18 9 12M41 17l9 18-9 12' fill='none' stroke='%23111111' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='35' r='6' fill='%233554ff' stroke='%23111111' stroke-width='4'/%3E%3C/svg%3E">
-  <title>ギリギリバトル v0.4</title>
+  <title>ギリギリバトル v0.5</title>
   <style>
     :root {
       --ink: #111111;
@@ -113,7 +113,7 @@
 
     .modes {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 6px;
       margin-bottom: 7px;
     }
@@ -134,7 +134,8 @@
     .mode-tab:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
     .mode-tab.on,
     .mode-tab:nth-child(2).on,
-    .mode-tab:nth-child(3).on { background: var(--main); color: var(--paper); transform: translateY(-2px) rotate(-1deg); }
+    .mode-tab:nth-child(3).on,
+    .mode-tab:nth-child(4).on { background: var(--main); color: var(--paper); transform: translateY(-2px) rotate(-1deg); }
     .mode-level { display: block; font-size: 10px; margin-bottom: 3px; }
     .mode-name { display: block; font-size: 14px; }
     .mode-dots { display: flex; justify-content: center; gap: 3px; margin-top: 5px; }
@@ -386,6 +387,70 @@
     .lock::before { content: ""; position: absolute; width: 9px; height: 9px; left: 1.5px; top: -10px; border: 3px solid var(--ink); border-bottom: 0; border-radius: 8px 8px 0 0; }
     .unlock { position: absolute; inset: 36px 0 auto; z-index: 10; font-size: 13px; font-weight: 1000; background: var(--paper); border: 3px solid var(--ink); padding: 4px; transform: rotate(-7deg); }
 
+    .register-body {
+      position: absolute;
+      left: 17px;
+      top: 39px;
+      width: 108px;
+      height: 66px;
+      background: #8b8b8b;
+      border: 5px solid var(--ink);
+      border-radius: 11px 11px 17px 17px;
+      transform: skew(-2deg);
+    }
+
+    .register-body::before {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 8px;
+      height: 20px;
+      border: 3px solid var(--ink);
+      background-image: radial-gradient(var(--ink) 2px, transparent 2.5px);
+      background-size: 13px 10px;
+      background-color: #d7d7d7;
+    }
+
+    .register-screen {
+      position: absolute;
+      left: 38px;
+      top: 48px;
+      width: 66px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      color: var(--paper);
+      background: #424242;
+      border: 3px solid var(--ink);
+      font: 1000 10px/1 ui-monospace, monospace;
+      z-index: 3;
+    }
+
+    .register-receipt {
+      position: absolute;
+      left: 45px;
+      top: 4px;
+      width: 52px;
+      height: 48px;
+      padding-top: 8px;
+      background: #f4f4f4;
+      border: 4px solid var(--ink);
+      border-bottom-style: dashed;
+      z-index: 2;
+      transform: rotate(-2deg);
+    }
+
+    .register-receipt::before { content: ""; display: block; width: 28px; margin: 0 auto; border-top: 3px solid #888; box-shadow: 0 8px 0 #888, 0 16px 0 #888; }
+    .enemy-register .eye.one { left: 52px; top: 78px; }
+    .enemy-register .eye.two { right: 49px; top: 78px; }
+    .enemy-register .mouth { left: 60px; top: 88px; width: 18px; height: 7px; }
+    .enemy-register.phase-clear .mouth { border-bottom: 0; border-top: 4px solid var(--ink); top: 94px; }
+    .boss-tag { position: absolute; left: 4px; top: 22px; z-index: 7; padding: 2px 5px; color: var(--paper); background: var(--ink); border: 2px solid var(--paper); font-size: 9px; font-weight: 1000; transform: rotate(-9deg); }
+    .boss-ticket { position: absolute; left: calc(18px + var(--i) * 36px); top: 6px; z-index: 8; width: 27px; height: 31px; display: grid; place-items: center; background: #f2f2f2; border: 3px solid var(--ink); font-size: 12px; font-weight: 1000; transform: rotate(calc((var(--i) - 1) * 7deg)); transition: opacity .3s ease, transform .3s ease; }
+    .boss-ticket.gone { opacity: .15; transform: translateY(-16px) rotate(20deg) scale(.7); }
+    .paid-stamp { position: absolute; inset: 51px 8px auto; z-index: 10; padding: 3px; color: var(--ink); background: var(--accent); border: 3px solid var(--ink); font-size: 13px; font-weight: 1000; transform: rotate(-7deg); }
+
     .game {
       margin-top: 10px;
       padding: 10px;
@@ -489,6 +554,86 @@
     .product-card b { display: block; margin-top: 3px; font-size: 17px; }
     .product-card.over { background: repeating-linear-gradient(135deg, #ffe1dd 0 7px, var(--paper) 7px 14px); box-shadow: inset 0 -5px 0 var(--event-miss); }
     .product-note { margin-top: 5px; text-align: center; font-size: 10px; font-weight: 1000; }
+
+    .app[data-mode="boss"] .visual { min-height: 326px; padding: 7px; }
+    .app[data-mode="boss"] .choices { grid-template-columns: repeat(3, 1fr); }
+    .app[data-mode="boss"] .kicker { background: var(--event-win); color: var(--paper); }
+
+    .boss-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin-bottom: 7px; }
+    .boss-step { min-height: 27px; display: grid; place-items: center; padding: 2px; background: #d3d3d3; border: 2px solid var(--ink); border-radius: 6px; font-size: 8px; font-weight: 1000; line-height: 1.05; }
+    .boss-step.done { background: var(--gray); }
+    .boss-step.now { color: var(--paper); background: var(--main); transform: translateY(-2px); }
+
+    .boss-paper { padding: 7px 7px 6px; background: var(--paper); border: 3px solid var(--ink); border-radius: 9px; box-shadow: 3px 3px 0 var(--ink); }
+    .q-row { display: grid; grid-template-columns: 48px repeat(var(--digit-count), 34px); justify-content: center; gap: 2px; min-height: 38px; }
+    .q-spacer { width: 48px; }
+    .q-slot { width: 34px; height: 36px; display: grid; place-items: center; align-content: center; padding: 0; color: var(--ink); background: #e1e1e1; border: 2px dashed #777; border-radius: 6px; font-size: 19px; font-weight: 1000; line-height: .85; }
+    button.q-slot { cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+    button.q-slot:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+    .q-slot small { display: block; margin-top: 3px; font-size: 7px; }
+    .q-slot.current { background: var(--event-hint); border-style: solid; }
+    .q-slot.trial { background: var(--paper); border-color: var(--main); border-style: solid; }
+    .q-slot.fixed { background: var(--accent); border-color: var(--ink); border-style: solid; }
+    .q-slot.tried { color: #777; background: #c7c7c7; box-shadow: none; }
+
+    .division-row { display: flex; justify-content: center; align-items: stretch; min-height: 43px; }
+    .boss-divisor { width: 48px; display: grid; place-items: center; font-size: 22px; font-weight: 1000; }
+    .boss-dividend { display: grid; grid-template-columns: repeat(var(--digit-count), 34px); gap: 2px; padding: 4px 0 1px 5px; border-top: 4px solid var(--ink); border-left: 4px solid var(--ink); border-radius: 9px 0 0 0; }
+    .boss-digit { display: grid; place-items: center; min-width: 34px; font-size: 23px; font-weight: 1000; border-radius: 5px; }
+    .boss-digit.focus { background: var(--event-hint); }
+    .boss-digit.down { color: var(--paper); background: var(--main); animation: digit-down .35s ease; }
+    @keyframes digit-down { from { transform: translateY(-16px); opacity: .25; } }
+
+    .boss-history { min-height: 20px; display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .history-chip { padding: 2px 6px; background: #dedede; border: 2px solid var(--ink); border-radius: 999px; font-size: 9px; font-weight: 1000; }
+
+    .boss-panel { min-height: 104px; margin-top: 7px; padding: 7px; display: grid; place-items: center; align-content: center; background: #dedede; border: 2px solid var(--ink); border-radius: 8px; text-align: center; }
+    .boss-panel-title { margin-bottom: 5px; font-size: 10px; font-weight: 1000; }
+    .boss-panel strong { font-size: 20px; }
+    .place-callout { font-size: 12px; font-weight: 1000; line-height: 1.35; }
+    .place-callout b { display: inline-block; padding: 2px 7px; background: var(--event-hint); border: 2px solid var(--ink); border-radius: 5px; font-size: 20px; }
+
+    .boss-estimate { display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 1000; }
+    .estimate-pair { display: grid; place-items: center; gap: 2px; }
+    .estimate-pair span { font-size: 17px; }
+    .estimate-pair b { min-width: 52px; padding: 3px 6px; background: var(--accent); border: 2px solid var(--ink); border-radius: 6px; font-size: 19px; }
+    .estimate-arrow { font-size: 15px; }
+    .estimate-symbol { font-size: 23px; }
+    .estimate-question { margin-top: 5px; font-size: 11px; font-weight: 1000; }
+
+    .multiply-focus { width: 100%; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; }
+    .multiply-sum { min-width: 115px; padding: 6px 9px; position: relative; background: var(--paper); border: 3px solid var(--ink); border-radius: 7px; font: 1000 20px/1.15 ui-monospace, monospace; }
+    .multiply-sum .carry-chip { position: absolute; left: 7px; top: -11px; padding: 1px 5px; color: var(--ink); background: var(--event-hint); border: 2px solid var(--ink); border-radius: 999px; font: 1000 9px/1.1 system-ui, sans-serif; }
+    .multiply-result { display: flex; align-items: flex-end; justify-content: center; gap: 3px; min-height: 35px; }
+    .product-digit { min-width: 24px; display: inline-grid; place-items: center; border-bottom: 3px solid var(--ink); font-size: 24px; font-weight: 1000; }
+    .product-digit.new { color: var(--main); background: var(--accent); border: 2px solid var(--ink); border-radius: 5px; }
+    .carry-visual { display: inline-grid; place-items: center; align-self: flex-start; min-width: 20px; padding: 2px 4px; background: var(--event-hint); border: 2px solid var(--ink); border-radius: 999px; font-size: 11px; font-weight: 1000; transform: translateY(-5px); }
+    .multiply-note { max-width: 165px; font-size: 11px; font-weight: 1000; line-height: 1.35; }
+
+    .fit-meter { width: 100%; }
+    .fit-track { height: 43px; position: relative; overflow: hidden; background: #cfcfcf; border: 3px solid var(--ink); }
+    .fit-product { position: absolute; inset: 4px auto 4px 4px; width: var(--product-width); max-width: calc(100% - 8px); background: var(--main); border: 2px solid var(--ink); }
+    .fit-more { position: absolute; top: 4px; bottom: 4px; left: var(--product-left); width: var(--unit-width); background: repeating-linear-gradient(135deg, var(--accent) 0 6px, var(--paper) 6px 12px); border: 2px dashed var(--ink); opacity: .75; }
+    .fit-limit { position: absolute; top: 0; bottom: 0; left: var(--limit-left); border-left: 5px solid var(--ink); }
+    .fit-limit b { position: absolute; right: 3px; top: 1px; padding: 1px 4px; color: var(--paper); background: var(--ink); font-size: 9px; transform: translateX(1px); }
+    .fit-equations { margin-top: 4px; display: flex; justify-content: center; gap: 10px; font-size: 10px; font-weight: 1000; }
+    .fit-equations span:last-child { color: #555; }
+
+    .subtract-stack { display: grid; grid-template-columns: auto auto; align-items: end; column-gap: 7px; font: 1000 23px/1.08 ui-monospace, monospace; }
+    .subtract-stack .minus { grid-row: 2; }
+    .subtract-stack .sub-a { grid-column: 2; }
+    .subtract-stack .sub-b { grid-column: 2; border-bottom: 3px solid var(--ink); }
+    .subtract-stack .sub-result { grid-column: 2; min-width: 62px; color: var(--main); }
+    .bring-visual { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 20px; font-weight: 1000; }
+    .bring-digit { min-width: 39px; padding: 4px; color: var(--paper); background: var(--main); border: 3px solid var(--ink); border-radius: 7px; box-shadow: 3px 3px 0 var(--ink); }
+    .bring-result { min-width: 64px; padding: 4px; background: var(--accent); border: 3px solid var(--ink); border-radius: 7px; }
+
+    .boss-choice { min-height: 58px; border: 3px solid var(--ink); border-radius: 10px; background: var(--paper); box-shadow: 3px 3px 0 var(--ink); cursor: pointer; font-size: 20px; font-weight: 1000; line-height: 1.05; }
+    .boss-choice small { display: block; margin-top: 4px; font-size: 9px; }
+    .boss-choice.good { background: var(--accent); }
+    .boss-choice.tried { color: #666; background: #bdbdbd; box-shadow: none; transform: translate(3px, 3px); }
+    .boss-choice:disabled { cursor: default; opacity: 1; }
+    .boss-choice.wide { grid-column: 1 / -1; min-height: 52px; color: var(--paper); background: var(--main); }
 
     .numberline { position: relative; height: 64px; margin: 4px 8px 0; border-bottom: 4px solid var(--ink); }
     .numberline::before, .numberline::after { content: ""; position: absolute; bottom: -7px; width: 12px; height: 12px; border-top: 4px solid var(--ink); border-right: 4px solid var(--ink); }
@@ -611,7 +756,13 @@
       .enemy { transform: scale(.91); }
       .talk { font-size: 12px; }
       .equation { font-size: 29px; }
-      .mode-name { font-size: 12px; }
+      .mode-tab { min-height: 51px; }
+      .mode-name { font-size: 11px; }
+      .mode-level { font-size: 8px; }
+      .mode-dots { gap: 2px; }
+      .mode-dots i { width: 6px; height: 6px; }
+      .multiply-focus { grid-template-columns: 1fr; gap: 4px; }
+      .multiply-note { max-width: none; }
     }
 
     @media (min-width: 700px) {
@@ -626,7 +777,7 @@
 <body>
   <main class="app" id="app" data-mode="weak">
     <header class="topbar">
-      <div class="brand"><strong>ギリギリバトル</strong><small>v0.4</small></div>
+      <div class="brand"><strong>ギリギリバトル</strong><small>v0.5</small></div>
       <button class="sound" id="sound" type="button" aria-pressed="false">音 OFF</button>
     </header>
 
@@ -639,6 +790,9 @@
       </button>
       <button class="mode-tab" type="button" data-mode="strong">
         <span class="mode-level">強い敵</span><span class="mode-name">商を立てる</span><span class="mode-dots" aria-hidden="true"></span>
+      </button>
+      <button class="mode-tab" type="button" data-mode="boss">
+        <span class="mode-level">BOSS</span><span class="mode-name">筆算</span><span class="mode-dots" aria-hidden="true"></span>
       </button>
     </nav>
 
@@ -700,7 +854,7 @@
       return copy;
     };
 
-    const modeOrder = ["weak", "mid", "strong"];
+    const modeOrder = ["weak", "mid", "strong", "boss"];
     const enemies = {
       weak: {
         name: "まだ湿ってるTシャツ",
@@ -734,6 +888,17 @@
         win: "親には言うけどね。",
         stamp: "解除した。",
         finish: "割られる数を左から見て、割る数が入る最初のまとまりを決め、かけ算で商を確かめる流れを5回使った。"
+      },
+      boss: {
+        name: "1円もまけない割り勘レジ",
+        kind: "register",
+        badge: "筆算をつなげろ",
+        intro: ["1円ずれたので、<br>最初からです。", "途中式も全部、<br>確認します。"],
+        hits: ["その一桁は通します。", "まだレシートは続きます。", "途中式まで合ってるの、困る。"],
+        misses: ["桁がずれております。", "その商、本当に入ります？", "いったん積を見ましょう。"],
+        win: "……割り勘、成立です。",
+        stamp: "精算した。",
+        finish: "商を立てる場所から、見立て、かけ算、比較、ひき算、次の桁まで、筆算の流れをつないだ。"
       }
     };
 
@@ -753,6 +918,14 @@
       [96, 24], [132, 26], [143, 35], [108, 21], [92, 27], [174, 28]
     ];
 
+    const bossProblems = [
+      { a: 224, b: 28, label: "一撃型", note: "商を1回立てる・くり上がりあり" },
+      { a: 672, b: 28, label: "連続型", note: "商を2回立てる" },
+      { a: 3528, b: 24, label: "長期戦", note: "4桁を3回に分ける" },
+      { a: 2828, b: 28, label: "0の罠", note: "商の途中に0が入る" },
+      { a: 2534, b: 32, label: "余り戦", note: "最後に余りが残る" }
+    ];
+
     const state = Object.fromEntries(modeOrder.map((key) => [key, { progress: 0, defeated: false }]));
     let mode = "weak";
     let problem = null;
@@ -762,8 +935,10 @@
     let soundOn = false;
     let lastMidIndex = -1;
     let lastStrongIndex = -1;
+    let lastBossIndex = -1;
     let roundingGuide = null;
     let placeGuide = null;
+    let bossRun = null;
     let eventTimer = null;
 
     function makeWeak() {
@@ -798,22 +973,102 @@
       return { a, b, answer, remainder: a - b * answer, values: shuffle([answer - 1, answer, answer + 1]), prefixes, partialIndex, partial };
     }
 
+    function nearestTen(value) {
+      return Math.round(value / 10) * 10;
+    }
+
+    function buildDivisionSteps(a, b) {
+      const digits = String(a).split("").map(Number);
+      const steps = [];
+      let current = 0;
+      let started = false;
+      let startIndex = 0;
+
+      digits.forEach((digit, digitIndex) => {
+        current = current * 10 + digit;
+        if (!started && current < b) return;
+        if (!started) {
+          started = true;
+          startIndex = digitIndex;
+        }
+
+        const quotientDigit = Math.floor(current / b);
+        const product = quotientDigit * b;
+        const remainder = current - product;
+        const roundedDividend = nearestTen(current);
+        const roundedDivisor = Math.max(10, nearestTen(b));
+        const estimate = Math.min(9, Math.floor(roundedDividend / roundedDivisor));
+        steps.push({
+          digitIndex,
+          partial: current,
+          quotientDigit,
+          product,
+          remainder,
+          roundedDividend,
+          roundedDivisor,
+          estimate,
+          nextDigit: digits[digitIndex + 1] ?? null
+        });
+        current = remainder;
+      });
+
+      return {
+        digits,
+        steps,
+        startIndex,
+        quotient: Math.floor(a / b),
+        remainder: a % b
+      };
+    }
+
+    function makeBoss() {
+      lastBossIndex = (lastBossIndex + 1) % bossProblems.length;
+      const spec = bossProblems[lastBossIndex];
+      const division = buildDivisionSteps(spec.a, spec.b);
+      bossRun = {
+        ...division,
+        ...spec,
+        stepIndex: 0,
+        phase: "place",
+        phaseReady: false,
+        phaseAnswer: null,
+        phaseAttempts: new Set(),
+        attemptedQs: new Set(),
+        candidate: null,
+        candidateVerified: false,
+        retryReason: "",
+        history: [],
+        completedDigits: {},
+        feedback: "商を立てる場所から始めよう。",
+        feedbackKind: ""
+      };
+      state.boss = { progress: 0, defeated: false };
+      return bossRun;
+    }
+
     function makeProblem() {
       if (mode === "weak") return makeWeak();
       if (mode === "mid") return makeMid();
-      return makeStrong();
+      if (mode === "strong") return makeStrong();
+      return makeBoss();
     }
 
     function say(message) { $("talk").innerHTML = message; }
+
+    function modeGoal(key) {
+      if (key === "boss") return bossRun ? bossRun.steps.length : 1;
+      return 5;
+    }
 
     function renderModeTabs() {
       document.querySelectorAll(".mode-tab").forEach((tab) => {
         const key = tab.dataset.mode;
         const selected = key === mode;
+        const goal = modeGoal(key);
         tab.classList.toggle("on", selected);
         tab.setAttribute("aria-current", selected ? "true" : "false");
-        tab.setAttribute("aria-label", `${tab.querySelector(".mode-level").textContent} ${tab.querySelector(".mode-name").textContent} ${state[key].progress}/5`);
-        tab.querySelector(".mode-dots").innerHTML = Array.from({ length: 5 }, (_, index) => `<i class="${index < state[key].progress ? "done" : ""}"></i>`).join("");
+        tab.setAttribute("aria-label", `${tab.querySelector(".mode-level").textContent} ${tab.querySelector(".mode-name").textContent} ${state[key].progress}/${goal}`);
+        tab.querySelector(".mode-dots").innerHTML = Array.from({ length: goal }, (_, index) => `<i class="${index < state[key].progress ? "done" : ""}"></i>`).join("");
       });
     }
 
@@ -839,18 +1094,37 @@
       return `<div class="enemy enemy-tablet phase-${progress}"><div class="tablet-body"></div><i class="eye one"></i><i class="eye two"></i><i class="mouth"></i>${locks}${progress === 5 ? '<span class="unlock">UNLOCKED</span>' : ""}</div>`;
     }
 
+    function registerCharacter(progress) {
+      const goal = modeGoal("boss");
+      const tickets = Array.from({ length: goal }, (_, index) => `<i class="boss-ticket ${index < progress ? "gone" : ""}" style="--i:${index}">${index < progress ? "✓" : "?"}</i>`).join("");
+      const clear = progress >= goal;
+      const screen = clear && bossRun ? `${bossRun.quotient}${bossRun.remainder ? `…${bossRun.remainder}` : ""}` : `${progress}/${goal}`;
+      return `<div class="enemy enemy-register ${clear ? "phase-clear" : `phase-${progress}`}"><div class="register-receipt"></div><div class="register-body"></div><div class="register-screen">${screen}</div><i class="eye one"></i><i class="eye two"></i><i class="mouth"></i><span class="boss-tag">BOSS</span>${tickets}${clear ? '<span class="paid-stamp">PAID.</span>' : ""}</div>`;
+    }
+
     function renderEnemy(animation = "") {
       const info = enemies[mode];
       const progress = state[mode].progress;
+      const goal = modeGoal(mode);
       $("badge").textContent = info.badge;
       $("enemyName").textContent = info.name;
-      $("character").innerHTML = info.kind === "shirt" ? shirtCharacter(progress) : info.kind === "book" ? bookCharacter(progress) : tabletCharacter(progress);
+      $("character").innerHTML = info.kind === "shirt"
+        ? shirtCharacter(progress)
+        : info.kind === "book"
+          ? bookCharacter(progress)
+          : info.kind === "tablet"
+            ? tabletCharacter(progress)
+            : registerCharacter(progress);
       const enemy = $("character").firstElementChild;
       if (animation && enemy) {
         requestAnimationFrame(() => enemy.classList.add(animation));
       }
-      const left = 5 - progress;
-      $("remaining").textContent = left > 0 ? `あと ${left} 回でやっつける` : "5回成功。もう言い訳できない。";
+      const left = goal - progress;
+      if (mode === "boss") {
+        $("remaining").textContent = left > 0 ? `あと ${left} 桁で精算` : `${goal}桁ぶんの筆算がつながった。`;
+      } else {
+        $("remaining").textContent = left > 0 ? `あと ${left} 回でやっつける` : "5回成功。もう言い訳できない。";
+      }
       renderModeTabs();
     }
 
@@ -1052,7 +1326,492 @@
       return `<div class="mid-steps"><div class="mid-step">丸める<b>${p.ra} ÷ ${p.rb}</b></div><div class="mid-arrow">→</div><div class="mid-step">仮の商<b>${selected}</b></div></div><div class="adjust">本当の数で確認：${last}</div>`;
     }
 
+    const bossPhaseLabels = ["桁", "見立て", "かける", "くらべる", "ひく・おろす"];
+
+    function bossStep() {
+      return bossRun.steps[bossRun.stepIndex];
+    }
+
+    function placeName(index, length, short = false) {
+      const power = length - 1 - index;
+      const names = short ? ["一", "十", "百", "千", "万"] : ["一の位", "十の位", "百の位", "千の位", "一万の位"];
+      return names[power] || `10の${power}乗の位`;
+    }
+
+    function bossPhaseNumber(phase) {
+      if (phase === "place") return 0;
+      if (phase === "estimate") return 1;
+      if (phase === "multiply-ones" || phase === "multiply-tens") return 2;
+      if (phase === "compare") return 3;
+      return 4;
+    }
+
+    function bossStepsVisual() {
+      const current = bossRun.phase === "done" ? bossPhaseLabels.length : bossPhaseNumber(bossRun.phase);
+      return `<div class="boss-steps">${bossPhaseLabels.map((label, index) => `<span class="boss-step ${index < current ? "done" : ""} ${index === current ? "now" : ""}">${index + 1}<br>${label}</span>`).join("")}</div>`;
+    }
+
+    function bossDivisionBoard(interactivePlace = false) {
+      const step = bossStep();
+      const count = bossRun.digits.length;
+      const qSlots = bossRun.digits.map((_, index) => {
+        const fixed = bossRun.completedDigits[index];
+        const isCurrent = index === step.digitIndex;
+        const trial = isCurrent && bossRun.candidate !== null && bossRun.phase !== "place";
+        const value = fixed !== undefined ? fixed : trial ? bossRun.candidate : isCurrent && bossRun.phaseReady && bossRun.phase === "place" ? "?" : "";
+        const classes = ["q-slot", fixed !== undefined ? "fixed" : "", trial ? "trial" : "", isCurrent ? "current" : "", bossRun.phase === "place" && bossRun.phaseAttempts.has(index) ? "tried" : ""].filter(Boolean).join(" ");
+        if (interactivePlace) {
+          return `<button class="${classes}" type="button" data-place="${index}" ${bossRun.phaseReady ? "disabled" : ""} aria-label="${placeName(index, count)}に商を立てる"><span>?</span><small>${placeName(index, count, true)}の位</small></button>`;
+        }
+        return `<span class="${classes}">${value}</span>`;
+      }).join("");
+
+      const digitCells = bossRun.digits.map((digit, index) => {
+        const firstCycleFocus = bossRun.stepIndex === 0 && bossRun.phase === "place" && index <= step.digitIndex;
+        const dropped = bossRun.phase === "bring" && bossRun.phaseReady && index === step.digitIndex + 1;
+        return `<span class="boss-digit ${firstCycleFocus ? "focus" : ""} ${dropped ? "down" : ""}">${digit}</span>`;
+      }).join("");
+      const history = bossRun.history.map((item) => {
+        const down = item.nextDigit === null ? "" : ` ↓${item.nextDigit} → ${item.nextPartial}`;
+        return `<span class="history-chip">${item.partial}−${item.product}=${item.remainder}${down}</span>`;
+      }).join("");
+
+      return `<div class="boss-paper"><div class="q-row" style="--digit-count:${count}"><span class="q-spacer"></span>${qSlots}</div><div class="division-row"><span class="boss-divisor">${bossRun.b}</span><div class="boss-dividend" style="--digit-count:${count}">${digitCells}</div></div><div class="boss-history">${history || '<span class="history-chip">途中の計算がここにつながる</span>'}</div></div>`;
+    }
+
+    function bossEstimateCandidates(step) {
+      const values = [];
+      const add = (value) => {
+        if (value >= 0 && value <= 9 && !values.includes(value)) values.push(value);
+      };
+      add(step.estimate);
+      add(step.quotientDigit);
+      [1, -1, 2, -2, 3, -3].forEach((delta) => {
+        add(step.estimate + delta);
+        add(step.quotientDigit + delta);
+      });
+      return values.slice(0, 3).sort((a, b) => a - b);
+    }
+
+    function bossNumberChoices(correct, spread = 1) {
+      const values = [correct];
+      const safeSpread = Math.max(1, spread);
+      [safeSpread, -safeSpread, 1, -1, safeSpread * 2, 10, -10].forEach((delta) => {
+        const value = correct + delta;
+        if (value >= 0 && !values.includes(value) && values.length < 3) values.push(value);
+      });
+      return values.sort((a, b) => a - b);
+    }
+
+    function multiplicationPanel(part) {
+      const step = bossStep();
+      const q = bossRun.candidate;
+      const ones = bossRun.b % 10;
+      const tens = Math.floor(bossRun.b / 10);
+      const onesRaw = ones * q;
+      const writtenOne = onesRaw % 10;
+      const carry = Math.floor(onesRaw / 10);
+      const tensRaw = tens * q + carry;
+      const ready = bossRun.phaseReady;
+
+      if (part === "ones") {
+        const result = ready
+          ? `<div class="multiply-result"><span class="carry-visual">${carry}</span><span class="product-digit new">${writtenOne}</span></div>`
+          : `<div class="multiply-result"><span class="product-digit">?</span></div>`;
+        const note = ready
+          ? `<strong>${onesRaw}</strong>の一の位${writtenOne}を書く。${carry ? `${carry}は小さく持っておく。` : "くり上がりはない。"}`
+          : `まず、割る数の一の位 <strong>${ones}</strong> と商をかける。`;
+        return `<div class="boss-panel"><div class="boss-panel-title">一の位からかける</div><div class="multiply-focus"><div class="multiply-sum">${ready && carry ? `<span class="carry-chip">小さく ${carry}</span>` : ""}${ones} × ${q} = ${ready ? onesRaw : "?"}</div><div><div>${result}</div><div class="multiply-note">${note}</div></div></div></div>`;
+      }
+
+      const candidateProduct = bossRun.b * q;
+      const productDigits = ready
+        ? String(candidateProduct).split("").map((digit) => `<span class="product-digit new">${digit}</span>`).join("")
+        : `<span class="carry-visual">${carry}</span><span class="product-digit">…</span><span class="product-digit">${writtenOne}</span>`;
+      const note = ready
+        ? `<strong>${tensRaw}</strong>を${writtenOne}の左につなげると、積は<strong>${candidateProduct}</strong>。`
+        : `${tens}×${q} に、さっきの小さな <strong>${carry}</strong> を足す。`;
+      return `<div class="boss-panel"><div class="boss-panel-title">十の位をかけ、くり上がりを足す</div><div class="multiply-focus"><div class="multiply-sum"><span class="carry-chip">くり上がり ${carry}</span>${tens} × ${q} ＋ ${carry} = ${ready ? tensRaw : "?"}</div><div><div class="multiply-result">${productDigits}</div><div class="multiply-note">${note}</div></div></div></div>`;
+    }
+
+    function bossVerdict(step, candidate = bossRun.candidate) {
+      const product = bossRun.b * candidate;
+      if (product > step.partial) return "over";
+      if (product + bossRun.b <= step.partial) return "under";
+      return "fit";
+    }
+
+    function comparePanel() {
+      const step = bossStep();
+      const product = bossRun.b * bossRun.candidate;
+      const next = product + bossRun.b;
+      const scale = Math.max(step.partial, next, product, 1) * 1.05;
+      const productWidth = product === 0 ? 0 : Math.max(2, (product / scale) * 100);
+      const unitWidth = (bossRun.b / scale) * 100;
+      const limitLeft = (step.partial / scale) * 100;
+      return `<div class="boss-panel"><div class="boss-panel-title">積は${step.partial}をこえない？ もう1個入らない？</div><div class="fit-meter"><div class="fit-track" style="--product-width:${productWidth}%;--product-left:${productWidth}%;--unit-width:${unitWidth}%;--limit-left:${limitLeft}%"><span class="fit-product"></span><span class="fit-more"></span><span class="fit-limit"><b>${step.partial}</b></span></div><div class="fit-equations"><span>${bossRun.b}×${bossRun.candidate}=${product}</span><span>もう1個なら ${next}</span></div></div></div>`;
+    }
+
+    function bossPanel() {
+      const step = bossStep();
+      if (bossRun.phase === "place") {
+        return `<div class="boss-panel"><div class="boss-panel-title">最初の商はどの桁に立つ？</div><div class="place-callout">左から見て、<b>${bossRun.b}</b> が入る最初のまとまりを探す。<br>上の「？」をタップ。</div></div>`;
+      }
+      if (bossRun.phase === "estimate") {
+        const retry = bossRun.retryReason ? `<div class="boss-panel-title">${bossRun.retryReason} 商を直そう</div>` : `<div class="boss-panel-title">一の位をうすく見て、仮の商を予想</div>`;
+        return `<div class="boss-panel">${retry}<div class="boss-estimate"><span class="estimate-pair"><span>${muteOnes(step.partial)}</span><i class="estimate-arrow">↓</i><b>${step.roundedDividend}</b></span><i class="estimate-symbol">÷</i><span class="estimate-pair"><span>${muteOnes(bossRun.b)}</span><i class="estimate-arrow">↓</i><b>${step.roundedDivisor}</b></span></div><div class="estimate-question">${step.roundedDividend}÷${step.roundedDivisor} なら、だいたい何個？</div></div>`;
+      }
+      if (bossRun.phase === "multiply-ones") return multiplicationPanel("ones");
+      if (bossRun.phase === "multiply-tens") return multiplicationPanel("tens");
+      if (bossRun.phase === "compare") return comparePanel();
+      if (bossRun.phase === "subtract") {
+        return `<div class="boss-panel"><div class="boss-panel-title">商が決まった。積をひく</div><div class="subtract-stack"><span class="sub-a">${step.partial}</span><span class="minus">−</span><span class="sub-b">${step.product}</span><span class="sub-result">${bossRun.phaseReady ? step.remainder : "?"}</span></div></div>`;
+      }
+      if (bossRun.phase === "bring") {
+        const nextPartial = step.remainder * 10 + step.nextDigit;
+        return `<div class="boss-panel"><div class="boss-panel-title">余りの右へ、次の桁をおろす</div><div class="bring-visual"><span>${step.remainder}</span><span>＋</span><span class="bring-digit">↓ ${step.nextDigit}</span><span>→</span><span class="bring-result">${bossRun.phaseReady ? nextPartial : "?"}</span></div></div>`;
+      }
+      return `<div class="boss-panel"><strong>${bossRun.a} ÷ ${bossRun.b} = ${bossRun.quotient}</strong></div>`;
+    }
+
+    function bossChoices() {
+      const step = bossStep();
+      const button = (value, label = "", action = "number") => {
+        const tried = bossRun.phaseAttempts.has(value) || (bossRun.phase === "estimate" && bossRun.attemptedQs.has(Number(value)));
+        const good = bossRun.phaseReady && String(bossRun.phaseAnswer) === String(value);
+        return `<button class="boss-choice ${tried ? "tried" : ""} ${good ? "good" : ""}" type="button" data-boss-action="${action}" data-value="${value}" ${tried || bossRun.phaseReady ? "disabled" : ""}>${label || value}</button>`;
+      };
+
+      if (bossRun.phase === "place") return "";
+      if (bossRun.phase === "estimate") return bossEstimateCandidates(step).map((value) => button(value, `${value}<small>仮の商</small>`, "estimate")).join("");
+      if (bossRun.phase === "multiply-ones") {
+        const correct = (bossRun.b % 10) * bossRun.candidate;
+        return bossNumberChoices(correct, Math.max(1, bossRun.candidate)).map((value) => button(value, value, "multiply-ones")).join("");
+      }
+      if (bossRun.phase === "multiply-tens") {
+        const carry = Math.floor(((bossRun.b % 10) * bossRun.candidate) / 10);
+        const correct = Math.floor(bossRun.b / 10) * bossRun.candidate + carry;
+        return bossNumberChoices(correct, Math.max(1, Math.floor(bossRun.b / 10))).map((value) => button(value, value, "multiply-tens")).join("");
+      }
+      if (bossRun.phase === "compare") {
+        return [
+          button("over", "大きすぎる", "verdict"),
+          button("fit", "これでOK", "verdict"),
+          button("under", "まだ入る", "verdict")
+        ].join("");
+      }
+      if (bossRun.phase === "subtract") return bossNumberChoices(step.remainder, Math.max(1, bossRun.b % 10)).map((value) => button(value, value, "subtract")).join("");
+      if (bossRun.phase === "bring") return `<button class="boss-choice wide ${bossRun.phaseReady ? "good" : ""}" type="button" data-boss-action="bring" ${bossRun.phaseReady ? "disabled" : ""}>「${step.nextDigit}」をおろす</button>`;
+      return "";
+    }
+
+    function bossQuestion() {
+      const questions = {
+        place: "最初の商を立てる場所は？",
+        estimate: bossRun.retryReason ? "仮の商を直そう" : "だいたい何個入りそう？",
+        "multiply-ones": "一の位からかけると？",
+        "multiply-tens": "十の位と、くり上がりは？",
+        compare: "この商でちょうどいい？",
+        subtract: "積をひくと？",
+        bring: "次の桁をおろそう"
+      };
+      return questions[bossRun.phase] || "筆算がつながった";
+    }
+
+    function bossNextLabel() {
+      if (!bossRun.phaseReady) return "上の問題を解こう";
+      if (bossRun.phase === "place") return "見立てへ";
+      if (bossRun.phase === "estimate") return "かけ算で確認";
+      if (bossRun.phase === "multiply-ones") return "十の位へ";
+      if (bossRun.phase === "multiply-tens") return "積をくらべる";
+      if (bossRun.phase === "compare") return bossRun.candidateVerified ? "ひき算へ" : "商を直す";
+      if (bossRun.phase === "subtract") return bossStep().nextDigit === null ? "答えを確定" : "次の桁へ";
+      if (bossRun.phase === "bring") return "次の商へ";
+      return "精算完了";
+    }
+
+    function attachBossHandlers() {
+      document.querySelectorAll("[data-place]").forEach((button) => button.addEventListener("click", () => chooseBossPlace(Number(button.dataset.place))));
+      document.querySelectorAll("[data-boss-action]").forEach((button) => button.addEventListener("click", () => {
+        const action = button.dataset.bossAction;
+        const raw = button.dataset.value;
+        if (action === "estimate") chooseBossEstimate(Number(raw));
+        if (action === "multiply-ones" || action === "multiply-tens") chooseBossCalculation(Number(raw));
+        if (action === "verdict") chooseBossVerdict(raw);
+        if (action === "subtract") chooseBossSubtraction(Number(raw));
+        if (action === "bring") chooseBossBringDown();
+      }));
+    }
+
+    function renderBossPhase() {
+      const step = bossStep();
+      $("kicker").textContent = `BOSS・${bossRun.label}　商 ${bossRun.stepIndex + 1}/${bossRun.steps.length}`;
+      $("question").textContent = bossQuestion();
+      $("equation").className = "equation";
+      $("equation").textContent = `${bossRun.a} ÷ ${bossRun.b}`;
+      $("desc").textContent = `${bossRun.note}｜いま見る数は ${step.partial}`;
+      $("visual").innerHTML = `${bossStepsVisual()}${bossDivisionBoard(bossRun.phase === "place")}${bossPanel()}`;
+      $("choices").innerHTML = bossChoices();
+      $("feedback").className = `feedback ${bossRun.feedbackKind}`.trim();
+      $("feedback").innerHTML = bossRun.feedback;
+      $("next").disabled = !bossRun.phaseReady;
+      $("next").textContent = bossNextLabel();
+      $("hint").disabled = bossRun.phaseReady;
+      attachBossHandlers();
+      renderModeTabs();
+    }
+
+    function setBossFeedback(message, kind = "") {
+      bossRun.feedback = message;
+      bossRun.feedbackKind = kind;
+      renderBossPhase();
+    }
+
+    function chooseBossPlace(index) {
+      if (bossRun.phase !== "place" || bossRun.phaseReady) return;
+      const step = bossStep();
+      if (index === step.digitIndex) {
+        bossRun.phaseReady = true;
+        bossRun.phaseAnswer = index;
+        const prefix = Number(bossRun.digits.slice(0, index + 1).join(""));
+        setBossFeedback(`<strong>${prefix}</strong>で初めて${bossRun.b}が入る。商は<strong>${placeName(index, bossRun.digits.length)}</strong>から。`, "good");
+        eventPulse("hit");
+        playTone("hit");
+      } else {
+        bossRun.phaseAttempts.add(index);
+        const prefix = Number(bossRun.digits.slice(0, index + 1).join(""));
+        const message = index < step.digitIndex
+          ? `<strong>${prefix}</strong>は${bossRun.b}より小さい。もう1桁まで見よう。`
+          : `<strong>${step.partial}</strong>でもう${bossRun.b}が入る。商は1つ左の桁から。`;
+        setBossFeedback(message, "try");
+        eventPulse("miss");
+      }
+    }
+
+    function chooseBossEstimate(value) {
+      if (bossRun.phase !== "estimate" || bossRun.phaseReady || bossRun.attemptedQs.has(value)) return;
+      bossRun.candidate = value;
+      bossRun.candidateVerified = false;
+      bossRun.phaseReady = true;
+      bossRun.phaseAnswer = value;
+      bossRun.retryReason = "";
+      setBossFeedback(`<strong>${value}</strong>個と予想。予想は仮でOK。本当の${bossRun.b}をかけて確かめよう。`);
+      eventPulse("hint");
+    }
+
+    function chooseBossCalculation(value) {
+      const step = bossStep();
+      const q = bossRun.candidate;
+      const onesRaw = (bossRun.b % 10) * q;
+      const carry = Math.floor(onesRaw / 10);
+      const correct = bossRun.phase === "multiply-ones" ? onesRaw : Math.floor(bossRun.b / 10) * q + carry;
+      if (bossRun.phaseReady || bossRun.phaseAttempts.has(value)) return;
+      if (value === correct) {
+        bossRun.phaseReady = true;
+        bossRun.phaseAnswer = value;
+        const message = bossRun.phase === "multiply-ones"
+          ? `<strong>${bossRun.b % 10}×${q}=${onesRaw}</strong>。${onesRaw % 10}を書き、${carry}を小さく上へ。`
+          : `<strong>${Math.floor(bossRun.b / 10)}×${q}＋${carry}=${correct}</strong>。つなげると積は${bossRun.b * q}。`;
+        setBossFeedback(message, "good");
+        eventPulse("hit");
+        playTone("hit");
+      } else {
+        bossRun.phaseAttempts.add(value);
+        setBossFeedback(`かけ算をもう一度。<strong>${bossRun.phase === "multiply-ones" ? bossRun.b % 10 : Math.floor(bossRun.b / 10)}×${q}</strong>${bossRun.phase === "multiply-tens" ? `に${carry}を足す` : ""}。`, "try");
+        eventPulse("miss");
+      }
+    }
+
+    function chooseBossVerdict(value) {
+      if (bossRun.phase !== "compare" || bossRun.phaseReady || bossRun.phaseAttempts.has(value)) return;
+      const step = bossStep();
+      const product = bossRun.b * bossRun.candidate;
+      const verdict = bossVerdict(step);
+      if (value === verdict) {
+        bossRun.phaseReady = true;
+        bossRun.phaseAnswer = value;
+        bossRun.candidateVerified = verdict === "fit";
+        if (verdict === "over") {
+          bossRun.attemptedQs.add(bossRun.candidate);
+          bossRun.retryReason = `${product}は${step.partial}をこえた。`;
+          setBossFeedback(`<strong>大きすぎる。</strong> 商を${bossRun.candidate}より小さくしよう。`, "good");
+        } else if (verdict === "under") {
+          bossRun.attemptedQs.add(bossRun.candidate);
+          bossRun.retryReason = `${product + bossRun.b}も入る。`;
+          setBossFeedback(`<strong>まだ1個入る。</strong> 商を${bossRun.candidate}より大きくしよう。`, "good");
+        } else {
+          setBossFeedback(`<strong>${product}は入る。</strong> もう1個なら${product + bossRun.b}でこえる。商は${bossRun.candidate}で確定。`, "good");
+        }
+        eventPulse("hit");
+        playTone("hit");
+      } else {
+        bossRun.phaseAttempts.add(value);
+        const label = value === "over" ? "積がはみ出している？" : value === "under" ? "点線のもう1個まで入る？" : "積と、もう1個分の両方を見よう。";
+        setBossFeedback(`${label} 棒と<strong>${step.partial}</strong>の線を見比べよう。`, "try");
+        eventPulse("miss");
+      }
+    }
+
+    function chooseBossSubtraction(value) {
+      if (bossRun.phase !== "subtract" || bossRun.phaseReady || bossRun.phaseAttempts.has(value)) return;
+      const step = bossStep();
+      if (value === step.remainder) {
+        bossRun.phaseReady = true;
+        bossRun.phaseAnswer = value;
+        setBossFeedback(`<strong>${step.partial}−${step.product}=${step.remainder}</strong>。${step.nextDigit === null ? "これが最後の余り。" : "次の桁をおろそう。"}`, "good");
+        eventPulse("hit");
+        playTone("hit");
+      } else {
+        bossRun.phaseAttempts.add(value);
+        setBossFeedback(`<strong>${step.partial}−${step.product}</strong>を、位をそろえてもう一度。`, "try");
+        eventPulse("miss");
+      }
+    }
+
+    function chooseBossBringDown() {
+      if (bossRun.phase !== "bring" || bossRun.phaseReady) return;
+      const step = bossStep();
+      const nextPartial = step.remainder * 10 + step.nextDigit;
+      bossRun.phaseReady = true;
+      bossRun.phaseAnswer = nextPartial;
+      setBossFeedback(`<strong>${step.remainder}</strong>の右に<strong>${step.nextDigit}</strong>をおろして、次に見る数は<strong>${nextPartial}</strong>。`, "good");
+      eventPulse("hint");
+      playTone("hit");
+    }
+
+    function beginBossPhase(phase) {
+      bossRun.phase = phase;
+      bossRun.phaseReady = false;
+      bossRun.phaseAnswer = null;
+      bossRun.phaseAttempts = new Set();
+      bossRun.feedbackKind = "";
+      hintLevel = 0;
+      $("hintbox").classList.remove("show");
+      $("hintbox").innerHTML = "";
+      $("hint").textContent = "ヒント 0/3";
+
+      const prompts = {
+        estimate: bossRun.retryReason ? "方向は分かった。新しい商を選ぼう。" : "概数から、まず仮の商を決めよう。",
+        "multiply-ones": "割る数の一の位から、商をかける。",
+        "multiply-tens": "小さく置いた数を忘れずに足す。",
+        compare: "積と、もう1個分が入るかを見比べる。",
+        subtract: "商が決まったら、積をひく。",
+        bring: "余りの右に、次の桁をおろす。"
+      };
+      bossRun.feedback = prompts[phase] || "筆算を続けよう。";
+      renderBossPhase();
+    }
+
+    function completeBossDigit() {
+      const step = bossStep();
+      const nextPartial = step.nextDigit === null ? null : step.remainder * 10 + step.nextDigit;
+      bossRun.completedDigits[step.digitIndex] = step.quotientDigit;
+      bossRun.history.push({ ...step, nextPartial });
+      state.boss.progress += 1;
+
+      if (bossRun.stepIndex >= bossRun.steps.length - 1) {
+        state.boss.defeated = true;
+        bossRun.phase = "done";
+        bossRun.phaseReady = false;
+        bossRun.feedback = `<strong>${bossRun.a}÷${bossRun.b}=${bossRun.quotient}</strong>${bossRun.remainder ? `、余り${bossRun.remainder}` : "。余りなし"}。`;
+        bossRun.feedbackKind = "good";
+        renderBossPhase();
+        renderEnemy("victory");
+        say(enemies.boss.win);
+        eventPulse("win");
+        burst(24, "win");
+        playTone("win");
+        window.setTimeout(() => {
+          if (mode === "boss" && state.boss.defeated) showFinish();
+        }, 1150);
+        return;
+      }
+
+      bossRun.stepIndex += 1;
+      bossRun.candidate = null;
+      bossRun.candidateVerified = false;
+      bossRun.retryReason = "";
+      bossRun.attemptedQs = new Set();
+      renderEnemy("hit");
+      say(enemies.boss.hits[Math.min(state.boss.progress - 1, enemies.boss.hits.length - 1)]);
+      eventPulse("hit");
+      burst(10, "hit");
+      playTone("hit");
+      beginBossPhase("estimate");
+    }
+
+    function bossNext() {
+      if (!bossRun || !bossRun.phaseReady) return;
+      if (bossRun.phase === "place") return beginBossPhase("estimate");
+      if (bossRun.phase === "estimate") return beginBossPhase("multiply-ones");
+      if (bossRun.phase === "multiply-ones") return beginBossPhase("multiply-tens");
+      if (bossRun.phase === "multiply-tens") return beginBossPhase("compare");
+      if (bossRun.phase === "compare") {
+        if (bossRun.candidateVerified) return beginBossPhase("subtract");
+        bossRun.candidate = null;
+        return beginBossPhase("estimate");
+      }
+      if (bossRun.phase === "subtract") {
+        if (bossStep().nextDigit !== null) return beginBossPhase("bring");
+        return completeBossDigit();
+      }
+      if (bossRun.phase === "bring") return completeBossDigit();
+    }
+
+    function bossHint() {
+      if (!bossRun || bossRun.phaseReady || state.boss.defeated) return;
+      hintLevel = Math.min(3, hintLevel + 1);
+      $("hint").textContent = `ヒント ${hintLevel}/3`;
+      $("hintbox").classList.add("show");
+      const step = bossStep();
+      const q = bossRun.candidate;
+      const verdict = q === null ? "" : bossVerdict(step, q);
+      const hints = {
+        place: [
+          `左から<strong>${bossRun.b}以上</strong>になるまで、見る桁を増やす。`,
+          `${bossRun.digits.slice(0, step.digitIndex).join("") || bossRun.digits[0]}では足りない。<strong>${step.partial}</strong>まで見る。`,
+          `最初の商は<strong>${placeName(step.digitIndex, bossRun.digits.length)}</strong>に立つ。`
+        ],
+        estimate: [
+          `<strong>${step.partial}→${step.roundedDividend}</strong>、<strong>${bossRun.b}→${step.roundedDivisor}</strong>で見る。`,
+          `<strong>${step.roundedDividend}÷${step.roundedDivisor}</strong>を考える。予想なので、あとで直してよい。`,
+          `まず<strong>${step.estimate}</strong>個くらいと予想してみよう。`
+        ],
+        "multiply-ones": [
+          `割る数${bossRun.b}の一の位は<strong>${bossRun.b % 10}</strong>。`,
+          `<strong>${bossRun.b % 10}×${q}</strong>を計算する。`,
+          `答えは<strong>${(bossRun.b % 10) * q}</strong>。一の位を書き、残りは小さく上へ。`
+        ],
+        "multiply-tens": [
+          `十の位<strong>${Math.floor(bossRun.b / 10)}</strong>に商<strong>${q}</strong>をかける。`,
+          `そこへ、さっきのくり上がり<strong>${Math.floor(((bossRun.b % 10) * q) / 10)}</strong>を足す。`,
+          `答えは<strong>${Math.floor(bossRun.b / 10) * q + Math.floor(((bossRun.b % 10) * q) / 10)}</strong>。積は${bossRun.b * q}。`
+        ],
+        compare: [
+          `青い積<strong>${bossRun.b * q}</strong>は、線の<strong>${step.partial}</strong>をこえている？`,
+          `点線の「もう1個」を足すと<strong>${bossRun.b * q + bossRun.b}</strong>。これも入る？`,
+          verdict === "over" ? "今の商は<strong>大きすぎる</strong>。" : verdict === "under" ? "今の商では<strong>まだ1個入る</strong>。" : "今の商で<strong>これでOK</strong>。"
+        ],
+        subtract: [
+          `見る数<strong>${step.partial}</strong>から、積<strong>${step.product}</strong>をひく。`,
+          `位をそろえて、<strong>${step.partial}−${step.product}</strong>。`,
+          `答えは<strong>${step.remainder}</strong>。`
+        ],
+        bring: [
+          `次の桁は<strong>${step.nextDigit}</strong>。`,
+          `余り<strong>${step.remainder}</strong>の右に${step.nextDigit}を置く。`,
+          `次に見る数は<strong>${step.remainder * 10 + step.nextDigit}</strong>。`
+        ]
+      };
+      $("hintbox").innerHTML = `ヒント${hintLevel}：${(hints[bossRun.phase] || ["筆算の順番をたどろう。"])[hintLevel - 1]}`;
+      eventPulse("hint");
+    }
+
     function renderProblem() {
+      if (mode === "boss") {
+        renderBossPhase();
+        return;
+      }
       $("kicker").textContent = `成功 ${state[mode].progress}/5`;
       $("equation").className = "equation";
       if (mode === "weak") {
@@ -1202,6 +1961,10 @@
     }
 
     function hint() {
+      if (mode === "boss") {
+        bossHint();
+        return;
+      }
       if (solved) return;
       hintLevel = Math.min(3, hintLevel + 1);
       $("hint").textContent = `ヒント ${hintLevel}/3`;
@@ -1243,13 +2006,23 @@
       $("finish").hidden = false;
       $("finishStamp").textContent = enemies[mode].stamp;
       $("finishTitle").textContent = enemies[mode].name;
-      $("finishText").textContent = enemies[mode].finish;
+      if (mode === "boss" && bossRun) {
+        const remainderText = bossRun.remainder ? `、余り ${bossRun.remainder}` : "、余りなし";
+        $("finishText").innerHTML = `<strong>${bossRun.a} ÷ ${bossRun.b} = ${bossRun.quotient}${remainderText}</strong><br>${enemies.boss.finish}`;
+        $("replay").textContent = "次のボス";
+        $("nextEnemy").textContent = "最初の敵へ";
+      } else {
+        $("finishText").textContent = enemies[mode].finish;
+        $("replay").textContent = "もう一回";
+        $("nextEnemy").textContent = "つぎの敵へ";
+      }
       renderEnemy("victory");
       say(enemies[mode].win);
     }
 
     function restartMode() {
       state[mode] = { progress: 0, defeated: false };
+      if (mode === "boss") bossRun = null;
       newProblem();
     }
 
@@ -1262,7 +2035,14 @@
       mode = nextMode;
       $("app").dataset.mode = mode;
       if (state[mode].defeated) showFinish();
-      else newProblem();
+      else if (mode === "boss" && bossRun) {
+        solved = false;
+        $("round").hidden = false;
+        $("finish").hidden = true;
+        problem = bossRun;
+        renderEnemy();
+        renderBossPhase();
+      } else newProblem();
     }
 
     function burst(count, kind = "hit") {
@@ -1299,7 +2079,10 @@
 
     document.querySelectorAll(".mode-tab").forEach((tab) => tab.addEventListener("click", () => switchMode(tab.dataset.mode)));
     $("hint").addEventListener("click", hint);
-    $("next").addEventListener("click", () => { if (solved && !state[mode].defeated) newProblem(); });
+    $("next").addEventListener("click", () => {
+      if (mode === "boss") bossNext();
+      else if (solved && !state[mode].defeated) newProblem();
+    });
     $("replay").addEventListener("click", restartMode);
     $("nextEnemy").addEventListener("click", moveToNextEnemy);
     $("sound").addEventListener("click", () => {
