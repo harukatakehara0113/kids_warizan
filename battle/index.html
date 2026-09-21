@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="数字の近さ・見立て・商の感覚から筆算の手順まで、日常の困りごととのバトルで身につける算数ゲーム。">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23d6ff37'/%3E%3Cpath d='M12 35h40M23 17l-9 18 9 12M41 17l9 18-9 12' fill='none' stroke='%23111111' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='35' r='6' fill='%233554ff' stroke='%23111111' stroke-width='4'/%3E%3C/svg%3E">
-  <title>ギリギリバトル v0.6</title>
+  <title>ギリギリバトル v0.7</title>
   <style>
     :root {
       --ink: #111111;
@@ -557,6 +557,7 @@
 
     .app[data-mode="boss"] .visual { min-height: 326px; padding: 7px; }
     .app[data-mode="boss"] .choices { grid-template-columns: repeat(3, 1fr); }
+    .app[data-mode="boss"] .choices.two { grid-template-columns: repeat(2, 1fr); }
     .app[data-mode="boss"] .kicker { background: var(--event-win); color: var(--paper); }
 
     .boss-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin-bottom: 7px; }
@@ -619,6 +620,13 @@
     .fit-equations { margin-top: 4px; display: flex; justify-content: center; gap: 10px; font-size: 10px; font-weight: 1000; }
     .fit-equations span:last-child { color: #555; }
 
+    .remainder-check { width: 100%; display: grid; place-items: center; gap: 6px; }
+    .remainder-equation { padding: 5px 10px; background: var(--paper); border: 3px solid var(--ink); border-radius: 7px; font: 1000 20px/1.1 ui-monospace, monospace; }
+    .remainder-gate { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; font-size: 11px; font-weight: 1000; }
+    .remainder-value, .remainder-divisor { min-width: 42px; padding: 4px 7px; border: 2px solid var(--ink); border-radius: 7px; font-size: 19px; font-weight: 1000; }
+    .remainder-value { color: var(--paper); background: var(--main); }
+    .remainder-divisor { background: var(--accent); }
+
     .subtract-stack { display: grid; grid-template-columns: auto auto; align-items: end; column-gap: 7px; font: 1000 23px/1.08 ui-monospace, monospace; }
     .subtract-stack .minus { grid-row: 2; }
     .subtract-stack .sub-a { grid-column: 2; }
@@ -639,7 +647,7 @@
     .app[data-mode="boss"] .visual { min-height: 390px; overflow: visible; }
 
     .long-division {
-      --cell: 42px;
+      --cell: 48px;
       padding: 7px 5px 9px;
       background: var(--paper);
       border: 3px solid var(--ink);
@@ -677,7 +685,8 @@
     .ld-cell.empty { color: transparent; }
     .ld-cell.ghost { color: #888; border-color: #aaa; border-style: dashed; }
     .ld-cell.quotient { background: #e2e2e2; border-color: #777; border-style: dashed; }
-    button.ld-cell { cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+    button.ld-cell { min-width: var(--cell); min-height: 48px; position: relative; z-index: 6; cursor: pointer; touch-action: manipulation; box-shadow: 2px 2px 0 var(--ink); }
+    button.ld-cell > * { pointer-events: none; }
     button.ld-cell:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
     .ld-cell small { display: block; margin-top: 2px; font-size: 7px; line-height: 1; }
     .ld-cell.fixed { background: var(--accent); border-color: var(--ink); border-style: solid; }
@@ -731,7 +740,7 @@
     .column-note { margin-top: 4px; font-size: 11px; font-weight: 900; line-height: 1.35; }
 
     @media (max-width: 380px) {
-      .long-division { --cell: 37px; padding-left: 3px; padding-right: 3px; }
+      .long-division { --cell: 44px; padding-left: 3px; padding-right: 3px; }
       .ld-row { grid-template-columns: 51px repeat(var(--digit-count), var(--cell)); }
       .ld-prefix, .ld-divisor { min-width: 51px; padding-right: 4px; }
       .ld-divisor-digit { min-width: 21px; font-size: 20px; }
@@ -880,7 +889,7 @@
 <body>
   <main class="app" id="app" data-mode="weak">
     <header class="topbar">
-      <div class="brand"><strong>ギリギリバトル</strong><small>v0.6</small></div>
+      <div class="brand"><strong>ギリギリバトル</strong><small>v0.7</small></div>
       <button class="sound" id="sound" type="button" aria-pressed="false">音 OFF</button>
     </header>
 
@@ -1042,6 +1051,7 @@
     let roundingGuide = null;
     let placeGuide = null;
     let bossRun = null;
+    let bossAutoTimer = null;
     let eventTimer = null;
 
     function makeWeak() {
@@ -1430,7 +1440,7 @@
       return `<div class="mid-steps"><div class="mid-step">丸める<b>${p.ra} ÷ ${p.rb}</b></div><div class="mid-arrow">→</div><div class="mid-step">仮の商<b>${selected}</b></div></div><div class="adjust">本当の数で確認：${last}</div>`;
     }
 
-    const bossPhaseLabels = ["桁", "見立て", "かける", "くらべる", "ひく・おろす"];
+    const bossPhaseLabels = ["桁", "見立て", "かける", "ひく・くらべる", "おろす"];
 
     function bossStep() {
       return bossRun.steps[bossRun.stepIndex];
@@ -1446,7 +1456,7 @@
       if (phase === "place") return 0;
       if (phase === "estimate") return 1;
       if (phase === "multiply-ones" || phase === "multiply-tens") return 2;
-      if (phase === "compare") return 3;
+      if (phase === "subtract" || phase === "compare") return 3;
       return 4;
     }
 
@@ -1534,7 +1544,7 @@
     function subtractionAnnotations() {
       const annotations = {};
       const subtraction = bossRun.subtraction;
-      if (!subtraction || bossRun.phase !== "subtract") return annotations;
+      if (!subtraction || (bossRun.phase !== "subtract" && bossRun.phase !== "compare")) return annotations;
       const includeCurrent = subtraction.action === "digit" || bossRun.phaseReady;
       const limit = subtraction.index - (includeCurrent ? 0 : 1);
       subtraction.steps.forEach((item, index) => {
@@ -1558,7 +1568,11 @@
         const carry = Math.floor(((bossRun.b % 10) * q) / 10);
         return `いま：商<span class="ld-chip main">${q}</span> × 十の位<span class="ld-chip accent">${Math.floor(bossRun.b / 10)}</span> ＋ <span class="ld-chip carry">${carry}</span>`;
       }
-      if (bossRun.phase === "compare") return `いま：上の<span class="ld-chip main">${step.partial}</span>と下の積<span class="ld-chip accent">${bossRun.b * q}</span>をくらべる`;
+      if (bossRun.phase === "compare") {
+        const product = bossRun.b * q;
+        if (product > step.partial) return `いま：上の<span class="ld-chip main">${step.partial}</span>より積<span class="ld-chip accent">${product}</span>が大きくない？`;
+        return `いま：引いた余り<span class="ld-chip main">${step.partial - product}</span>に<span class="ld-chip accent">${bossRun.b}</span>があと1つ入る？`;
+      }
       if (bossRun.phase === "subtract" && bossRun.subtraction) {
         const current = bossRun.subtraction.steps[bossRun.subtraction.index];
         if (bossRun.subtraction.action === "borrow") return `いま：<span class="ld-chip main">${current.minuend - 10}</span>から<span class="ld-chip accent">${current.subtrahend}</span>は引けない → 左から1をかりる`;
@@ -1592,24 +1606,27 @@
       if (bossRun.phase === "place") {
         for (let index = 0; index <= step.digitIndex; index += 1) mergeClasses(sourceClasses, index, "use-main");
       }
-      if (bossRun.phase === "estimate" || bossRun.phase === "compare") {
+      if (bossRun.phase === "estimate" || (bossRun.phase === "compare" && !bossRun.subtraction)) {
         sourceIndices.forEach((index) => mergeClasses(sourceClasses, index, "use-main"));
       }
-      if (bossRun.phase === "subtract" && bossRun.subtraction) {
-        const current = bossRun.subtraction.steps[bossRun.subtraction.index];
-        mergeClasses(sourceClasses, sourceStart + current.column, "use-main");
+      if ((bossRun.phase === "subtract" || bossRun.phase === "compare") && bossRun.subtraction) {
         const annotations = subtractionAnnotations();
         Object.entries(annotations).forEach(([column, value]) => { sourceAnnotations[sourceStart + Number(column)] = value; });
-        if (bossRun.subtraction.action === "borrow") {
-          current.changes.forEach((change) => {
-            if (change.column !== current.column) mergeClasses(sourceClasses, sourceStart + change.column, "use-carry");
-          });
+        if (bossRun.phase === "subtract") {
+          const current = bossRun.subtraction.steps[bossRun.subtraction.index];
+          mergeClasses(sourceClasses, sourceStart + current.column, "use-main");
+          if (bossRun.subtraction.action === "borrow") {
+            current.changes.forEach((change) => {
+              if (change.column !== current.column) mergeClasses(sourceClasses, sourceStart + change.column, "use-carry");
+            });
+          }
         }
       }
 
       const divisorDigits = String(bossRun.b).split("");
       const divisorActive = bossRun.phase === "multiply-ones" ? divisorDigits.length - 1 : bossRun.phase === "multiply-tens" ? 0 : -1;
-      const divisor = `<span class="ld-divisor">${divisorDigits.map((digit, index) => `<i class="ld-divisor-digit ${index === divisorActive ? "use-accent" : ""}">${digit}</i>`).join("")}</span>`;
+      const compareRemainder = bossRun.phase === "compare" && !!bossRun.subtraction;
+      const divisor = `<span class="ld-divisor">${divisorDigits.map((digit, index) => `<i class="ld-divisor-digit ${index === divisorActive || compareRemainder ? "use-accent" : ""}">${digit}</i>`).join("")}</span>`;
 
       const dividendValues = Object.fromEntries(bossRun.digits.map((digit, index) => [index, digit]));
       const dividendClasses = {};
@@ -1673,7 +1690,7 @@
         } else {
           Object.assign(productValues, fullProduct);
           if (carry) carries[carryIndex] = { value: carry, spent: true };
-          if (bossRun.phase === "compare") productIndices.forEach((index) => mergeClasses(productClasses, index, "use-accent"));
+          if (bossRun.phase === "compare" && !bossRun.subtraction) productIndices.forEach((index) => mergeClasses(productClasses, index, "use-accent"));
           if (bossRun.phase === "subtract" && bossRun.subtraction) {
             const current = bossRun.subtraction.steps[bossRun.subtraction.index];
             mergeClasses(productClasses, sourceStart + current.column, "use-accent");
@@ -1687,20 +1704,23 @@
           rows.push(`<div class="ld-row ld-rule-row"><span class="ld-prefix"></span>${renderLongCells(count, {}, ruleClasses)}</div>`);
         }
 
-        if (bossRun.phase === "subtract" && bossRun.subtraction) {
+        if ((bossRun.phase === "subtract" || bossRun.phase === "compare") && bossRun.subtraction) {
           const resultValues = {};
           const resultClasses = {};
           bossRun.subtraction.results.forEach((value, column) => {
-            if (value !== null) resultValues[sourceStart + column] = value;
+            if (value !== null) {
+              resultValues[sourceStart + column] = value;
+              if (bossRun.phase === "compare") resultClasses[sourceStart + column] = "use-main";
+            }
           });
           const current = bossRun.subtraction.steps[bossRun.subtraction.index];
           const currentGlobal = sourceStart + current.column;
-          if (bossRun.subtraction.action === "digit" && !bossRun.phaseReady) {
+          if (bossRun.phase === "subtract" && bossRun.subtraction.action === "digit" && !bossRun.phaseReady) {
             resultValues[currentGlobal] = "?";
             resultClasses[currentGlobal] = "ghost";
           }
-          if (bossRun.phaseReady && bossRun.subtraction.action === "digit") resultClasses[currentGlobal] = "just-written";
-          rows.push(`<div class="ld-row ld-work-row"><span class="ld-prefix ld-row-label">答え</span>${renderLongCells(count, resultValues, resultClasses)}</div>`);
+          if (bossRun.phase === "subtract" && bossRun.phaseReady && bossRun.subtraction.action === "digit") resultClasses[currentGlobal] = "just-written";
+          rows.push(`<div class="ld-row ld-work-row"><span class="ld-prefix ld-row-label">${bossRun.phase === "compare" ? "余り" : "答え"}</span>${renderLongCells(count, resultValues, resultClasses)}</div>`);
         }
 
         if (bossRun.phase === "bring") {
@@ -1786,12 +1806,11 @@
     function comparePanel() {
       const step = bossStep();
       const product = bossRun.b * bossRun.candidate;
-      const next = product + bossRun.b;
-      const scale = Math.max(step.partial, next, product, 1) * 1.05;
-      const productWidth = product === 0 ? 0 : Math.max(2, (product / scale) * 100);
-      const unitWidth = (bossRun.b / scale) * 100;
-      const limitLeft = (step.partial / scale) * 100;
-      return `<div class="boss-panel"><div class="boss-panel-title">積は${step.partial}をこえない？ もう1個入らない？</div><div class="fit-meter"><div class="fit-track" style="--product-width:${productWidth}%;--product-left:${productWidth}%;--unit-width:${unitWidth}%;--limit-left:${limitLeft}%"><span class="fit-product"></span><span class="fit-more"></span><span class="fit-limit"><b>${step.partial}</b></span></div><div class="fit-equations"><span>${bossRun.b}×${bossRun.candidate}=${product}</span><span>もう1個なら ${next}</span></div></div></div>`;
+      if (product > step.partial) {
+        return `<div class="boss-panel"><div class="boss-panel-title">引き算の前に、大きさを確認</div><div class="remainder-check"><div class="remainder-equation">${step.partial} − ${product}</div><div class="column-note">下の積が上の数より大きいと、引けない。商を小さくする？</div></div></div>`;
+      }
+      const remainder = step.partial - product;
+      return `<div class="boss-panel"><div class="boss-panel-title">筆算で引いた余りを使う</div><div class="remainder-check"><div class="remainder-equation">${step.partial} − ${product} = ${remainder}</div><div class="remainder-gate"><span class="remainder-value">余り ${remainder}</span><span>の中に</span><span class="remainder-divisor">${bossRun.b}</span><span>が、あと1つ入る？</span></div></div></div>`;
     }
 
     function bossPanel() {
@@ -1844,11 +1863,11 @@
         return bossNumberChoices(correct, Math.max(1, Math.floor(bossRun.b / 10))).map((value) => button(value, value, "multiply-tens")).join("");
       }
       if (bossRun.phase === "compare") {
-        return [
-          button("over", "大きすぎる", "verdict"),
-          button("fit", "これでOK", "verdict"),
-          button("under", "まだ入る", "verdict")
-        ].join("");
+        const product = bossRun.b * bossRun.candidate;
+        if (product > step.partial) {
+          return [button("over", "積が大きい", "verdict"), button("fit", "引けそう", "verdict")].join("");
+        }
+        return [button("under", "もう1つ入る", "verdict"), button("fit", "もう入らない", "verdict")].join("");
       }
       if (bossRun.phase === "subtract") {
         const subtraction = bossRun.subtraction;
@@ -1869,12 +1888,14 @@
         const place = subtractionPlaceName(current.column, subtraction.width);
         return subtraction.action === "borrow" ? `${place}：引けないときは？` : `${place}を引くと？`;
       }
+      if (bossRun.phase === "compare") {
+        return bossRun.b * bossRun.candidate > bossStep().partial ? "この積は引ける？" : "余りに、あともう1つ入る？";
+      }
       const questions = {
         place: "最初の商を立てる場所は？",
         estimate: bossRun.retryReason ? "仮の商を直そう" : "だいたい何個入りそう？",
         "multiply-ones": "一の位からかけると？",
         "multiply-tens": "十の位と、くり上がりは？",
-        compare: "この商でちょうどいい？",
         bring: "次の桁をおろそう"
       };
       return questions[bossRun.phase] || "筆算がつながった";
@@ -1884,21 +1905,23 @@
       if (!bossRun.phaseReady) return "上の問題を解こう";
       if (bossRun.phase === "place") return "見立てへ";
       if (bossRun.phase === "estimate") return "かけ算で確認";
-      if (bossRun.phase === "multiply-ones") return "十の位へ";
-      if (bossRun.phase === "multiply-tens") return "積をくらべる";
-      if (bossRun.phase === "compare") return bossRun.candidateVerified ? "ひき算へ" : "商を直す";
+      if (bossRun.phase === "multiply-ones") return "十の位へ…";
+      if (bossRun.phase === "multiply-tens") return bossVerdict(bossStep()) === "over" ? "積の大きさを確認" : "積をひく";
+      if (bossRun.phase === "compare") {
+        if (!bossRun.candidateVerified) return "商を直す";
+        return bossStep().nextDigit === null ? "答えを確定" : "次の桁をおろす";
+      }
       if (bossRun.phase === "subtract") {
         const subtraction = bossRun.subtraction;
         if (subtraction.action === "borrow") return "借りた数で計算";
         if (subtraction.index < subtraction.steps.length - 1) return "次の位をひく";
-        return bossStep().nextDigit === null ? "答えを確定" : "次の桁へ";
+        return "余りをくらべる";
       }
       if (bossRun.phase === "bring") return "次の商へ";
       return "精算完了";
     }
 
     function attachBossHandlers() {
-      document.querySelectorAll("[data-place]").forEach((button) => button.addEventListener("click", () => chooseBossPlace(Number(button.dataset.place))));
       document.querySelectorAll("[data-boss-action]").forEach((button) => button.addEventListener("click", () => {
         const action = button.dataset.bossAction;
         const raw = button.dataset.value;
@@ -1919,10 +1942,12 @@
       $("equation").textContent = `${bossRun.a} ÷ ${bossRun.b}`;
       $("desc").textContent = `${bossRun.note}｜いま見る数は ${step.partial}`;
       $("visual").innerHTML = `${bossStepsVisual()}${bossDivisionBoard(bossRun.phase === "place")}${bossPanel()}`;
+      $("choices").classList.toggle("two", bossRun.phase === "compare");
       $("choices").innerHTML = bossChoices();
       $("feedback").className = `feedback ${bossRun.feedbackKind}`.trim();
       $("feedback").innerHTML = bossRun.feedback;
-      $("next").disabled = !bossRun.phaseReady;
+      const autoAdvancing = bossRun.phase === "multiply-ones" && bossRun.phaseReady && bossAutoTimer !== null;
+      $("next").disabled = !bossRun.phaseReady || autoAdvancing;
       $("next").textContent = bossNextLabel();
       $("hint").disabled = bossRun.phaseReady;
       attachBossHandlers();
@@ -1975,11 +2000,19 @@
       const correct = bossRun.phase === "multiply-ones" ? onesRaw : Math.floor(bossRun.b / 10) * q + carry;
       if (bossRun.phaseReady || bossRun.phaseAttempts.has(value)) return;
       if (value === correct) {
+        const completedPhase = bossRun.phase;
         bossRun.phaseReady = true;
         bossRun.phaseAnswer = value;
-        const message = bossRun.phase === "multiply-ones"
+        const message = completedPhase === "multiply-ones"
           ? `<strong>${bossRun.b % 10}×${q}=${onesRaw}</strong>。${onesRaw % 10}を書き、${carry}を小さく上へ。`
           : `<strong>${Math.floor(bossRun.b / 10)}×${q}＋${carry}=${correct}</strong>。つなげると積は${bossRun.b * q}。`;
+        if (completedPhase === "multiply-ones") {
+          if (bossAutoTimer !== null) window.clearTimeout(bossAutoTimer);
+          bossAutoTimer = window.setTimeout(() => {
+            bossAutoTimer = null;
+            if (mode === "boss" && bossRun.phase === "multiply-ones" && bossRun.phaseReady) beginBossPhase("multiply-tens");
+          }, 720);
+        }
         setBossFeedback(message, "good");
         eventPulse("hit");
         playTone("hit");
@@ -2004,18 +2037,23 @@
           bossRun.retryReason = `${product}は${step.partial}をこえた。`;
           setBossFeedback(`<strong>大きすぎる。</strong> 商を${bossRun.candidate}より小さくしよう。`, "good");
         } else if (verdict === "under") {
+          const remainder = step.partial - product;
           bossRun.attemptedQs.add(bossRun.candidate);
-          bossRun.retryReason = `${product + bossRun.b}も入る。`;
-          setBossFeedback(`<strong>まだ1個入る。</strong> 商を${bossRun.candidate}より大きくしよう。`, "good");
+          bossRun.retryReason = `余り${remainder}に${bossRun.b}がもう1つ入る。`;
+          setBossFeedback(`<strong>もう1つ入る。</strong> 余り${remainder}は${bossRun.b}以上。商を${bossRun.candidate}より大きくしよう。`, "good");
         } else {
-          setBossFeedback(`<strong>${product}は入る。</strong> もう1個なら${product + bossRun.b}でこえる。商は${bossRun.candidate}で確定。`, "good");
+          const remainder = step.partial - product;
+          setBossFeedback(`<strong>もう入らない。</strong> 余り${remainder}は${bossRun.b}より小さい。商は${bossRun.candidate}で確定。`, "good");
         }
         eventPulse("hit");
         playTone("hit");
       } else {
         bossRun.phaseAttempts.add(value);
-        const label = value === "over" ? "積がはみ出している？" : value === "under" ? "点線のもう1個まで入る？" : "積と、もう1個分の両方を見よう。";
-        setBossFeedback(`${label} 棒と<strong>${step.partial}</strong>の線を見比べよう。`, "try");
+        const remainder = step.partial - product;
+        const label = product > step.partial
+          ? `積<strong>${product}</strong>と上の数<strong>${step.partial}</strong>を見比べよう。`
+          : `筆算で出した余り<strong>${remainder}</strong>と、割る数<strong>${bossRun.b}</strong>を見比べよう。`;
+        setBossFeedback(label, "try");
         eventPulse("miss");
       }
     }
@@ -2064,11 +2102,16 @@
     }
 
     function beginBossPhase(phase) {
+      if (bossAutoTimer !== null) {
+        window.clearTimeout(bossAutoTimer);
+        bossAutoTimer = null;
+      }
       bossRun.phase = phase;
       if (phase === "subtract") {
         const step = bossStep();
-        bossRun.subtraction = buildSubtractionPlan(step.partial, step.product);
+        bossRun.subtraction = buildSubtractionPlan(step.partial, bossRun.b * bossRun.candidate);
       }
+      if (phase === "estimate") bossRun.subtraction = null;
       bossRun.phaseReady = false;
       bossRun.phaseAnswer = null;
       bossRun.phaseAttempts = new Set();
@@ -2082,7 +2125,7 @@
         estimate: bossRun.retryReason ? "方向は分かった。新しい商を選ぼう。" : "概数から、まず仮の商を決めよう。",
         "multiply-ones": "割る数の一の位から、商をかける。",
         "multiply-tens": "小さく置いた数を忘れずに足す。",
-        compare: "積と、もう1個分が入るかを見比べる。",
+        compare: bossVerdict(bossStep()) === "over" ? "積が上の数をこえていないか確かめる。" : "引き算の余りに、割る数がもう1つ入るか確かめる。",
         subtract: "右の一の位から、積を1桁ずつひく。",
         bring: "余りの右に、次の桁をおろす。"
       };
@@ -2134,9 +2177,12 @@
       if (bossRun.phase === "place") return beginBossPhase("estimate");
       if (bossRun.phase === "estimate") return beginBossPhase("multiply-ones");
       if (bossRun.phase === "multiply-ones") return beginBossPhase("multiply-tens");
-      if (bossRun.phase === "multiply-tens") return beginBossPhase("compare");
+      if (bossRun.phase === "multiply-tens") return bossVerdict(bossStep()) === "over" ? beginBossPhase("compare") : beginBossPhase("subtract");
       if (bossRun.phase === "compare") {
-        if (bossRun.candidateVerified) return beginBossPhase("subtract");
+        if (bossRun.candidateVerified) {
+          if (bossStep().nextDigit !== null) return beginBossPhase("bring");
+          return completeBossDigit();
+        }
         bossRun.candidate = null;
         return beginBossPhase("estimate");
       }
@@ -2172,9 +2218,9 @@
           return;
         }
         const written = Number(subtraction.results.join(""));
-        if (written !== bossStep().remainder) return;
-        if (bossStep().nextDigit !== null) return beginBossPhase("bring");
-        return completeBossDigit();
+        const trialRemainder = bossStep().partial - bossRun.b * bossRun.candidate;
+        if (written !== trialRemainder) return;
+        return beginBossPhase("compare");
       }
       if (bossRun.phase === "bring") return completeBossDigit();
     }
@@ -2187,6 +2233,8 @@
       const step = bossStep();
       const q = bossRun.candidate;
       const verdict = q === null ? "" : bossVerdict(step, q);
+      const compareProduct = q === null ? 0 : bossRun.b * q;
+      const compareRemainder = step.partial - compareProduct;
       const subtraction = bossRun.subtraction;
       const subtractionStep = subtraction ? subtraction.steps[subtraction.index] : null;
       const subtractionHints = subtractionStep
@@ -2202,6 +2250,17 @@
               `答えは<strong>${subtractionStep.result}</strong>。同じ位に書く。`
             ]
         : ["右の位から順にひこう。"];
+      const compareHints = verdict === "over"
+        ? [
+            `積<strong>${compareProduct}</strong>は、上の数<strong>${step.partial}</strong>より大きい。`,
+            `大きい数はここでは引けないので、商を小さくする。`,
+            `答えは<strong>「積が大きい」</strong>。`
+          ]
+        : [
+            `上の筆算で、<strong>${step.partial}−${compareProduct}=${compareRemainder}</strong>になった。`,
+            `余り<strong>${compareRemainder}</strong>と、割る数<strong>${bossRun.b}</strong>を比べる。`,
+            verdict === "under" ? `余りに${bossRun.b}が<strong>もう1つ入る</strong>。` : `余りは${bossRun.b}より小さいので<strong>もう入らない</strong>。`
+          ];
       const hints = {
         place: [
           `左から<strong>${bossRun.b}以上</strong>になるまで、見る桁を増やす。`,
@@ -2223,11 +2282,7 @@
           `そこへ、さっきのくり上がり<strong>${Math.floor(((bossRun.b % 10) * q) / 10)}</strong>を足す。`,
           `答えは<strong>${Math.floor(bossRun.b / 10) * q + Math.floor(((bossRun.b % 10) * q) / 10)}</strong>。積は${bossRun.b * q}。`
         ],
-        compare: [
-          `青い積<strong>${bossRun.b * q}</strong>は、線の<strong>${step.partial}</strong>をこえている？`,
-          `点線の「もう1個」を足すと<strong>${bossRun.b * q + bossRun.b}</strong>。これも入る？`,
-          verdict === "over" ? "今の商は<strong>大きすぎる</strong>。" : verdict === "under" ? "今の商では<strong>まだ1個入る</strong>。" : "今の商で<strong>これでOK</strong>。"
-        ],
+        compare: compareHints,
         subtract: subtractionHints,
         bring: [
           `次の桁は<strong>${step.nextDigit}</strong>。`,
@@ -2244,6 +2299,7 @@
         renderBossPhase();
         return;
       }
+      $("choices").classList.remove("two");
       $("kicker").textContent = `成功 ${state[mode].progress}/5`;
       $("equation").className = "equation";
       if (mode === "weak") {
@@ -2509,6 +2565,11 @@
       });
     }
 
+    $("visual").addEventListener("click", (event) => {
+      const placeButton = event.target.closest?.("[data-place]");
+      if (!placeButton || !$("visual").contains(placeButton)) return;
+      chooseBossPlace(Number(placeButton.dataset.place));
+    });
     document.querySelectorAll(".mode-tab").forEach((tab) => tab.addEventListener("click", () => switchMode(tab.dataset.mode)));
     $("hint").addEventListener("click", hint);
     $("next").addEventListener("click", () => {
