@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="数字の近さ・見立て・商の感覚から筆算の手順まで、日常の困りごととのバトルで身につける算数ゲーム。">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23d6ff37'/%3E%3Cpath d='M12 35h40M23 17l-9 18 9 12M41 17l9 18-9 12' fill='none' stroke='%23111111' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='35' r='6' fill='%233554ff' stroke='%23111111' stroke-width='4'/%3E%3C/svg%3E">
-  <title>ギリギリバトル v0.7</title>
+  <title>ギリギリバトル v0.8</title>
   <style>
     :root {
       --ink: #111111;
@@ -889,7 +889,7 @@
 <body>
   <main class="app" id="app" data-mode="weak">
     <header class="topbar">
-      <div class="brand"><strong>ギリギリバトル</strong><small>v0.7</small></div>
+      <div class="brand"><strong>ギリギリバトル</strong><small>v0.8</small></div>
       <button class="sound" id="sound" type="button" aria-pressed="false">音 OFF</button>
     </header>
 
@@ -1594,7 +1594,7 @@
         const activeMultiply = isCurrent && (bossRun.phase === "multiply-ones" || bossRun.phase === "multiply-tens");
         const classes = ["ld-cell", "quotient", fixed !== undefined ? "fixed" : "", trial ? "trial" : "", activeMultiply ? "use-main" : "", bossRun.phase === "place" && bossRun.phaseAttempts.has(index) ? "tried" : ""].filter(Boolean).join(" ");
         if (interactivePlace) {
-          return `<button class="${classes}" type="button" data-place="${index}" ${bossRun.phaseReady ? "disabled" : ""} aria-label="${placeName(index, count)}に商を立てる"><span>?</span><small>${placeName(index, count, true)}の位</small></button>`;
+          return `<button class="${classes}" type="button" data-place="${index}" data-boss-action="place" data-value="${index}" ${bossRun.phaseReady || bossRun.phaseAttempts.has(index) ? "disabled" : ""} aria-label="${placeName(index, count)}に商を立てる"><span>?</span><small>${placeName(index, count, true)}の位</small></button>`;
         }
         return `<span class="${classes} ${value === "" ? "empty" : ""}">${value}</span>`;
       }).join("");
@@ -1816,7 +1816,7 @@
     function bossPanel() {
       const step = bossStep();
       if (bossRun.phase === "place") {
-        return `<div class="boss-panel"><div class="boss-panel-title">最初の商はどの桁に立つ？</div><div class="place-callout">左から見て、<b>${bossRun.b}</b> が入る最初のまとまりを探す。<br>上の「？」をタップ。</div></div>`;
+        return `<div class="boss-panel"><div class="boss-panel-title">最初の商はどの桁に立つ？</div><div class="place-callout">左から見て、<b>${bossRun.b}</b> が入る最初のまとまりを探す。<br>上の「？」または下の大きな位ボタンをタップ。</div></div>`;
       }
       if (bossRun.phase === "estimate") {
         const retry = bossRun.retryReason ? `<div class="boss-panel-title">${bossRun.retryReason} 商を直そう</div>` : `<div class="boss-panel-title">一の位をうすく見て、仮の商を予想</div>`;
@@ -1851,7 +1851,9 @@
         return `<button class="boss-choice ${tried ? "tried" : ""} ${good ? "good" : ""}" type="button" data-boss-action="${action}" data-value="${value}" ${tried || bossRun.phaseReady ? "disabled" : ""}>${label || value}</button>`;
       };
 
-      if (bossRun.phase === "place") return "";
+      if (bossRun.phase === "place") {
+        return bossRun.digits.map((_, index) => button(index, `${placeName(index, bossRun.digits.length)}<small>ここに商を立てる</small>`, "place")).join("");
+      }
       if (bossRun.phase === "estimate") return bossEstimateCandidates(step).map((value) => button(value, `${value}<small>仮の商</small>`, "estimate")).join("");
       if (bossRun.phase === "multiply-ones") {
         const correct = (bossRun.b % 10) * bossRun.candidate;
@@ -1925,6 +1927,7 @@
       document.querySelectorAll("[data-boss-action]").forEach((button) => button.addEventListener("click", () => {
         const action = button.dataset.bossAction;
         const raw = button.dataset.value;
+        if (action === "place") chooseBossPlace(Number(raw));
         if (action === "estimate") chooseBossEstimate(Number(raw));
         if (action === "multiply-ones" || action === "multiply-tens") chooseBossCalculation(Number(raw));
         if (action === "verdict") chooseBossVerdict(raw);
@@ -2565,11 +2568,6 @@
       });
     }
 
-    $("visual").addEventListener("click", (event) => {
-      const placeButton = event.target.closest?.("[data-place]");
-      if (!placeButton || !$("visual").contains(placeButton)) return;
-      chooseBossPlace(Number(placeButton.dataset.place));
-    });
     document.querySelectorAll(".mode-tab").forEach((tab) => tab.addEventListener("click", () => switchMode(tab.dataset.mode)));
     $("hint").addEventListener("click", hint);
     $("next").addEventListener("click", () => {
